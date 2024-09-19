@@ -55,8 +55,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
     && unlink /usr/bin/python3 \
     && ln -s /usr/bin/python3.12 /usr/bin/python3
 
-# Install Next.js 14.2, React 18.3.1 and  ReactDOM 18.3.1
-# RUN npm install next@14.2.12 react@18.3.1 react-dom@18.3.1
 
 # Use a non-root user per https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 ARG USERNAME=vscode
