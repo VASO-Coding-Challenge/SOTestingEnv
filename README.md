@@ -14,8 +14,12 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ### Installing Dependencies
 
-1. Run `cd frontend`
-2. Run `npm install` to install Next.js dependencies
+Run the following commands:
+
+1. `cd frontend`
+2. `npm install` to install Next.js dependencies
+3. `cd ../backend`
+4. `python3 -m pip install -r requirements.txt` to install Django dependencies
 
 ### Running the Development Server
 

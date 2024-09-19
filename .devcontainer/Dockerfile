@@ -2,10 +2,6 @@ FROM ubuntu:22.04
 
 # Big thanks to the CSXL repo (csxl.unc.edu) for inspiring most of this devcontainer!
 
-# Setup workspace directory
-RUN mkdir /workspace
-WORKDIR /workspace
-
 # Install useful system utilities
 ENV TZ=America/New_York
 ENV DEBIAN_FRONTEND=noninteractive
@@ -55,6 +51,9 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
     && unlink /usr/bin/python3 \
     && ln -s /usr/bin/python3.12 /usr/bin/python3
 
+# Install pip
+RUN python3 -m ensurepip
+
 
 # Use a non-root user per https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 ARG USERNAME=vscode
@@ -83,3 +82,5 @@ RUN curl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.
 
 # Set Locale for Functional Autocompletion in zsh
 RUN sudo locale-gen en_US.UTF-8
+
+EXPOSE 3000
