@@ -1,0 +1,40 @@
+{
+    "name": "Science Olympiad Testing Environment",
+    "remoteUser": "vscode",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "GitHub.vscode-pull-request-github",
+                "batisteo.vscode-django",
+                "matthewpi.caddyfile-support",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.formatOnSaveMode": "file",
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter"
+                },
+                "[html]": {
+                    "editor.formatOnSave": false,
+                },
+                "python.analysis.extraPaths": [
+                    "/backend/"
+                ]
+            }
+        }
+    }
+}
