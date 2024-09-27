@@ -19,9 +19,9 @@ Run the following commands:
 1. `cd frontend`
 2. `npm install` to install Next.js dependencies
 3. `cd ../backend`
-4. `python3 -m pip install -r requirements.txt` to install Django dependencies
+4. `python3 -m pip install -r requirements.txt` to install Django dependencies (This must be run every time the container is rebuilt)
 
 ### Running the Development Server
 
-1. Run `npm run dev`
-2. Open `http://localhost:3000` to view the application
+1. Run `honcho start`
+2. Open `http://localhost:4400` to view the application
