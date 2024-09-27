@@ -5,6 +5,7 @@ dbus-python==1.2.18
 distro==1.7.0
 distro-info==1.1+ubuntu0.2
 Django==5.1.1
+honcho==1.1.0
 httplib2==0.20.2
 importlib-metadata==4.6.4
 jeepney==0.7.1
@@ -19,6 +20,7 @@ PyJWT==2.3.0
 pyparsing==2.4.7
 python-apt==2.4.0+ubuntu4
 SecretStorage==3.3.1
+setuptools==75.1.0
 six==1.16.0
 sqlparse==0.5.1
 unattended-upgrades==0.1
