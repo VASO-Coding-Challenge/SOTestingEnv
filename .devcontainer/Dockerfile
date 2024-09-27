@@ -22,6 +22,9 @@ RUN apt-get update \
         tzdata \
         wget \
         zsh \
+        cmake \
+        pkg-config \
+        libcairo2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Caddy web server
