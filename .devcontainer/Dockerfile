@@ -22,6 +22,9 @@ RUN apt-get update \
         tzdata \
         wget \
         zsh \
+        cmake \
+        pkg-config \
+        libcairo2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Caddy web server
@@ -54,6 +57,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 
 # Install pip
 RUN python3 -m ensurepip
+RUN python3 -m pip install --upgrade setuptools
 
 
 # Use a non-root user per https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
@@ -84,4 +88,4 @@ RUN curl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.
 # Set Locale for Functional Autocompletion in zsh
 RUN sudo locale-gen en_US.UTF-8
 
-EXPOSE 3000
+EXPOSE 4400 4401 4402
