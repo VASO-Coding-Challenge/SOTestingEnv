@@ -3,7 +3,7 @@
 # Port: Service
 # =============
 # 4400: Caddy
-# 4401: Next.js
+# 4401: React (Vite)
 # 8000: FastAPI
 
 http://localhost:4400 {
