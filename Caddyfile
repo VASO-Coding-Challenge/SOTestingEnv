@@ -3,12 +3,15 @@
 # Port: Service
 # =============
 # 4400: Caddy
-# 4401: Next.js
-# 8000: Django
+# 4401: React (Vite)
+# 4402: FastAPI
 
-http://localhost:4400
+http://localhost:4400 {
 
+	reverse_proxy /api* http://localhost:4402
+	reverse_proxy /docs http://localhost:4402
+	reverse_proxy /docs/* http://localhost:4402
+	reverse_proxy /openapi.json http://localhost:4402
+	reverse_proxy * http://localhost:4401
 
-reverse_proxy /api http://localhost:8000
-reverse_proxy /api/* http://localhost:8000
-reverse_proxy * http://localhost:4401
+}
