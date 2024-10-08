@@ -14,7 +14,8 @@
                 "matthewpi.caddyfile-support",
                 "dbaeumer.vscode-eslint",
                 "esbenp.prettier-vscode",
-                "qwtel.sqlite-viewer"
+                "qwtel.sqlite-viewer",
+                "bradlc.vscode-tailwindcss"
             ],
             "settings": {
                 "editor.formatOnSave": true,
