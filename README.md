@@ -20,6 +20,7 @@ Run the following commands:
 2. `npm install` to install React dependencies
 3. `cd ../backend`
 4. `python3 -m pip install -r requirements.txt` to install FastAPI & SQLModel dependencies (This must be run every time the container is rebuilt)
+5. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
 
 ### Running the Development Server
 
