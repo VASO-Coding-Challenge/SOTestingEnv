@@ -1,9 +1,14 @@
 """Entry of the backend for the SOTesting Environment. Sets up FastAPI and exception handlers"""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 
+from .services.exceptions import ResourceNotFoundException
+
 from .api import count
+
+__authors__ = ["Andrew Lockard"]
 
 description = """
 This RESTful API is designed to allow Science Olympiad students to submit code for grading purposes as a part of a coding competition.
@@ -33,3 +38,6 @@ for feature_api in feature_apis:
 # TODO: Mount the static website built from the react application so the FastAPI server can serve it
 
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create
+@app.exception_handler(ResourceNotFoundException)
+def resource_not_found_exception_handler(request: Request, e: ResourceNotFoundException):
+    return JSONResponse(status_code=404, content={"message": str(e)})

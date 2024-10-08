@@ -11,11 +11,10 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-python.black-formatter",
-                "GitHub.vscode-pull-request-github",
-                "batisteo.vscode-django",
                 "matthewpi.caddyfile-support",
                 "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "qwtel.sqlite-viewer"
             ],
             "settings": {
                 "editor.formatOnSave": true,
