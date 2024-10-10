@@ -8,6 +8,6 @@ __authors__ = ["Nicholas Almy"]
 
 class Team(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(example="c2")
-    password: str = Field(example="pie-cake-banana")
+    name: str
+    password: str
     login_time: datetime.timedelta

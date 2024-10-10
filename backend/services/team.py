@@ -1,18 +1,29 @@
+"""Service to handle the Count example feature"""
+
+from ..db import db_session
+from fastapi import Depends
+from sqlmodel import Session, select
 import polars as pl
 
+from .exceptions import ResourceNotFoundException
 
-"""
-Dev Notes:
-    Right now, the corpus is saved and edited in the 'unique_words.csv' file.
-    In the future, this should probably be kept and maintained in the database 
-    as its own, unrelated table.
+from ..models import Team
 
-    Therefore, these should not be considered ready to be deployed functions, 
-    but rather code to use in the interim.
-"""
+__authors__ = ["Nicholas Almy"]
+
+WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
+
+"""For now, password creation is done off of the database. Will need to rework
+to integrate it into the db"""
 
 
 class TeamService:
+    """Service that preforms actions on Team Table."""
+
+    def __init__(
+        self, session: Session = Depends(db_session)
+    ):  # Add all dependencies via FastAPI injection in the constructor
+        self._session = session
 
     # def generate_teams(level: str, number_teams: int, path: str | None):
     #     if path is None:
@@ -38,7 +49,7 @@ class TeamService:
         )
         return team_df
 
-    def save_teams_from_csv(self, userTable, path: str):
+    def save_teams_to_csv(self, userTable, path: str):
         """Update User Table with new passwords and users"""
         newUserTable = self.generate_passwords(userTable)
         # TODO -- step to load new users into actual db
@@ -58,19 +69,13 @@ class TeamService:
     def generate_password() -> str:
         """Generates and returns a unique 3-word password"""
 
-        corpus = (
-            pl.read_csv("/workspaces/SOTestingEnv/backend/utils/unique_words.csv")[
-                "word"
-            ]
-            .shuffle()
-            .to_list()
-        )
+        corpus = pl.read_csv(WORD_LIST)["word"].shuffle().to_list()
         generated_pwd = f"{corpus.pop()}-{corpus.pop()}-{corpus.pop()}"
-        pl.DataFrame({"word": corpus}).write_csv(
-            "/workspaces/SOTestingEnv/backend/utils/unique_words.csv"
-        )
+        pl.DataFrame({"word": corpus}).write_csv(WORD_LIST)
         return generated_pwd
 
     def reset_word_list():
         """Resets memory of available password words"""
-        pl.read_csv("unique_words_reset.csv").write_csv("unique_words.csv")
+        pl.read_csv(
+            "/workspaces/SOTestingEnv/es_files/unique_words_reset.csv"
+        ).write_csv(WORD_LIST)
