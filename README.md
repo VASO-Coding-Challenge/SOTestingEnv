@@ -30,20 +30,6 @@ Run the following commands:
 
 ## Development Concerns
 
-### Frontend
-
-#### React Router
-
-If you would like to create a new page and add it to the app itself. You would need to create the file, and if you have intellisense for react snippets, you can run "tsrafce" to spin up a component/page.
-
-Now move to App.tsx. Import the page from the component you had just created. and add the following underneath the Routes tag:
-
-```jsx
-<Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
-```
-
-Then you're all set to continue development!
-
 ### Backend
 
 To help with backend implementation, you can reference the `count` demo feature.
