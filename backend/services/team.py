@@ -4,6 +4,7 @@ from ..db import db_session
 from fastapi import Depends
 from sqlmodel import Session, select
 import polars as pl
+import datetime as dt
 
 from .exceptions import ResourceNotFoundException
 
@@ -25,35 +26,40 @@ class TeamService:
     ):  # Add all dependencies via FastAPI injection in the constructor
         self._session = session
 
-    # def generate_teams(level: str, number_teams: int, path: str | None):
-    #     if path is None:
-    #         path = '/workspaces/SOTestingEnv/backend/ES_Files/teams.csv'
-
-    #     user_table = pl.read_csv(path)
-    #     if user_table.is_empty():
-    #         df = pl.DataFrame({"Team Number": None, "Start Time": None, "End Time": None, "Password": None})
-    #     current_user_count = df.
-
-    #     #PATH or DEFAULT_PATH
-    #     #If path exists, open file and append new users
-    #     #Otherwise, create blank csv
-
-    def generate_team(self, level: str, team_number: int) -> pl.DataFrame:
-        team_df = pl.DataFrame(
-            {
-                "Team Number": f"{level}{team_number}",
-                "Start Time": None,
-                "End Time": None,
-                "Password": self.generate_password(),
-            }
-        )
-        return team_df
-
-    def save_teams_to_csv(self, userTable, path: str):
+    def save_and_load_teams(self, userTable, path: str):
         """Update User Table with new passwords and users"""
         newUserTable = self.generate_passwords(userTable)
         # TODO -- step to load new users into actual db
-        newUserTable.write_csv(path)
+        for user in newUserTable.iter_rows(named="True"):
+            # Check if the user already exists in the database by querying based on a unique identifier, e.g., "id"
+            existing_user: Team | None = self._session.exec(
+                select(Team).where(Team.id == user["id"])
+            )
+
+            if existing_user:
+                # If the user exists, update the relevant fields
+                existing_user.name = user["Team Number"]
+                existing_user.password = user["Password"]
+                existing_user.start_time = dt.datetime.strptime(
+                    user["Start Time"], "%H:%M"
+                ).time()
+                existing_user.end_time = dt.datetime.strptime(
+                    user["End Time"], "%H:%M"
+                ).time()
+                existing_user.login_time = dt.timedelta(minutes=user["Login Time"])
+                self._session.add(existing_user)
+            else:
+                # If the user does not exist, create a new record
+                new_user = Team(
+                    id=user["id"],
+                    name=user["Team Number"],
+                    password=user["Password"],
+                    start_time=dt.datetime.strptime(user["Start Time"], "%H:%M").time(),
+                    end_time=dt.datetime.strptime(user["End Time"], "%H:%M").time(),
+                    login_time=dt.timedelta(minutes=user["Login Time"]),
+                )
+                self._session.add(new_user)
+
         return True
 
     def generate_passwords(self, userTable: pl.DataFrame) -> pl.DataFrame:
@@ -62,11 +68,12 @@ class TeamService:
         new_passwords = [
             self.generate_password() if p is None else p for p in password_column
         ]
+
         # Replace the 'password' column with the new passwords
         userTable = userTable.with_columns(pl.Series("Password", new_passwords))
         return userTable
 
-    def generate_password() -> str:
+    def generate_password(self) -> str:
         """Generates and returns a unique 3-word password"""
 
         corpus = pl.read_csv(WORD_LIST)["word"].shuffle().to_list()

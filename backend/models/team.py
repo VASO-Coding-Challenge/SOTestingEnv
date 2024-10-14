@@ -10,4 +10,6 @@ class Team(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     password: str
-    login_time: datetime.timedelta
+    start_time: datetime.time
+    end_time: datetime.time
+    login_time: datetime.timedelta | None
