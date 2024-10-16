@@ -8,4 +8,4 @@ __all__ = ["count", "team", "team_members"]
 
 from .count import Count
 from .team import Team
-from .team_members import TeamMember
+from .team_members import TeamMember, TeamMemberCreate, TeamMemberPublic
