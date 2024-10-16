@@ -1,4 +1,5 @@
 database.db
+unique_words.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
