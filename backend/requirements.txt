@@ -34,6 +34,7 @@ more-itertools==8.10.0
 oauthlib==3.2.0
 packaging==24.1
 pluggy==1.5.0
+polars==1.9.0
 pycairo==1.27.0
 pydantic==2.9.2
 pydantic_core==2.23.4
