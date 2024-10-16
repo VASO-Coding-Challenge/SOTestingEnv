@@ -4,7 +4,7 @@ import os
 from sqlmodel import SQLModel, Session
 from ..models import *
 from ..db import engine
-from ..services.team import TeamService
+from ..services import PasswordService
 
 from ..test.fake_data import count
 
@@ -12,7 +12,7 @@ __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
 # * Note this should only be used during development, we will need different scripts for production
 
-TeamService.reset_word_list()
+PasswordService.reset_word_list()
 
 # Delete old database if it exists
 if os.path.exists("backend/database.db"):
