@@ -4,9 +4,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 
-from .services.exceptions import ResourceNotFoundException
+from .services.exceptions import ResourceNotFoundException, UserPermissionException
 
-from .api import count
+from .api import count, team
 
 __authors__ = ["Andrew Lockard"]
 
@@ -21,6 +21,7 @@ app = FastAPI(
     openapi_tags=[
         # ! Insert Tags Here
         count.openapi_tags,
+        team.openapi_tags,
     ],
 )
 
@@ -30,6 +31,7 @@ app.add_middleware(GZipMiddleware)
 # ! Plug in each seprate API file here (make sure to import above)
 feature_apis = [
     count,
+    team,
 ]
 
 for feature_api in feature_apis:
@@ -41,3 +43,7 @@ for feature_api in feature_apis:
 @app.exception_handler(ResourceNotFoundException)
 def resource_not_found_exception_handler(request: Request, e: ResourceNotFoundException):
     return JSONResponse(status_code=404, content={"message": str(e)})
+
+@app.exception_handler(UserPermissionException)
+def user_perm_exception_handler(request: Request, e: UserPermissionException):
+    return JSONResponse(status_code=405, content={"message": str(e)})

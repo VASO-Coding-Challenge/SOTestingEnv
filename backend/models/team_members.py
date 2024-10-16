@@ -11,11 +11,11 @@ class TeamMemberBase(SQLModel):
     """Base class to represent a TeamMember, this model should not be exported."""
     first_name: str
     last_name: str
-    team_id: int = Field(foreign_key="team.id")
 
 class TeamMember(TeamMemberBase, table=True):
     """Table Model for a Team Member"""
     id: int | None = Field(default=None, primary_key=True)
+    team_id: int = Field(foreign_key="team.id")
     team: Team = Relationship(back_populates="members")
 
 class TeamMemberCreate(TeamMemberBase):
