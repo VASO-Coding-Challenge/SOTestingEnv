@@ -1,6 +1,6 @@
 """Script to reset the unique words list for password generation"""
 
-from ..services.passwords import PasswordService
+from ..services import PasswordService
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 

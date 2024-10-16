@@ -1,9 +1,7 @@
 import sys
 from fastapi import Depends
 from sqlmodel import Session
-from ..services.team import TeamService
-from ..services.passwords import PasswordService
-from ..services.exceptions import ResourceNotFoundException
+from ..services import TeamService, PasswordService, ResourceNotFoundException
 from ..models import Team
 from ..db import engine
 import polars as pl

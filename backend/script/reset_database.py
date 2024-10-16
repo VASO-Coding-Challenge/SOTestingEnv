@@ -4,7 +4,7 @@ import os
 from sqlmodel import SQLModel, Session
 from ..models import *
 from ..db import engine
-from ..services.passwords import PasswordService
+from ..services import PasswordService
 
 from ..test.fake_data import count
 
