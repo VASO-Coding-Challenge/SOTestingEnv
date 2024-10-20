@@ -21,7 +21,8 @@ Run the following commands:
 2. `npm install` to install React dependencies
 3. `cd ../backend`
 4. `python3 -m pip install -r requirements.txt` to install FastAPI & SQLModel dependencies (This must be run every time the container is rebuilt)
-5. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
+5. `cd ..` to leave the backend.
+6. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
 
 ### Running the Development Server
 
@@ -33,6 +34,10 @@ Run the following commands:
 ### Backend
 
 To help with backend implementation, you can reference the `count` demo feature.
+
+#### Authentication - JWT
+
+First of all, ensure that you have these packages installed: `pip3 install "passlib[bcrypt]"` and `pip3 install pyjwt` to ensure your project works well with the authorization system. Navigate to your `backend` folder and find `.env`. You will need to run the following command to generate yourself a secret key: `openssl rand -hex 32`.
 
 #### FastAPI
 

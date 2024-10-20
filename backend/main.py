@@ -6,7 +6,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from .services.exceptions import ResourceNotFoundException
 
-from .api import count
+from .api import count, team, auth
+
 
 __authors__ = ["Andrew Lockard"]
 
@@ -21,6 +22,8 @@ app = FastAPI(
     openapi_tags=[
         # ! Insert Tags Here
         count.openapi_tags,
+        team.openapi_tags,
+        auth.openapi_tags,
     ],
 )
 
@@ -28,16 +31,17 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware)
 
 # ! Plug in each seprate API file here (make sure to import above)
-feature_apis = [
-    count,
-]
+feature_apis = [count, team, auth]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
 
 # TODO: Mount the static website built from the react application so the FastAPI server can serve it
 
+
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create
 @app.exception_handler(ResourceNotFoundException)
-def resource_not_found_exception_handler(request: Request, e: ResourceNotFoundException):
+def resource_not_found_exception_handler(
+    request: Request, e: ResourceNotFoundException
+):
     return JSONResponse(status_code=404, content={"message": str(e)})

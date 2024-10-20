@@ -7,6 +7,7 @@ from ..db import engine
 from ..services.team import TeamService
 
 from ..test.fake_data import count
+from ..test.fake_data import team
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
@@ -21,7 +22,7 @@ if os.path.exists("backend/database.db"):
 SQLModel.metadata.create_all(engine)
 
 with Session(engine) as session:
-    count.insert_fake_data(
-        session
-    )  # Add fake data scripts to have them be inserted on database reset
+    # Add fake data scripts to have them be inserted on database reset
+    count.insert_fake_data(session)
+    team.create_fake_teams(session)
     session.commit()

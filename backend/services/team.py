@@ -1,4 +1,4 @@
-"""Service to handle the Count example feature"""
+"""Service to handle the Teams feature"""
 
 from ..db import db_session
 from fastapi import Depends
@@ -10,7 +10,7 @@ from .exceptions import ResourceNotFoundException
 
 from ..models import Team
 
-__authors__ = ["Nicholas Almy"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -53,7 +53,7 @@ class TeamService:
                 new_user = Team(
                     id=user["id"],
                     name=user["Team Number"],
-                    password=user["Password"],
+                    password=self._auth_service.get_password_hash(user["Password"]),
                     start_time=dt.datetime.strptime(user["Start Time"], "%H:%M").time(),
                     end_time=dt.datetime.strptime(user["End Time"], "%H:%M").time(),
                     login_time=dt.timedelta(minutes=user["Login Time"]),
@@ -68,14 +68,12 @@ class TeamService:
         new_passwords = [
             self.generate_password() if p is None else p for p in password_column
         ]
-
         # Replace the 'password' column with the new passwords
         userTable = userTable.with_columns(pl.Series("Password", new_passwords))
         return userTable
 
     def generate_password(self) -> str:
         """Generates and returns a unique 3-word password"""
-
         corpus = pl.read_csv(WORD_LIST)["word"].shuffle().to_list()
         generated_pwd = f"{corpus.pop()}-{corpus.pop()}-{corpus.pop()}"
         pl.DataFrame({"word": corpus}).write_csv(WORD_LIST)
@@ -86,3 +84,30 @@ class TeamService:
         pl.read_csv(
             "/workspaces/SOTestingEnv/es_files/unique_words_reset.csv"
         ).write_csv(WORD_LIST)
+
+    def get_team(self, identifier) -> Team:
+        """Gets the team by id (int) or name (str)"""
+        if isinstance(identifier, int):
+            team = self._session.get(Team, identifier)
+            if team is None:
+                raise ResourceNotFoundException(
+                    f"Team with id={identifier} was not found"
+                )
+        elif isinstance(identifier, str):
+            team = self._session.exec(
+                select(Team).where(Team.name == identifier)
+            ).first()
+            if not team:
+                raise ResourceNotFoundException(
+                    f"Team with name={identifier} was not found"
+                )
+        else:
+            raise ValueError("Identifier must be an int (id) or a str (name)")
+        return team
+
+    def get_all_teams(self):
+        """Get all Teams"""
+        teams = self._session.exec(select(Team)).all()
+        if teams is None:
+            raise ResourceNotFoundException(f"Team were not found")
+        return teams
