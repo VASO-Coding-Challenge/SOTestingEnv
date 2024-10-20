@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+__authors__ = ["Mustafa Aljumayli"]
+
 
 class Token(BaseModel):
     access_token: str

@@ -8,6 +8,8 @@ from backend.db import db_session
 from backend.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from backend.models.team import Team
 
+__authors__ = ["Mustafa Aljumayli"]
+
 
 class AuthService:
     """Service that performs authentication and token generation."""

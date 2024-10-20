@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import os
 
+__authors__ = ["Mustafa Aljumayli"]
+
 load_dotenv(os.path.join(os.getcwd(), "backend/.env.development"))
 
 # Access the environment variables
