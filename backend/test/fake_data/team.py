@@ -22,6 +22,7 @@ def create_fake_teams(session: Session):
         start_time=time(9, 0),
         end_time=time(9, 0),
         login_time=timedelta(minutes=30),
+        active_JWT=False,
     )
     team2 = Team(
         id=2,
@@ -30,6 +31,7 @@ def create_fake_teams(session: Session):
         start_time=time(9, 0),
         end_time=time(9, 0),
         login_time=timedelta(minutes=30),
+        active_JWT=False,
     )
     team3 = Team(
         id=3,
@@ -38,6 +40,7 @@ def create_fake_teams(session: Session):
         start_time=time(9, 0),
         end_time=time(9, 0),
         login_time=timedelta(minutes=30),
+        active_JWT=False,
     )
 
     # Add the teams to the session

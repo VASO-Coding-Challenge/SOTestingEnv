@@ -3,7 +3,7 @@
 from sqlmodel import Field, SQLModel
 import datetime
 
-__authors__ = ["Nicholas Almy"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli"]
 
 
 class Team(SQLModel, table=True):
@@ -13,3 +13,4 @@ class Team(SQLModel, table=True):
     start_time: datetime.time
     end_time: datetime.time
     login_time: datetime.timedelta | None
+    active_JWT: bool = Field(default=False)

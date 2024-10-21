@@ -1,12 +1,14 @@
 """Service to handle the Teams feature"""
 
+from typing import List
+from sqlalchemy import and_
 from ..db import db_session
 from fastapi import Depends
 from sqlmodel import Session, select
 import polars as pl
 import datetime as dt
 
-from .exceptions import ResourceNotFoundException
+from .exceptions import ResourceNotFoundException, InvalidCredentialsException
 
 from ..models import Team
 
@@ -47,6 +49,7 @@ class TeamService:
                     user["End Time"], "%H:%M"
                 ).time()
                 existing_user.login_time = dt.timedelta(minutes=user["Login Time"])
+                existing_user.active_JWT = False
                 self._session.add(existing_user)
             else:
                 # If the user does not exist, create a new record
@@ -57,6 +60,7 @@ class TeamService:
                     start_time=dt.datetime.strptime(user["Start Time"], "%H:%M").time(),
                     end_time=dt.datetime.strptime(user["End Time"], "%H:%M").time(),
                     login_time=dt.timedelta(minutes=user["Login Time"]),
+                    disabled=False,
                 )
                 self._session.add(new_user)
 
@@ -105,9 +109,18 @@ class TeamService:
             raise ValueError("Identifier must be an int (id) or a str (name)")
         return team
 
-    def get_all_teams(self):
-        """Get all Teams"""
+    def get_all_teams(self) -> List[Team]:
+        """Gets a list of all the teams"""
         teams = self._session.exec(select(Team)).all()
-        if teams is None:
-            raise ResourceNotFoundException(f"Team were not found")
+        if not teams:
+            raise ResourceNotFoundException(f"Teams were not found")
         return teams
+
+    def get_team_with_credentials(self, name: str, password: str) -> Team:
+        """Gets team with a team name and password."""
+        team = self._session.exec(
+            select(Team).where(and_(Team.name == name, Team.password == password))
+        ).first()
+        if not team:
+            raise InvalidCredentialsException("Incorrect credentials. Please try again")
+        return team

@@ -41,7 +41,7 @@ Ensure that you have these packages installed: `pip3 install pyjwt` to ensure yo
 
 The format for the `.env.development` file is:
 
-SECRET_KEY=1e2b4e4140036f4ed0131bd6d3a2061181735211c2364ccf47ac410a98c03682
+SECRET_KEY=[Your Generated Secret Key]
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 

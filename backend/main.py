@@ -4,12 +4,12 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 
-from .services.exceptions import ResourceNotFoundException
+from .services.exceptions import InvalidCredentialsException, ResourceNotFoundException
 
 from .api import count, team, auth
 
 
-__authors__ = ["Andrew Lockard"]
+__authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
 description = """
 This RESTful API is designed to allow Science Olympiad students to submit code for grading purposes as a part of a coding competition.
@@ -45,3 +45,13 @@ def resource_not_found_exception_handler(
     request: Request, e: ResourceNotFoundException
 ):
     return JSONResponse(status_code=404, content={"message": str(e)})
+
+
+@app.exception_handler(InvalidCredentialsException)
+async def invalid_credentials_exception_handler(
+    request: Request, e: InvalidCredentialsException
+):
+    return JSONResponse(
+        status_code=401,
+        content={"message": e.detail},
+    )
