@@ -21,7 +21,6 @@ def create_fake_teams(session: Session):
         password=team_service.generate_password(),
         start_time=time(9, 0),
         end_time=time(9, 0),
-        login_time=timedelta(minutes=30),
         active_JWT=False,
     )
     team2 = Team(
@@ -30,7 +29,6 @@ def create_fake_teams(session: Session):
         password=team_service.generate_password(),
         start_time=time(9, 0),
         end_time=time(9, 0),
-        login_time=timedelta(minutes=30),
         active_JWT=False,
     )
     team3 = Team(
@@ -39,7 +37,6 @@ def create_fake_teams(session: Session):
         password=team_service.generate_password(),
         start_time=time(9, 0),
         end_time=time(9, 0),
-        login_time=timedelta(minutes=30),
         active_JWT=False,
     )
 
