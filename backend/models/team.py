@@ -12,5 +12,4 @@ class Team(SQLModel, table=True):
     password: str
     start_time: datetime.time
     end_time: datetime.time
-    login_time: datetime.timedelta | None
     active_JWT: bool = Field(default=False)

@@ -28,6 +28,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+#ES Files
+es_files/
+!unique_words_reset.csv
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

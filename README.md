@@ -21,7 +21,6 @@ Run the following commands:
 2. `npm install` to install React dependencies
 3. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
 
-
 ### Running the Development Server
 
 1. Run `honcho start`
@@ -47,7 +46,6 @@ Then you're all set to continue development!
 
 To help with backend implementation, you can reference the `count` demo feature.
 
-
 #### Authentication - JWT
 
 Ensure that you have these packages installed: `pip3 install pyjwt` to ensure your project works well with the authorization system. Navigate to your `backend` folder and create yourself a `.env.development`. You will need to run the following command to generate yourself a secret key: `openssl rand -hex 32`. To confirm that the route works as expected, clear your database and run the test data generated for the `teams.py` test data.
@@ -57,7 +55,6 @@ The format for the `.env.development` file is:
 SECRET_KEY=[Your Generated Secret Key]
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-
 
 #### FastAPI
 
@@ -71,3 +68,49 @@ Define all SQLModels in the `models` folder in a file named according to the fea
 of the `__init__.py` file in the `models` folder. This will allow it to be imported by default inside of the `create_database` script.
 
 In the future we will support adding fake data inside of the `create_database` script.
+
+##### reset_database
+
+###### Description
+
+initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
+
+###### Command
+
+`python3 -m backend.script.rese`
+
+###### Arguments
+
+NA
+
+## Event Supervisor Command Suite Documentation
+
+### load_teams
+
+#### Description
+
+Loads a local `teams.csv` table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.
+
+#### Command
+
+`python3 -m backend.script.load_teams`
+
+#### Arguments
+
+| Argument | Description                                                                                                                                   |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`   | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database |
+
+### reset_unique_words
+
+#### Description
+
+The `unique_word_list` is our current tool for password generation. As more teams are made and more passwords are generated, the word list depletes. This function resets only the word list so that new passwords can be generated.
+
+#### Command
+
+`python3 -m backend.script.reset_unique_words`
+
+#### Arguments
+
+NA
