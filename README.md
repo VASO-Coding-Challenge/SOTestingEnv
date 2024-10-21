@@ -45,3 +45,31 @@ Define all SQLModels in the `models` folder in a file named according to the fea
 of the `__init__.py` file in the `models` folder. This will allow it to be imported by default inside of the `create_database` script.
 
 In the future we will support adding fake data inside of the `create_database` script.
+
+## Event Supervisor Command Suite Documentation
+### load_teams
+#### Description
+Loads a local `teams.csv` table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.
+#### Command
+`python3 -m backend.script.load_teams`
+#### Arguments
+| Argument | Description |
+|----------|----------|
+|`file`|File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database|
+
+
+### reset_database 
+#### Description
+initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
+#### Command
+`python3 -m backend.script.load_teams`
+#### Arguments
+NA
+
+### reset_unique_words
+#### Description
+The `unique_word_list` is our current tool for password generation. As more teams are made and more passwords are generated, the word list depletes. This function resets only the word list so that new passwords can be generated.
+#### Command
+`python3 -m backend.script.load_teams`
+#### Arguments
+NA
