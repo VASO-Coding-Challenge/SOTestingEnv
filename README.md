@@ -62,6 +62,14 @@ of the `__init__.py` file in the `models` folder. This will allow it to be impor
 
 In the future we will support adding fake data inside of the `create_database` script.
 
+##### reset_database 
+###### Description
+initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
+###### Command
+`python3 -m backend.script.rese`
+###### Arguments
+NA
+
 ## Event Supervisor Command Suite Documentation
 ### load_teams
 #### Description
@@ -74,18 +82,10 @@ Loads a local `teams.csv` table into the database. This command will take care o
 |`file`|File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database|
 
 
-### reset_database 
-#### Description
-initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
-#### Command
-`python3 -m backend.script.load_teams`
-#### Arguments
-NA
-
 ### reset_unique_words
 #### Description
 The `unique_word_list` is our current tool for password generation. As more teams are made and more passwords are generated, the word list depletes. This function resets only the word list so that new passwords can be generated.
 #### Command
-`python3 -m backend.script.load_teams`
+`python3 -m backend.script.reset_unique_words`
 #### Arguments
 NA
