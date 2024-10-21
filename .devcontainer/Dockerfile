@@ -59,6 +59,11 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 RUN python3 -m ensurepip
 RUN python3 -m pip install --upgrade setuptools
 
+# Install Database Dependencies
+COPY backend/requirements.txt /workspaces/SOTestingEnv/backend/requirements.txt
+WORKDIR /workspaces/SOTestingEnv/backend
+RUN python3 -m pip install -r requirements.txt
+
 
 # Use a non-root user per https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 ARG USERNAME=vscode
