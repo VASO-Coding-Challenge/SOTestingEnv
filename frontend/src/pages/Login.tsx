@@ -10,11 +10,10 @@ const LoginPage = () => {
     event.preventDefault();
 
     const data = {
-      TeamNumber: number,
+      name: number,
       password: password,
     };
-
-    fetch("127.0.0.1:4402/login", {
+    fetch("http://127.0.0.1:4402/api/auth/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +51,7 @@ const LoginPage = () => {
             value={number}
             placeholder="Team Number"
             onChange={(e) => setNumber(e.target.value)}
-            className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border border-gray-300 pl-2 mt-2"
+            className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border bg-white border-gray-300 pl-2 mt-2"
             required
           />
         </div>
@@ -64,7 +63,7 @@ const LoginPage = () => {
             value={password}
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
-            className="h-[50px] w-96 text-lg rounded-[8px] border border-gray-300 pl-2 mt-2"
+            className="h-[50px] w-96 text-lg rounded-[8px] border bg-white border-gray-300 pl-2 mt-2"
             required
           />
         </div>

@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from ..models.team import Team
 from ..services.team import TeamService
@@ -13,7 +14,7 @@ openapi_tags = {
 
 
 @api.get("/", tags=["Teams"])
-async def get_teams(team_service: TeamService = Depends()):
+async def get_teams(team_service: TeamService = Depends()) -> List[Team]:
     """Gets all teams"""
     return team_service.get_all_teams()
 
