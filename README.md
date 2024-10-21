@@ -1,4 +1,5 @@
 # Science Olympiad Testing Environment
+
 This project aims to create a web-based coding platform specifically tailored for Science Olympiad programming events.
 
 For more information visit our [COMP523 E-Team Website here](https://tarheels.live/eteam/).
@@ -18,9 +19,8 @@ Run the following commands:
 
 1. `cd frontend`
 2. `npm install` to install React dependencies
-3. `cd ../backend`
-4. `python3 -m pip install -r requirements.txt` to install FastAPI & SQLModel dependencies (This must be run every time the container is rebuilt)
-5. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
+3. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
+
 
 ### Running the Development Server
 
@@ -29,9 +29,25 @@ Run the following commands:
 
 ## Development Concerns
 
+
+### Frontend
+
+#### React Router
+
+If you would like to create a new page and add it to the app itself. You would need to create the file, and if you have intellisense for react snippets, you can run "tsrafce" to spin up a component/page.
+
+Now move to App.tsx. Import the page from the component you had just created. and add the following underneath the Routes tag:
+
+```jsx
+<Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
+```
+
+Then you're all set to continue development!
+
 ### Backend
 
-To help with backend implementation, you can reference the `count` demo feature. 
+To help with backend implementation, you can reference the `count` demo feature.
+
 
 #### FastAPI
 

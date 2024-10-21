@@ -2,7 +2,8 @@
     "name": "Science Olympiad Testing Environment",
     "remoteUser": "vscode",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "context": ".."
     },
     "forwardPorts": [4400, 4401, 4402],
     "customizations": {
