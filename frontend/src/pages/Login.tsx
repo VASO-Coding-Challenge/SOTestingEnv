@@ -1,15 +1,40 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState<string>("");
+  const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  function handleClick(): void {
-    alert("send email and password to backend");
-  }
+  const handleSubmit = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    event.preventDefault();
 
-  const handleEmailChange = () => {};
-  const handlePasswordChange = () => {};
+    const data = {
+      TeamNumber: number,
+      password: password,
+    };
+
+    fetch("127.0.0.1:4402/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP Error with Status Code : ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log("Success :", responseData);
+      })
+      .catch((error) => {
+        console.error("Error :", error);
+      });
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
       <div className="flex flex-col items-center justify-center text-[64px] font-extrabold">
@@ -24,9 +49,9 @@ const LoginPage = () => {
         <div className="flex flex-col text-[25px]">
           Team Number
           <input
-            value={email}
+            value={number}
             placeholder="Team Number"
-            onChange={handleEmailChange}
+            onChange={(e) => setNumber(e.target.value)}
             className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border border-gray-300 pl-2 mt-2"
             required
           />
@@ -38,14 +63,14 @@ const LoginPage = () => {
             type="password"
             value={password}
             placeholder="Password"
-            onChange={handlePasswordChange}
+            onChange={(e) => setPassword(e.target.value)}
             className="h-[50px] w-96 text-lg rounded-[8px] border border-gray-300 pl-2 mt-2"
             required
           />
         </div>
         <br />
         <button
-          onClick={handleClick}
+          onClick={handleSubmit}
           className="mt-2 px-4 py-2 bg-gray-800 text-white font-bold rounded"
         >
           Submit
