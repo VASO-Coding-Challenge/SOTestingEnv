@@ -1,8 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  type resp = {
+    access_token: string;
+    token_type: string;
+  };
+  const navigate = useNavigate();
 
   const handleSubmit = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -24,8 +30,10 @@ const LoginPage = () => {
         }
         return response.json();
       })
-      .then((responseData) => {
-        console.log("Success :", responseData);
+      .then((responseData: resp) => {
+        console.log("Success :", responseData.access_token);
+        sessionStorage.setItem("token", responseData.access_token);
+        navigate("/Question");
       })
       .catch((error) => {
         console.error("Error :", error);
