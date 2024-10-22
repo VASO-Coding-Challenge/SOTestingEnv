@@ -8,17 +8,15 @@ const LoginPage = () => {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
-
-    const data = {
-      name: number,
-      password: password,
-    };
     fetch("http://127.0.0.1:4402/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        name: number,
+        password: password,
+      }),
     })
       .then((response) => {
         if (!response.ok) {

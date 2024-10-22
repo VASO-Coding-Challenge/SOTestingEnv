@@ -8,6 +8,7 @@ from .services.exceptions import InvalidCredentialsException, ResourceNotFoundEx
 
 from .api import count, team, auth
 
+from fastapi.middleware.cors import CORSMiddleware
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
@@ -26,6 +27,9 @@ app = FastAPI(
         auth.openapi_tags,
     ],
 )
+
+# Frontend and backend on different ports/origins so must allow CORS from frontend origin
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:4400"])
 
 # Using GZip middleware is an internet standard for compressing HTML responses over the network
 app.add_middleware(GZipMiddleware)
