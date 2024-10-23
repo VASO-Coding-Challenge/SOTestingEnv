@@ -28,9 +28,6 @@ app = FastAPI(
     ],
 )
 
-# Frontend and backend on different ports/origins so must allow CORS from frontend origin
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:4400"])
-
 # Using GZip middleware is an internet standard for compressing HTML responses over the network
 app.add_middleware(GZipMiddleware)
 
