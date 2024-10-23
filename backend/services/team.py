@@ -1,16 +1,17 @@
-"""Service to handle the Team related features"""
+"""Service to handle the Teams feature"""
 
+from typing import List
 from ..db import db_session
 from fastapi import Depends
-from sqlmodel import Session, select
+from sqlmodel import Session, select, and_
 import polars as pl
 import datetime as dt
 
-from .exceptions import ResourceNotFoundException
+from .exceptions import ResourceNotFoundException, InvalidCredentialsException
 
 from ..models import Team
 
-__authors__ = ["Nicholas Almy"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -119,17 +120,38 @@ class TeamService:
         self._session.commit()
         return team
 
-    def get_team(self, team_id: int) -> Team:
-        """Get a team from the database.
-        Args:
-            team_id (int): ID of the team to get
-        Returns:
-            Team: Team object with the given ID
-        Raises:
-            ResourceNotFoundException: If the team does not exist in the database
-        """
-        team: Team | None = self._session.get(Team, team_id)
-        if team:
-            return team
+    def get_team(self, identifier) -> Team:
+        """Gets the team by id (int) or name (str)"""
+        if isinstance(identifier, int):
+            team = self._session.get(Team, identifier)
+            if team is None:
+                raise ResourceNotFoundException(
+                    f"Team with id={identifier} was not found"
+                )
+        elif isinstance(identifier, str):
+            team = self._session.exec(
+                select(Team).where(Team.name == identifier)
+            ).first()
+            if not team:
+                raise ResourceNotFoundException(
+                    f"Team with name={identifier} was not found"
+                )
         else:
-            raise ResourceNotFoundException("Team", team_id)
+            raise ValueError("Identifier must be an int (id) or a str (name)")
+        return team
+
+    def get_all_teams(self) -> List[Team]:
+        """Gets a list of all the teams"""
+        teams = self._session.exec(select(Team)).all()
+        if not teams:
+            raise ResourceNotFoundException(f"Teams were not found")
+        return teams
+
+    def get_team_with_credentials(self, name: str, password: str) -> Team:
+        """Gets team with a team name and password."""
+        team = self._session.exec(
+            select(Team).where(and_(Team.name == name, Team.password == password))
+        ).first()
+        if not team:
+            raise InvalidCredentialsException("Incorrect credentials. Please try again")
+        return team

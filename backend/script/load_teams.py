@@ -8,13 +8,13 @@ import polars as pl
 
 
 def main():
-    #Get filepath from cli args, validate it
+    # Get filepath from cli args, validate it
     file: str = sys.argv[1]
     if not file.endswith(".csv"):
         sys.stdout.write("Error -- File not in supported format (.csv)")
         return
 
-    #Read teams table
+    # Read teams table
     team_table = pl.read_csv(file)
     if team_table.is_empty():
         sys.stdout.write("Error -- File not found.")
@@ -27,7 +27,7 @@ def main():
         team_list: list[Team] = PasswordService.generate_passwords(team_list)
 
         for team in team_list:
-            #Update teams or create them if they do not exist
+            # Update teams or create them if they do not exist
             try:
                 team_svc.update_team(team)
             except ResourceNotFoundException as e:
@@ -35,7 +35,7 @@ def main():
 
         team_table = team_svc.teams_to_df(team_list)
 
-    #Save the password changes back to file
+    # Save the password changes back to file
     team_table.write_csv(file)
 
     sys.stdout.write(f"Saved/updated to file {file}")

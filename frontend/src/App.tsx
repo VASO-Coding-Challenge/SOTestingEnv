@@ -1,7 +1,7 @@
-
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home'
-import Login from './pages/Login'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Question from "./pages/Question";
 
 function App() {
   return (
@@ -9,10 +9,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/question" element={<Question />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-

@@ -21,6 +21,16 @@ Run the following commands:
 2. `npm install` to install React dependencies
 3. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
 
+### Setup Environment Variables
+
+1. `cd backend`
+2. Generate a random secret key via: `openssl rand -hex 32`
+3. Create a new file called `.env.development` with the following contents:
+
+```
+SECRET_KEY=<Your Generated Secret Key>
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
 
 ### Running the Development Server
 
@@ -28,7 +38,6 @@ Run the following commands:
 2. Open `http://localhost:4400` to view the application
 
 ## Development Concerns
-
 
 ### Frontend
 
@@ -48,7 +57,6 @@ Then you're all set to continue development!
 
 To help with backend implementation, you can reference the `count` demo feature.
 
-
 #### FastAPI
 
 When creating FastAPI routes, make sure to define the routes in a feature file named corresponding to the feature inside of the `api` directory.
@@ -62,30 +70,48 @@ of the `__init__.py` file in the `models` folder. This will allow it to be impor
 
 In the future we will support adding fake data inside of the `create_database` script.
 
-##### reset_database 
+##### reset_database
+
 ###### Description
+
 initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
+
 ###### Command
+
 `python3 -m backend.script.rese`
+
 ###### Arguments
+
 NA
 
 ## Event Supervisor Command Suite Documentation
-### load_teams
-#### Description
-Loads a local `teams.csv` table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.
-#### Command
-`python3 -m backend.script.load_teams`
-#### Arguments
-| Argument | Description |
-|----------|----------|
-|`file`|File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database|
 
+### load_teams
+
+#### Description
+
+Loads a local `teams.csv` table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.
+
+#### Command
+
+`python3 -m backend.script.load_teams`
+
+#### Arguments
+
+| Argument | Description                                                                                                                                   |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`   | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database |
 
 ### reset_unique_words
+
 #### Description
+
 The `unique_word_list` is our current tool for password generation. As more teams are made and more passwords are generated, the word list depletes. This function resets only the word list so that new passwords can be generated.
+
 #### Command
+
 `python3 -m backend.script.reset_unique_words`
+
 #### Arguments
+
 NA
