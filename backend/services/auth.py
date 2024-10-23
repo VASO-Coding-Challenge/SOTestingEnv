@@ -5,7 +5,7 @@ from sqlmodel import Session
 from backend.db import db_session
 from backend.models.auth import Token, TokenData, LoginData
 from backend.models.team import Team
-from backend.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 from backend.services.team import TeamService
 from backend.services.exceptions import InvalidCredentialsException
 
@@ -43,7 +43,7 @@ class AuthService:
 
         # Serialize the token data to a JSON-compatible format
         access_token = jwt.encode(
-            token_data.model_dump(), SECRET_KEY, algorithm=ALGORITHM
+            token_data.model_dump(), SECRET_KEY, algorithm="HS256"
         )
 
         return Token(access_token=access_token, token_type="bearer")
@@ -52,7 +52,7 @@ class AuthService:
         """Given a token, this function will return the TokenData which was encoded."""
         try:
             payload = jwt.decode(
-                token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False}
+                token, SECRET_KEY, algorithms=["HS256"], options={"verify_exp": False}
             )
 
             # Validate and extract fields from payload

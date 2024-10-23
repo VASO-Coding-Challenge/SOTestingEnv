@@ -29,7 +29,6 @@ Run the following commands:
 
 ```
 SECRET_KEY=<Your Generated Secret Key>
-ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
