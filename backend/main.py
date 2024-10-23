@@ -54,5 +54,5 @@ async def invalid_credentials_exception_handler(
 ):
     return JSONResponse(
         status_code=401,
-        content={"message": e.detail},
+        content={"message": str(e)},
     )
