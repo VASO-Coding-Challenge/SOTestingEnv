@@ -18,7 +18,7 @@ bearer_scheme = HTTPBearer()
 
 openapi_tags = {
     "name": "Auth",
-    "description": "These routes are only used for demo/setup confirmation purposes.",
+    "description": "Routes used for login and other JWT concerns",
 }
 
 

@@ -14,29 +14,14 @@ api = APIRouter(prefix="/api/team")
 openapi_tags = {"name": "Teams", "description": "Routes for Teams and TeamMembers."}
 
 
-# TODO: Update these to follow better conventions
-@api.get("", response_model=list[TeamPublic], tags=["Teams"])
-async def get_teams(team_service: TeamService = Depends()) -> List[TeamPublic]:
-    """Gets all teams"""
-    return team_service.get_all_teams()
-
-
-@api.get("/id/{id}", response_model=TeamPublic, tags=["Teams"])
-async def get_team(id: int, team_service: TeamService = Depends()) -> TeamPublic:
-    """Gets the team object"""
-    return team_service.get_team(id)
-
-
-@api.get("/name/{name}", response_model=TeamPublic, tags=["Teams"])
-async def get_team(name: str, team_service: TeamService = Depends()) -> TeamPublic:
-    """Gets the team by name"""
-    return team_service.get_team(name)
+@api.get("", response_model=TeamPublic, tags=["Teams"])
+def get_team(team: Team = Depends(authed_team)) -> TeamPublic:
+    """Gets the currently logged in team"""
+    return team
 
 
 @api.get("/members", response_model=list[TeamMemberPublic], tags=["Teams"])
-def get_team_members(
-    team: Team = Depends(authed_team), team_svc: TeamService = Depends()
-):
+def get_team_members(team: Team = Depends(authed_team)):
     """Gets all the team members for a team"""
     return team.members
 
