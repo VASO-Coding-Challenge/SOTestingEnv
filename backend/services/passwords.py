@@ -9,18 +9,15 @@ import datetime as dt
 
 from ..models import Team
 
-__authors__ = ["Nicholas Almy"]
+__authors__ = ["Nicholas Almy", "Andrew Lockard"]
 
+# TODO: Make this a relative path as I'm unsure if the same file strcture will be retained in the final container
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
 
 class PasswordService:
     """Service that deals with password generation and management"""
 
-    def __init__(
-        self, session: Session = Depends(db_session)
-    ):  # Add all dependencies via FastAPI injection in the constructor
-        self._session = session
 
     def generate_passwords(teamList: list[Team]) -> list[Team]:
         """Generates a new password for each user in the list

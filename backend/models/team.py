@@ -3,7 +3,7 @@
 from sqlmodel import Field, SQLModel, Relationship
 import datetime
 
-__authors__ = ["Nicholas Almy", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
 
 class Team(SQLModel, table=True):
@@ -12,5 +12,5 @@ class Team(SQLModel, table=True):
     password: str
     start_time: datetime.time
     end_time: datetime.time
-    login_time: datetime.timedelta | None
+    active_JWT: bool = Field(default=False)
     members: list["TeamMember"] = Relationship(back_populates="team")

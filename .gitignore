@@ -1,5 +1,4 @@
 database.db
-unique_words.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -31,6 +30,7 @@ MANIFEST
 
 #ES Files
 es_files/
+!unique_words_reset.csv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -128,6 +128,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+*.env.*
+./backend/.env.development
 .env
 .venv
 env/

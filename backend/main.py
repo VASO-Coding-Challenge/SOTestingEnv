@@ -4,11 +4,13 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 
-from .services.exceptions import ResourceNotFoundException, UserPermissionException
+from .services.exceptions import InvalidCredentialsException, ResourceNotFoundException
 
-from .api import count, team
+from .api import count, team, auth
 
-__authors__ = ["Andrew Lockard"]
+from fastapi.middleware.cors import CORSMiddleware
+
+__authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
 description = """
 This RESTful API is designed to allow Science Olympiad students to submit code for grading purposes as a part of a coding competition.
@@ -22,6 +24,7 @@ app = FastAPI(
         # ! Insert Tags Here
         count.openapi_tags,
         team.openapi_tags,
+        auth.openapi_tags,
     ],
 )
 
@@ -29,21 +32,27 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware)
 
 # ! Plug in each seprate API file here (make sure to import above)
-feature_apis = [
-    count,
-    team,
-]
+feature_apis = [count, team, auth]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
 
 # TODO: Mount the static website built from the react application so the FastAPI server can serve it
 
+
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create
 @app.exception_handler(ResourceNotFoundException)
-def resource_not_found_exception_handler(request: Request, e: ResourceNotFoundException):
+def resource_not_found_exception_handler(
+    request: Request, e: ResourceNotFoundException
+):
     return JSONResponse(status_code=404, content={"message": str(e)})
 
-@app.exception_handler(UserPermissionException)
-def user_perm_exception_handler(request: Request, e: UserPermissionException):
-    return JSONResponse(status_code=405, content={"message": str(e)})
+
+@app.exception_handler(InvalidCredentialsException)
+async def invalid_credentials_exception_handler(
+    request: Request, e: InvalidCredentialsException
+):
+    return JSONResponse(
+        status_code=401,
+        content={"message": str(e)},
+    )
