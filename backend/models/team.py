@@ -5,12 +5,23 @@ import datetime
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
-
-class Team(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class TeamBase(SQLModel):
+    """Base model for Team table, this model should not be exported"""
     name: str
-    password: str
     start_time: datetime.time
     end_time: datetime.time
+
+class Team(TeamBase, table=True):
+    """Table Model for a Team Member"""
+    id: int | None = Field(default=None, primary_key=True)
+    password: str
     active_JWT: bool = Field(default=False)
     members: list["TeamMember"] = Relationship(back_populates="team")
+
+class TeamCreate(TeamBase):
+    """Model to define the creation shape of the team model"""
+    password: str
+
+class TeamPublic(TeamBase):
+    """Model to define the API response shape of the Team model"""
+    id: int

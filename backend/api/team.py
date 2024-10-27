@@ -1,7 +1,7 @@
 """API Routes associated with Teams and TeamMember data objects"""
 from typing import List
 from fastapi import APIRouter, Depends
-from ..models.team import Team
+from ..models.team import TeamPublic
 from ..services.team import TeamService
 from fastapi import APIRouter, Depends
 from ..models.team_members import TeamMemberCreate, TeamMemberPublic
@@ -17,24 +17,20 @@ openapi_tags = {
 }
 
 # TODO: Update these to follow better conventions
-@api.get("/", tags=["Teams"])
-async def get_teams(team_service: TeamService = Depends()) -> List[Team]:
+@api.get("/", response_model=list[TeamPublic], tags=["Teams"])
+async def get_teams(team_service: TeamService = Depends()) -> List[TeamPublic]:
     """Gets all teams"""
     return team_service.get_all_teams()
 
-
-@api.get("/id/{id}", tags=["Teams"])
-async def get_team(id: int, team_service: TeamService = Depends()) -> Team:
+@api.get("/{id}", response_model=TeamPublic, tags=["Teams"])
+async def get_team(id: int, team_service: TeamService = Depends()) -> TeamPublic:
     """Gets the team object"""
     return team_service.get_team(id)
 
-
-@api.get("/name/{name}", tags=["Teams"])
-async def get_team(name: str, team_service: TeamService = Depends()) -> Team:
+@api.get("/name/{name}", response_model=TeamPublic, tags=["Teams"])
+async def get_team(name: str, team_service: TeamService = Depends()) -> TeamPublic:
     """Gets the team by name"""
     return team_service.get_team(name)
-
-
 
 # TODO: Add validation to these routes, we only want people on that team to get that info
 # When we add validation we should be able to remove the field for team_id
