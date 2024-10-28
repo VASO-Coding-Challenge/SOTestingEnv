@@ -17,6 +17,6 @@ class Team(SQLModel, table=True):
 
 class TeamData(SQLModel, table=False):
     name: str
-    password: str
+    password: str | None = None
     start_time: datetime.time
     end_time: datetime.time

@@ -8,4 +8,4 @@ Treat models as a package: https://docs.python.org/3/tutorial/modules.html#packa
 __all__ = ["count", "team"]
 
 from .count import Count
-from .team import Team
+from .team import Team, TeamData

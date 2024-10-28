@@ -2,7 +2,7 @@ import sys
 from fastapi import Depends
 from sqlmodel import Session
 from ..services import TeamService, PasswordService, ResourceNotFoundException
-from ..models import Team
+from ..models import TeamData
 from ..db import engine
 import polars as pl
 
@@ -24,14 +24,17 @@ def main():
 
         team_list = team_svc.df_to_teams(team_table)
 
-        team_list: list[Team] = PasswordService.generate_passwords(team_list)
+        team_list: list[TeamData] = PasswordService.generate_passwords(
+            teamList=team_list, team_svc=team_svc
+        )
 
         for team in team_list:
             # Update teams or create them if they do not exist
             try:
                 team_svc.update_team(team)
             except ResourceNotFoundException as e:
-                team_svc.create_team(team)
+                team = team_svc.create_team(team)
+                team = team_svc.team_to_team_data(team)
 
         team_table = team_svc.teams_to_df(team_list)
 

@@ -1,5 +1,6 @@
 """Service to handle password generation and management"""
 
+from backend.services.exceptions import ResourceNotFoundException
 from ..db import db_session
 from fastapi import Depends
 from sqlmodel import Session, select
@@ -7,7 +8,8 @@ import polars as pl
 import datetime as dt
 
 
-from ..models import Team
+from ..models import TeamData, Team
+from .team import TeamService
 
 __authors__ = ["Nicholas Almy", "Andrew Lockard"]
 
@@ -18,17 +20,28 @@ WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 class PasswordService:
     """Service that deals with password generation and management"""
 
-
-    def generate_passwords(teamList: list[Team]) -> list[Team]:
+    def generate_passwords(
+        teamList: list[TeamData], team_svc: TeamService
+    ) -> list[TeamData]:
         """Generates a new password for each user in the list
         Args:
             teamList (list[Team]): List of teams to generate passwords for
+            team_svc (TeamService): Service to interact with the Team table
         Returns:
             list[Team]: List of teams with updated passwords
         """
         for team in teamList:
+            try:
+                db_team = team_svc.get_team(team.name)
+            except ResourceNotFoundException:
+                if team.password == None:
+                    team.password = PasswordService.generate_password()
+
             if team.password == None:
-                team.password = PasswordService.generate_password()
+                if db_team.password == None:
+                    team.password = PasswordService.generate_password()
+                else:
+                    team.password = db_team.password
         return teamList
 
     def generate_password() -> str:
