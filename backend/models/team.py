@@ -13,3 +13,10 @@ class Team(SQLModel, table=True):
     start_time: datetime.time
     end_time: datetime.time
     active_JWT: bool = Field(default=False)
+
+
+class TeamData(SQLModel, table=False):
+    name: str
+    password: str
+    start_time: datetime.time
+    end_time: datetime.time
