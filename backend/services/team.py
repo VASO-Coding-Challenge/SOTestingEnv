@@ -7,11 +7,15 @@ from sqlmodel import Session, select, and_
 import polars as pl
 import datetime as dt
 
-from .exceptions import ResourceNotFoundException, InvalidCredentialsException
+from .exceptions import (
+    ResourceNotFoundException,
+    InvalidCredentialsException,
+    ResourceNotAllowedException,
+)
 
-from ..models import Team
+from ..models import Team, TeamMember, TeamMemberCreate
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -122,6 +126,7 @@ class TeamService:
 
     def get_team(self, identifier) -> Team:
         """Gets the team by id (int) or name (str)"""
+        # TODO: Improve documentation
         if isinstance(identifier, int):
             team = self._session.get(Team, identifier)
             if team is None:
@@ -155,3 +160,42 @@ class TeamService:
         if not team:
             raise InvalidCredentialsException("Incorrect credentials. Please try again")
         return team
+
+    def add_team_member(self, new_member: TeamMemberCreate, team: Team) -> TeamMember:
+        """Adds a new team member to team: team_id.
+        Args:
+            team: (Team): Team object of currently logged in user
+            new_member (TeamMemberCreate): Data for new member
+        Returns:
+            TeamMember: The team member object that was added
+        """
+        member = TeamMember(
+            team_id=team.id,
+            first_name=new_member.first_name,
+            last_name=new_member.last_name,
+            id=None,
+        )
+        self._session.add(member)
+        self._session.commit()
+        self._session.refresh(member)
+        return member
+
+    def delete_team_member(self, member_id: int, team: Team) -> None:
+        """Deletes team member with member_id only if they are on team team_id.
+        Args:
+            member_id (int): team member to delete
+            team: (Team): Team object of currently logged in user
+        Raises:
+            ResourceNotFoundException: If member_id or team_id does not exist
+            ResourceNotAllowedException: If team_id does not match the team of the member
+        """
+        member = self._session.get(TeamMember, member_id)
+        if member == None:
+            raise ResourceNotFoundException(f"Member of id={member_id} not found!")
+
+        if member.team_id != team.id:
+            raise ResourceNotAllowedException(
+                "You must be logged in as the team that the member is a part of to remove that team!"
+            )
+        self._session.delete(member)
+        self._session.commit()

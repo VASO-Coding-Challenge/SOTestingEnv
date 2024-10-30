@@ -4,12 +4,13 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from ..models.auth import Token, TokenData, LoginData
+from ..models.team import Team
 
 from ..services.auth import AuthService
 from ..services.team import TeamService
 from ..services.exceptions import InvalidCredentialsException, ResourceNotFoundException
 
-__authors__ = ["Mustafa Aljumayli"]
+__authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
 
 api = APIRouter(prefix="/api/auth")
 
@@ -17,8 +18,18 @@ bearer_scheme = HTTPBearer()
 
 openapi_tags = {
     "name": "Auth",
-    "description": "These routes are only used for demo/setup confirmation purposes.",
+    "description": "Routes used for login and other JWT concerns",
 }
+
+
+def authed_team(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    auth_service: AuthService = Depends(),
+) -> Team:
+    """Retreives the current team object associated with the sent JWT.
+    Designed to be dependency injected into API definition"""
+    token = credentials.credentials  # This extracts the token from the header
+    return auth_service.get_team_from_token(token)
 
 
 @api.post("/login", response_model=Token, tags=["Auth"])

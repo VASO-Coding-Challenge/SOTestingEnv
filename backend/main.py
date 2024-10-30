@@ -4,7 +4,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 
-from .services.exceptions import InvalidCredentialsException, ResourceNotFoundException
+from .services.exceptions import (
+    InvalidCredentialsException,
+    ResourceNotFoundException,
+    ResourceNotAllowedException,
+)
 
 from .api import count, team, auth
 
@@ -49,10 +53,17 @@ def resource_not_found_exception_handler(
 
 
 @app.exception_handler(InvalidCredentialsException)
-async def invalid_credentials_exception_handler(
+def invalid_credentials_exception_handler(
     request: Request, e: InvalidCredentialsException
 ):
     return JSONResponse(
         status_code=401,
         content={"message": str(e)},
     )
+
+
+@app.exception_handler(ResourceNotAllowedException)
+def resource_not_allowed_exception_handler(
+    request: Request, e: ResourceNotAllowedException
+):
+    return JSONResponse(status_code=403, content={"message": str(e)})

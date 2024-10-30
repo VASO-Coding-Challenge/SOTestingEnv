@@ -1,13 +1,19 @@
 import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
+
 from sqlmodel import Session
-from backend.db import db_session
-from backend.models.auth import Token, TokenData, LoginData
-from backend.models.team import Team
-from backend.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
-from backend.services.team import TeamService
-from backend.services.exceptions import InvalidCredentialsException
+from ..db import db_session
+
+from ..models.auth import Token, TokenData, LoginData
+from ..models.team import Team
+
+from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
+
+from .team import TeamService
+from .exceptions import InvalidCredentialsException, ResourceNotFoundException
+
+__authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
 
 
 class AuthService:
@@ -70,3 +76,24 @@ class AuthService:
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+    def get_team_from_token(self, token: str) -> Team:
+        """Gets a team from the users JWT token
+
+        Args:
+            token: str - the token sent by the browser
+        Returns:
+            Team: SQLModel object representing the current logged in team
+        Throws:
+            InvalidCredientialsException: if JWT did not pass decoding
+        """
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            team = self._session.get(Team, data["id"])
+            if team == None:
+                raise ResourceNotFoundException("Team assocated with login not found.")
+            return team
+        except jwt.ExpiredSignatureError:
+            raise InvalidCredentialsException("Login expired, try logging in again.")
+        except jwt.InvalidTokenError:
+            raise InvalidCredentialsException("Login invalid, try logging in again.")

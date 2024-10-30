@@ -8,8 +8,7 @@ from ..services.team import TeamService
 
 from ..services import PasswordService
 
-from ..test.fake_data import count
-from ..test.fake_data import team
+from ..test.fake_data import count, team, team_members
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
@@ -28,4 +27,5 @@ with Session(engine) as session:
     # Add fake data scripts to have them be inserted on database reset
     count.insert_fake_data(session)
     team.create_fake_teams(session)
+    team_members.insert_fake_team_members(session)
     session.commit()

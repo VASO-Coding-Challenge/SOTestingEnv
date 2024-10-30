@@ -63,6 +63,17 @@ When creating FastAPI routes, make sure to define the routes in a feature file n
 This file should look similar to the example one in `api/count.py`. You will need to import the file in `main.py` and
 add it to the `feature_apis` list as well as the tags in the `openapi_tags` list in the `FastAPI()` constructor.
 
+#### Requiring Authentication
+
+To require a user to be logged in to access a route, and get their associated Team table, add this argument to the route:
+```python
+from .auth import authed_team
+...
+def get_foo(
+team: Team = Depends(authed_team)
+):
+```
+
 #### SQLModel
 
 Define all SQLModels in the `models` folder in a file named according to the feature. Make sure to add this file to the `__all__` list inside
@@ -75,10 +86,11 @@ In the future we will support adding fake data inside of the `create_database` s
 ###### Description
 
 initializes the database. If a database already exists, it is perminantly overwritten and all data is lost.
+Also loads in fake data.
 
 ###### Command
 
-`python3 -m backend.script.rese`
+`python3 -m backend.script.reset_database`
 
 ###### Arguments
 
