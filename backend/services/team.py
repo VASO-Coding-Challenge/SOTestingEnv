@@ -42,6 +42,7 @@ class TeamService:
             id=team_df["id"],
             name=team_df["Team Number"],
             password=team_df["Password"],
+            # TODO: Convert these to reading in datetime format
             start_time=dt.datetime.strptime(team_df["Start Time"], "%H:%M").time(),
             end_time=dt.datetime.strptime(team_df["End Time"], "%H:%M").time(),
         )

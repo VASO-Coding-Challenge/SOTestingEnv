@@ -32,8 +32,8 @@ const LoginPage = () => {
       })
       .then((responseData: resp) => {
         console.log("Success :", responseData.access_token);
-        sessionStorage.setItem("token", responseData.access_token);
-        navigate("/Question");
+        localStorage.setItem("token", responseData.access_token);
+        navigate("/");
       })
       .catch((error) => {
         console.error("Error :", error);

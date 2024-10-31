@@ -1,15 +1,15 @@
 """Model for the Team table that stores official team information"""
 
 from sqlmodel import Field, SQLModel, Relationship
-import datetime
+from datetime import datetime
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
 class TeamBase(SQLModel):
     """Base model for Team table, this model should not be exported"""
     name: str
-    start_time: datetime.time
-    end_time: datetime.time
+    start_time: datetime
+    end_time: datetime
 
 class Team(TeamBase, table=True):
     """Table Model for a Team Member"""
