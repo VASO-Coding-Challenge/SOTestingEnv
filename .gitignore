@@ -31,6 +31,7 @@ MANIFEST
 #ES Files
 es_files/
 !unique_words_reset.csv
+!teams.csv
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
