@@ -7,7 +7,7 @@ from ..db import engine
 import polars as pl
 
 
-def main():
+def load_teams():
     # Get filepath from cli args, validate it
     file: str = sys.argv[1]
     if not file.endswith(".csv"):
@@ -15,14 +15,26 @@ def main():
         return
 
     # Read teams table
-    team_table = pl.read_csv(file)
-    if team_table.is_empty():
-        sys.stdout.write("Error -- File not found.")
+
+    try:
+        team_table = pl.read_csv(file)
+    except FileNotFoundError:
+        sys.stdout.write(
+            f"Error -- File not found... generating new table at location {file}"
+        )
+        team_table = pl.DataFrame(
+            {
+                "Team Number": [],
+                "Password": [],
+                "Start Time": [],
+                "End Time": [],
+            }
+        )
 
     with Session(engine) as session:
         team_svc = TeamService(session)
-
-        team_list = team_svc.df_to_teams(team_table)
+        team_list = team_svc.get_all_teams()
+        team_list = team_list + team_svc.df_to_teams(team_table)
 
         team_list: list[TeamData] = PasswordService.generate_passwords(
             teamList=team_list, team_svc=team_svc
@@ -36,7 +48,9 @@ def main():
                 team = team_svc.create_team(team)
                 team = team_svc.team_to_team_data(team)
 
-        team_table = team_svc.teams_to_df(team_list)
+        team_table = (
+            team_svc.teams_to_df(team_list).unique().sort(["Start Time", "Team Number"])
+        )
 
     # Save the password changes back to file
     team_table.write_csv(file)
@@ -45,4 +59,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    load_teams()
