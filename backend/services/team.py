@@ -181,3 +181,9 @@ class TeamService:
         self._session.exec(delete(Team))
         self._session.commit()
         return True
+
+    def delete_team(self, team: Team):
+        """Deletes a team"""
+        self._session.delete(team)
+        self._session.commit()
+        return True
