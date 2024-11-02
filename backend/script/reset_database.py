@@ -1,6 +1,7 @@
 """Script to create/reset the SQLite database, add all tables defined in the models package, and insert fake data"""
 
 import os
+import polars as pl
 from sqlmodel import SQLModel, Session
 from ..models import *
 from ..db import engine
@@ -28,4 +29,7 @@ with Session(engine) as session:
     # Add fake data scripts to have them be inserted on database reset
     count.insert_fake_data(session)
     team.create_fake_teams(session)
+    team_svc = TeamService(session)
+    team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams.csv")
+
     session.commit()

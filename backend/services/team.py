@@ -37,8 +37,8 @@ class TeamService:
         team = TeamData(
             name=team_df["Team Number"],
             password=team_df["Password"],
-            start_time=dt.datetime.strptime(team_df["Start Time"], "%H:%M").time(),
-            end_time=dt.datetime.strptime(team_df["End Time"], "%H:%M").time(),
+            start_time=dt.datetime.strptime(team_df["Start Time"], "%m/%d/%Y %H:%M"),
+            end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
         )
         return team
 
@@ -66,8 +66,8 @@ class TeamService:
             {
                 "Team Number": [team.name],
                 "Password": [team.password],
-                "Start Time": [team.start_time.strftime("%H:%M")],
-                "End Time": [team.end_time.strftime("%H:%M")],
+                "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M")],
+                "End Time": [team.end_time.strftime("%m/%d/%Y %H:%M")],
             }
         )
         return team_df
