@@ -55,21 +55,12 @@ def main():
         team_table = pl.read_csv(file)
     except FileNotFoundError:
         file = "es_files/teams.csv"
-        team_table = pl.DataFrame(
-            {
-                "Team Number": [],
-                "Password": [],
-                "Start Time": [],
-                "End Time": [],
-            }
-        )
         pass
 
     with Session(engine) as session:
         team_svc = TeamService(session)
         pwd_svc = PasswordService(session)
         team_list = team_svc.get_all_teams()
-        # team_list = team_list + team_svc.df_to_teams(team_table)
         # Find the last team number for the prefix
         last_team = 0
         for team in team_list:
