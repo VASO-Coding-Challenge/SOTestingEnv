@@ -3,7 +3,7 @@
 from typing import List
 from ..db import db_session
 from fastapi import Depends
-from sqlmodel import Session, select, and_
+from sqlmodel import Session, select, and_, delete
 import polars as pl
 import datetime as dt
 
@@ -175,3 +175,9 @@ class TeamService:
         if not team:
             raise InvalidCredentialsException("Incorrect credentials. Please try again")
         return team
+
+    def delete_all_teams(self):
+        """Deletes all teams"""
+        self._session.exec(delete(Team))
+        self._session.commit()
+        return True
