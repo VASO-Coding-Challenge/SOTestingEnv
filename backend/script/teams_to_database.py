@@ -40,9 +40,14 @@ def load_teams():
         )
         # Delete teams not in the file
         all_teams = team_svc.get_all_teams()
-        for team in all_teams:
-            if team not in team_list:
-                team_svc.delete_team(team)
+        for db_team in all_teams:
+            present = False
+            for target_team in team_list:
+                if db_team.name == target_team.name:
+                    present = True
+                    break
+            if not present:
+                team_svc.delete_team(db_team)
 
         for team in team_list:
             # Update teams or create them if they do not exist

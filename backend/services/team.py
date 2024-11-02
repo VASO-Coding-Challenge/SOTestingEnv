@@ -38,12 +38,19 @@ class TeamService:
         Returns:
             Team: Team object created from the DataFrame row
         """
-        team = TeamData(
-            name=team_df["Team Number"],
-            password=team_df["Password"],
-            start_time=dt.datetime.strptime(team_df["Start Time"], "%m/%d/%Y %H:%M"),
-            end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
-        )
+        try:
+            team = TeamData(
+                name=team_df["Team Number"],
+                password=team_df["Password"],
+                start_time=dt.datetime.strptime(
+                    team_df["Start Time"], "%m/%d/%Y %H:%M"
+                ),
+                end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
+            )
+        except ValueError:
+            raise ValueError(f"ValueError while processing {team_df}")
+        except TypeError:
+            raise TypeError(f"TypeError while processing {team_df}")
         return team
 
     def df_to_teams(self, teams_df: pl.DataFrame) -> list[TeamData]:
@@ -187,8 +194,10 @@ class TeamService:
         self._session.commit()
         return True
 
-    def delete_team(self, team: Team):
+    def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
+        if isinstance(team, TeamData):
+            team = self.get_team(team.name)
         self._session.delete(team)
         self._session.commit()
         return True
