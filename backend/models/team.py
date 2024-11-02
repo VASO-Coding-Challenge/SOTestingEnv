@@ -18,7 +18,7 @@ class Team(TeamBase, table=True):
     active_JWT: bool = Field(default=False)
     members: list["TeamMember"] = Relationship(back_populates="team")
 
-class TeamCreate(TeamBase):
+class TeamData(TeamBase):
     """Model to define the creation shape of the team model"""
     password: str
 
