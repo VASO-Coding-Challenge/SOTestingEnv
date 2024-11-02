@@ -67,6 +67,7 @@ def main():
 
     with Session(engine) as session:
         team_svc = TeamService(session)
+        pwd_svc = PasswordService(session)
         team_list = team_svc.get_all_teams()
         team_list = team_list + team_svc.df_to_teams(team_table)
         # Find the last team number for the prefix
@@ -79,7 +80,7 @@ def main():
         for i in range(1, int(number_teams) + 1):
             team = TeamData(
                 name=f"{prefix}{last_team + i}",
-                password=PasswordService.generate_password(),
+                password=pwd_svc.generate_password(),
                 start_time=start_time,
                 end_time=end_time,
             )

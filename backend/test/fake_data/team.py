@@ -6,7 +6,7 @@ from backend.services.auth import AuthService
 from backend.services.passwords import PasswordService
 from backend.db import engine
 
-__authors__ = ["Mustafa Aljumayli"]
+__authors__ = ["Mustafa Aljumayli", "Nicholas Almy"]
 
 time1 = datetime(year=2024, month=11, day=1, hour=9, minute=0)
 time2 = datetime(year=2024, month=11, day=1, hour=10, minute=0)
@@ -14,11 +14,11 @@ time2 = datetime(year=2024, month=11, day=1, hour=10, minute=0)
 
 def create_fake_teams(session: Session):
     """Adds the fake team data for testing purposes with hashed passwords."""
-
+    pwd_svc = PasswordService(session)
     team1 = Team(
         id=1,
         name="B1",
-        password=PasswordService.generate_password(),
+        password=pwd_svc.generate_password(),
         start_time=time1,
         end_time=time2,
         active_JWT=False,
@@ -26,7 +26,7 @@ def create_fake_teams(session: Session):
     team2 = Team(
         id=2,
         name="B2",
-        password=PasswordService.generate_password(),
+        password=pwd_svc.generate_password(),
         start_time=time1,
         end_time=time2,
         active_JWT=False,
@@ -34,7 +34,7 @@ def create_fake_teams(session: Session):
     team3 = Team(
         id=3,
         name="B3",
-        password=PasswordService.generate_password(),
+        password=pwd_svc.generate_password(),
         start_time=time1,
         end_time=time2,
         active_JWT=False,

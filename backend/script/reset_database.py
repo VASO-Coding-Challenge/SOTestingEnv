@@ -11,12 +11,11 @@ from ..services import PasswordService
 
 from ..test.fake_data import count
 from ..test.fake_data import team
+from ..test.fake_data import word
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
 # * Note this should only be used during development, we will need different scripts for production
-
-PasswordService.reset_word_list()
 
 
 # Delete old database if it exists
@@ -27,6 +26,9 @@ SQLModel.metadata.create_all(engine)
 
 with Session(engine) as session:
     # Add fake data scripts to have them be inserted on database reset
+    pwd_svc = PasswordService(session)
+    pwd_svc.reset_word_list()
+    word.create_words(session)
     count.insert_fake_data(session)
     team.create_fake_teams(session)
     team_svc = TeamService(session)

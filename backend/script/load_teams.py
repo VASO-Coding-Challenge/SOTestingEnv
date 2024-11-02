@@ -12,12 +12,14 @@ def load_teams():
     file: str = sys.argv[1]
     if not file.endswith(".csv"):
         sys.stdout.write("Error -- File not in supported format (.csv)")
-        return
+        sys.stdout.write("...Reading from es_files/teams.csv")
+        file = "es_files/teams.csv"
 
     # Read teams table
 
     try:
         team_table = pl.read_csv(file)
+
     except FileNotFoundError:
         sys.stdout.write(
             f"Error -- File not found... generating new table at location {file}"
@@ -33,10 +35,11 @@ def load_teams():
 
     with Session(engine) as session:
         team_svc = TeamService(session)
+        pwd_svc = PasswordService(session)
         team_list = team_svc.get_all_teams()
         team_list = team_list + team_svc.df_to_teams(team_table)
 
-        team_list: list[TeamData] = PasswordService.generate_passwords(
+        team_list: list[TeamData] = pwd_svc.generate_passwords(
             teamList=team_list, team_svc=team_svc
         )
 
