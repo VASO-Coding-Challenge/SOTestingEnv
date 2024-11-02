@@ -91,7 +91,9 @@ Also loads in fake data.
 
 ###### Command
 
-`python3 -m backend.script.reset_database`
+```bash
+python3 -m backend.script.reset_database
+```
 
 ###### Arguments
 
@@ -99,11 +101,7 @@ NA
 
 ## Event Supervisor Command Suite Documentation
 
-Here's the documentation formatted for Markdown:
-
----
-
-### `main`
+### `create_team_table`
 
 #### Description
 
@@ -121,7 +119,7 @@ This command follows these rules:
 #### Command
 
 ```bash
-python3 -m backend.script.main <prefix> <number_of_teams> <date> <start_time> <end_time> <file_path>
+python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <start_time> <end_time> <file_path>
 ```
 
 #### Arguments
@@ -137,7 +135,7 @@ python3 -m backend.script.main <prefix> <number_of_teams> <date> <start_time> <e
 
 ---
 
-### load_teams
+### `load_teams`
 
 #### Description
 
@@ -160,7 +158,7 @@ Where a team is identified by it's team number...
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database |
 
-### teams_to_csv
+### `teams_to_csv`
 
 #### Description
 
@@ -170,7 +168,9 @@ This command is **NOT safe**... meaning any changes in the teams.csv file will b
 
 #### Command
 
-`python3 -m backend.script.teams_to_csv <file_path>`
+```bash
+python3 -m backend.script.teams_to_csv <file_path>
+```
 
 #### Arguments
 
@@ -178,7 +178,7 @@ This command is **NOT safe**... meaning any changes in the teams.csv file will b
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
 
-### teams_to_database
+### `teams_to_database`
 
 #### Description
 
@@ -195,7 +195,9 @@ Where a team is identified by it's team number...
 
 #### Command
 
-`python3 -m backend.script.teams_to_database <file_path>`
+```bash
+python3 -m backend.script.teams_to_database <file_path>
+```
 
 #### Arguments
 
@@ -203,7 +205,7 @@ Where a team is identified by it's team number...
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `file_path` | File containing updated team information. Upon successful completion, the database will be updated to the file's specifications. |
 
-### reset_unique_words
+### `reset_unique_words`
 
 #### Description
 
@@ -211,13 +213,15 @@ The `unique_word_list` is our current tool for password generation. As more team
 
 #### Command
 
-`python3 -m backend.script.reset_unique_words`
+```bash
+python3 -m backend.script.reset_unique_words
+```
 
 #### Arguments
 
 NA
 
-### reset_teams
+### `reset_teams`
 
 #### Description
 
@@ -225,7 +229,9 @@ NA
 
 #### Command
 
-`python3 -m backend.script.reset_teams`
+```bash
+python3 -m backend.script.reset_teams
+```
 
 #### Arguments
 
