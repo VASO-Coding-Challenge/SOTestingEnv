@@ -64,15 +64,15 @@ export const MemberInput = ({ token }: { token: string }) => {
 
   return (
     <>
-      <p>Add New Member:</p>
+      <p className="pt-4 text-lg">Add New Member:</p>
       <input
         value={newName}
         placeholder="Firstname Lastname"
         onChange={(e) => setNewName(e.target.value)}
-        className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border bg-white border-gray-300 pl-2 mt-2"
+        className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border bg-white border-gray-300 pl-2 mt-2 mb-4"
         required
       />
-      <button onClick={void add_new_member}>
+      <button onClick={add_new_member}> {/* TODO: make wrapper function to catch errors and get rid of this */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="24px"

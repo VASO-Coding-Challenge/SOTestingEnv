@@ -7,6 +7,7 @@ enum Display {
   LOADING,
   COUNTDOWN,
   STARTED,
+  ENDED,
 }
 
 interface Team {
@@ -43,7 +44,13 @@ const Home = () => {
           team.start_time = new Date(team.start_time);
           team.end_time = new Date(team.end_time);
           setTeam(team);
-          setDisplay(Display.COUNTDOWN);
+          if (team.start_time.getTime() > Date.now()) {
+            setDisplay(Display.COUNTDOWN);
+          } else if (team.end_time.getTime() > Date.now()) {
+            setDisplay(Display.STARTED);
+          } else {
+            setDisplay(Display.ENDED);
+          }
         }
       }
     };
@@ -69,7 +76,6 @@ const Home = () => {
         <h1 className="text-[32px]">Your Competition Starts In:</h1>
         <div className="font-sans text-[64px] font-bold pb-10">
           <CountdownTimer end_time={team!.start_time} end_fn={timer_end} />{" "}
-          {/* TODO: Add end functionality to display Start Test button */}
         </div>
       </>
     );
@@ -78,23 +84,27 @@ const Home = () => {
     if (display == Display.STARTED) {
       timer_or_continue = (
         <>
-          <h1 className="text-[32px]">Your Competition has Started:</h1>
+          <h1 className="text-[32px]">Your Competition is active:</h1>
           <Link to={"/question"}>
-            <button className="pb-10"></button>
+            <button className="pb-10">Start</button>
           </Link>
         </>
       );
+    } else if (display == Display.ENDED) {
+      timer_or_continue = (
+        <h1 className="text-[32px]">Your Competition has Ended.</h1>
+      )
     }
     return (
       <div className="flex flex-col items-center min-h-screen p-12 bg-[#fef7ff] text-[#000000] font-sans">
-        <h1 className="text-[64px] text-center pb-10 font-bold">
+        <h1 className="text-[48px] text-center pb-10 font-bold">
           Welcome Team {team!.name} to the Computer Science Competition!
         </h1>
         {timer_or_continue}
         <h2 className="text-[30px] font-bold">
           Please tell us your team member&apos;s names:
         </h2>
-        <div className="flex flex-col items-center pb-8 mt-12 rounded-[25px] bg-[#e8def8] w-full max-w-[600px]">
+        <div className="flex flex-col items-center pb-8 mt-5 rounded-[25px] bg-[#e8def8] w-full max-w-[600px]">
           <MemberInput token={token} />
         </div>
       </div>

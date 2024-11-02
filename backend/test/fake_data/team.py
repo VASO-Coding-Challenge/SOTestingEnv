@@ -11,24 +11,24 @@ team1 = Team(
     id=1,
     name="B1",
     password=PasswordService.generate_password(),
-    start_time=datetime.now() + timedelta(hours=1),
-    end_time=datetime.now() + timedelta(hours=1, minutes=30),
+    start_time=datetime.now() - timedelta(minutes=30),
+    end_time=datetime.now() + timedelta(minutes=30),
     active_JWT=False,
 )
 team2 = Team(
     id=2,
     name="B2",
     password=PasswordService.generate_password(),
-    start_time=datetime.now() + timedelta(hours=1),
-    end_time=datetime.now() + timedelta(hours=1, minutes=30),
+    start_time=datetime.now() + timedelta(minutes=2),
+    end_time=datetime.now() + timedelta(hours=1, minutes=2),
     active_JWT=False,
 )
 team3 = Team(
     id=3,
     name="B3",
     password=PasswordService.generate_password(),
-    start_time=datetime.now() + timedelta(hours=2),
-    end_time=datetime.now() + timedelta(hours=3),
+    start_time=datetime.now() + timedelta(hours=1),
+    end_time=datetime.now() + timedelta(hours=2),
     active_JWT=False,
 )
 
