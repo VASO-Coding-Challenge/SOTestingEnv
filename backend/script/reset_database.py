@@ -9,9 +9,7 @@ from ..services.team import TeamService
 
 from ..services import PasswordService
 
-from ..test.fake_data import count
-from ..test.fake_data import team
-from ..test.fake_data import word
+from ..test.fake_data import count, team, word, team_members
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
@@ -33,5 +31,5 @@ with Session(engine) as session:
     team.create_fake_teams(session)
     team_svc = TeamService(session)
     team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams.csv")
-
+    team_members.insert_fake_team_members(session)
     session.commit()

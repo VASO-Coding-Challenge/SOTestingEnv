@@ -8,6 +8,12 @@ class ResourceNotFoundException(Exception):
 
 
 class InvalidCredentialsException(Exception):
+    """Raised when a user attempts to use an invalid authorization token"""
+
+    ...
+
+
+class ResourceNotAllowedException(Exception):
     """Raised when a user attempts to access a forbidden resource without valid permissions"""
 
     ...

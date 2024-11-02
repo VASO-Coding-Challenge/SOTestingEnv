@@ -1,22 +1,36 @@
 """Model for the Team table that stores official team information"""
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli"]
+
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
 
-class Team(SQLModel, table=True):
+class TeamBase(SQLModel):
+    """Base model for Team table, this model should not be exported"""
+
+    name: str
+    start_time: datetime
+    end_time: datetime
+
+
+class Team(TeamBase, table=True):
+    """Table Model for a Team Member"""
+
     id: int | None = Field(default=None, primary_key=True)
-    name: str
     password: str
-    start_time: datetime
-    end_time: datetime
     active_JWT: bool = Field(default=False)
+    members: list["TeamMember"] = Relationship(back_populates="team")
 
 
-class TeamData(SQLModel, table=False):
-    name: str
+class TeamData(TeamBase):
+    """Model to define the creation shape of the team model"""
+
     password: str
-    start_time: datetime
-    end_time: datetime
+
+
+class TeamPublic(TeamBase):
+    """Model to define the API response shape of the Team model"""
+
+    id: int
