@@ -23,7 +23,7 @@ class Question(SQLModel):
     docs: List[Document]
 
 
-class QuestionsPublic(Question):
+class QuestionsPublic(SQLModel):
     """Model to define the API response shape of the Question model"""
 
     questions: List[Question]

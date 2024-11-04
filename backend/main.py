@@ -10,7 +10,7 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import count, team, auth
+from .api import count, team, auth, question
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -29,6 +29,7 @@ app = FastAPI(
         count.openapi_tags,
         team.openapi_tags,
         auth.openapi_tags,
+        question.openapi_tags,
     ],
 )
 
@@ -36,7 +37,7 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware)
 
 # ! Plug in each seprate API file here (make sure to import above)
-feature_apis = [count, team, auth]
+feature_apis = [count, team, auth, question]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
