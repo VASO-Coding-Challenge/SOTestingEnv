@@ -1,19 +1,13 @@
 import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
-
 from sqlmodel import Session
-from ..db import db_session
-
-from ..models.auth import Token, TokenData, LoginData
-from ..models.team import Team
-
-from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
-
-from .team import TeamService
-from .exceptions import InvalidCredentialsException, ResourceNotFoundException
-
-__authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
+from backend.db import db_session
+from backend.models.auth import Token, TokenData, LoginData
+from backend.models.team import Team
+from backend.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.services.team import TeamService
+from backend.services.exceptions import InvalidCredentialsException
 
 
 class AuthService:
@@ -35,19 +29,18 @@ class AuthService:
                 "Invalid Credentials. Please check your Name and Password"
             )
         team.active_JWT = True
-        self._session.add(team)  # Add this to the session
+        self._session.add(team)
         self._session.commit()
 
-        # Create TokenData, and convert the datetime to an ISO string
+        # Create TokenData to be encoded
         token_data = TokenData(
             id=team.id,
             name=team.name,
             expiration_time=(
                 datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            ).isoformat(),  # convert datetime to a string
+            ).isoformat(),
         )
 
-        # Serialize the token data to a JSON-compatible format
         access_token = jwt.encode(
             token_data.model_dump(), SECRET_KEY, algorithm="HS256"
         )
@@ -76,24 +69,3 @@ class AuthService:
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-    def get_team_from_token(self, token: str) -> Team:
-        """Gets a team from the users JWT token
-
-        Args:
-            token: str - the token sent by the browser
-        Returns:
-            Team: SQLModel object representing the current logged in team
-        Throws:
-            InvalidCredientialsException: if JWT did not pass decoding
-        """
-        try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            team = self._session.get(Team, data["id"])
-            if team == None:
-                raise ResourceNotFoundException("Team assocated with login not found.")
-            return team
-        except jwt.ExpiredSignatureError:
-            raise InvalidCredentialsException("Login expired, try logging in again.")
-        except jwt.InvalidTokenError:
-            raise InvalidCredentialsException("Login invalid, try logging in again.")

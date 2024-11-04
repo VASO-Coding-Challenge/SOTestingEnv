@@ -1,10 +1,13 @@
-import React from "react";
+import SubmissionWidget from "../components/SubmissionWidget";
 
 const Question = () => {
   return (
-    <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
-      THIS IS THE QUESTION PAGE
-    </div>
+    // <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
+    //   THIS IS THE QUESTION PAGE
+    <>
+      <SubmissionWidget />
+      {/* </div> */}
+    </>
   );
 };
 
