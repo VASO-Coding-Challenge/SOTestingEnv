@@ -44,16 +44,24 @@ def main():
         sys.stdout.write("Error -- Start Time should be in the format HH:MM")
         return
 
-    file: str = sys.argv[6]
+    try:
+        file: str = sys.argv[6]
+    except IndexError:
+        file = "es_files/teams.csv"
+
     if not file.endswith(".csv"):
         sys.stdout.write(
-            "Error -- File not in supported format (.csv)... setting file to ES_files/teams.csv"
+            "Error -- File not in supported format (.csv)... setting file to es_files/teams.csv"
         )
         file = "es_files/teams.csv"
 
     try:
         team_table = pl.read_csv(file)
     except FileNotFoundError:
+
+        sys.stdout.write(
+            f"Error -- File {file} not found... creating table at es_files/teams.csv"
+        )
         file = "es_files/teams.csv"
         pass
 
@@ -75,8 +83,7 @@ def main():
                 start_time=start_time,
                 end_time=end_time,
             )
-            team = team_svc.create_team(team)
-            team = team_svc.team_to_team_data(team)
+            team: TeamData = team_svc.create_team(team)
             team_list.append(team)
         # Add new teams to the table
         team_table = (

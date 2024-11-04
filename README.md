@@ -129,8 +129,8 @@ python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <s
 | `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                          |
 | `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                 |
 | `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                    |
-| `start_time`      | Start time for team activities in `HH:MM` format, on the specified date.                                                                                                                                |
-| `end_time`        | End time for team activities in `HH:MM` format, on the specified date.                                                                                                                                  |
+| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                     |
+| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                       |
 | `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams.csv` |
 
 ---
@@ -154,9 +154,9 @@ Where a team is identified by it's team number...
 
 #### Arguments
 
-| Argument    | Description                                                                                                                                   |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database |
+| Argument    | Description                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
 
 ### `teams_to_csv`
 
@@ -186,7 +186,7 @@ Updates the teams table in the database to match the teams.csv file provided.
 
 This command is **NOT safe**... meaning any changes and deletions in the teams.csv will be perminant!
 
-This command is _safe_... meaning it follows these rules:
+it follows these rules:
 Where a team is identified by it's team number...
 
 1. Any team in the database but NOT in the file will be **DELETED** from the database

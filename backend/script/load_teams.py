@@ -9,7 +9,10 @@ import polars as pl
 
 def load_teams():
     # Get filepath from cli args, validate it
-    file: str = sys.argv[1]
+    try:
+        file: str = sys.argv[1]
+    except IndexError:
+        file = "es_files/teams.csv"
     if not file.endswith(".csv"):
         sys.stdout.write("Error -- File not in supported format (.csv)")
         sys.stdout.write("...Reading from es_files/teams.csv")
@@ -48,8 +51,7 @@ def load_teams():
             try:
                 team_svc.update_team(team)
             except ResourceNotFoundException as e:
-                team = team_svc.create_team(team)
-                team = team_svc.team_to_team_data(team)
+                team: TeamData = team_svc.create_team(team)
 
         team_table = (
             team_svc.teams_to_df(team_list).unique().sort(["Start Time", "Team Number"])

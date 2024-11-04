@@ -95,22 +95,7 @@ class TeamService:
             team_dfs.append(self.team_to_df(team))
         return pl.concat(team_dfs)
 
-    def team_to_team_data(self, team: Team) -> TeamData:
-        """Converts a Team object to a TeamData object.
-        Args:
-            team (Team): Team object to convert
-        Returns:
-            TeamData: TeamData object created from the Team object
-        """
-        team_data = TeamData(
-            name=team.name,
-            password=team.password,
-            start_time=team.start_time,
-            end_time=team.end_time,
-        )
-        return team_data
-
-    def update_team(self, team: TeamData) -> Team:
+    def update_team(self, team: TeamData) -> TeamData:
         """Update a team in the database.
         Args:
             team (Team): Team object to update
@@ -129,7 +114,7 @@ class TeamService:
             existing_team.end_time = team.end_time
             self._session.add(existing_team)
             self._session.commit()
-            return self.team_to_team_data(existing_team)
+            return existing_team
         else:
             raise ResourceNotFoundException("Team", team.name)
 
@@ -175,8 +160,6 @@ class TeamService:
     def get_all_teams(self) -> List[Team]:
         """Gets a list of all the teams"""
         teams = self._session.exec(select(Team)).all()
-        if not teams:
-            raise ResourceNotFoundException(f"Teams were not found")
         return teams
 
     def get_team_with_credentials(self, name: str, password: str) -> Team:
@@ -191,6 +174,7 @@ class TeamService:
     def delete_all_teams(self):
         """Deletes all teams"""
         self._session.exec(delete(Team))
+        self._session.exec(delete(TeamMember))
         self._session.commit()
         return True
 
