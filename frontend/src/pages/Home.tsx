@@ -61,8 +61,6 @@ const Home = () => {
     setDisplay(Display.STARTED);
   };
 
-  
-
   if (display == Display.LOADING) {
     return (
       <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
@@ -70,7 +68,7 @@ const Home = () => {
       </div>
     );
   } else {
-  // Holds the JSX of either the timer or the continue button
+    // Holds the JSX of either the timer or the continue button
     let timer_or_continue: JSX.Element = (
       <>
         <h1 className="text-[32px]">Your Competition Starts In:</h1>
@@ -86,14 +84,16 @@ const Home = () => {
         <>
           <h1 className="text-[32px]">Your Competition is active:</h1>
           <Link to={"/question"}>
-            <button className="pb-10">Start</button>
+            <button className="my-10 px-4 py-2 bg-gray-800 text-white font-bold rounded-lg text-[28px] hover:bg-gray-400 active:bg-gray-950">
+              Start
+            </button>
           </Link>
         </>
       );
     } else if (display == Display.ENDED) {
       timer_or_continue = (
         <h1 className="text-[32px]">Your Competition has Ended.</h1>
-      )
+      );
     }
     return (
       <div className="flex flex-col items-center min-h-screen p-12 bg-[#fef7ff] text-[#000000] font-sans">

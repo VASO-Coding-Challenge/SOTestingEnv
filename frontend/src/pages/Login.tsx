@@ -42,7 +42,7 @@ const LoginPage = () => {
 
   return (
     <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
-      <div className="flex flex-col items-center justify-center text-[64px] font-extrabold">
+      <div className="flex flex-col items-center text-center justify-center text-[64px] font-extrabold">
         Virginia Science Olympiad
       </div>
       <br />
@@ -76,7 +76,7 @@ const LoginPage = () => {
         <br />
         <button
           onClick={handleSubmit}
-          className="mt-2 px-4 py-2 bg-gray-800 text-white font-bold rounded"
+          className="mt-2 px-4 py-2 bg-gray-800 text-white font-bold rounded hover:bg-gray-400 active:bg-gray-950"
         >
           Submit
         </button>
