@@ -101,9 +101,6 @@ const Home = () => {
           Welcome Team {team!.name} to the Computer Science Competition!
         </h1>
         {timer_or_continue}
-        <h2 className="text-[30px] font-bold">
-          Please tell us your team member&apos;s names:
-        </h2>
         <div className="flex flex-col items-center pb-8 mt-5 rounded-[25px] bg-[#e8def8] w-full max-w-[600px]">
           <MemberInput token={token} />
         </div>
