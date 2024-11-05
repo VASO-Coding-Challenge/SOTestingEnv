@@ -7,6 +7,8 @@ from ..db import engine
 import polars as pl
 import datetime
 
+__authors__ = ["Nicholas Almy"]
+
 
 def main():
     # Get filepath from cli args, validate it

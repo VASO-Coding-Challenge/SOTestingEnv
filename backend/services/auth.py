@@ -13,7 +13,7 @@ from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 from .team import TeamService
 from .exceptions import InvalidCredentialsException, ResourceNotFoundException
 
-__authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
+__authors__ = ["Mustafa Aljumayli", "Andrew Lockard", "Nicholas Almy"]
 
 
 class AuthService:

@@ -6,6 +6,8 @@ from ..models import TeamData
 from ..db import engine
 import polars as pl
 
+__authors__ = ["Nicholas Almy"]
+
 
 def load_teams():
     # Get filepath from cli args, validate it
