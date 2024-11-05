@@ -97,3 +97,11 @@ class AuthService:
             raise InvalidCredentialsException("Login expired, try logging in again.")
         except jwt.InvalidTokenError:
             raise InvalidCredentialsException("Login invalid, try logging in again.")
+
+    def authenticate_team_time(team: Team) -> bool:
+        """Authenticates a Teams permissions based on the time."""
+        if team.start_time > datetime.now():
+            raise InvalidCredentialsException("Your testing time is active yet.")
+        elif team.end_time < datetime.now():
+            raise InvalidCredentialsException("You have run out of time.")
+        return True
