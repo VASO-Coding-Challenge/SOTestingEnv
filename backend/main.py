@@ -12,8 +12,6 @@ from .services.exceptions import (
 
 from .api import count, team, auth, question
 
-from fastapi.middleware.cors import CORSMiddleware
-
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
 description = """

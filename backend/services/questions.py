@@ -14,11 +14,12 @@ class QuestionService:
     _questions: QuestionsPublic = None
 
     def __init__(self):
-        if not QuestionService._questions:
-            QuestionService._questions = self.load_questions()
+        pass
 
     def get_questions(self) -> QuestionsPublic:
         """Get all the questions for the competition"""
+        if QuestionService._questions is None:
+            QuestionService._questions = self.load_questions()
         return QuestionService._questions
 
     def isQuestionDir(self, directory: str) -> bool:
