@@ -216,9 +216,9 @@ Where a team is identified by it's team number...
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                                                                        |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
+| Argument    | Flag      | Description                                                                                                                                    | Default                    |
+| ----------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `file_path` | -f, -FILE | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. | `es_files/teams/teams.csv` |
 
 #### `teams_to_csv`
 
