@@ -3,7 +3,7 @@
 from typing import List
 from ..db import db_session
 from fastapi import Depends
-from sqlmodel import Session, select, and_
+from sqlmodel import Session, select, and_, delete
 import polars as pl
 import datetime as dt
 
@@ -13,7 +13,7 @@ from .exceptions import (
     ResourceNotAllowedException,
 )
 
-from ..models import Team, TeamMember, TeamMemberCreate
+from ..models import Team, TeamData, TeamMember, TeamMemberCreate
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
@@ -31,23 +31,29 @@ class TeamService:
     ):  # Add all dependencies via FastAPI injection in the constructor
         self._session = session
 
-    def df_row_to_team(self, team_df: pl.DataFrame) -> Team:
+    def df_row_to_team(self, team_df: pl.DataFrame) -> TeamData:
         """Converts a DataFrame row to a Team object.
         Args:
             team_df (pl.DataFrame): DataFrame row to convert
         Returns:
             Team: Team object created from the DataFrame row
         """
-        team = Team(
-            id=team_df["id"],
-            name=team_df["Team Number"],
-            password=team_df["Password"],
-            start_time=dt.datetime.strptime(team_df["Start Time"], "%m/%d/%Y %H:%M"),
-            end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
-        )
+        try:
+            team = TeamData(
+                name=team_df["Team Number"],
+                password=team_df["Password"],
+                start_time=dt.datetime.strptime(
+                    team_df["Start Time"], "%m/%d/%Y %H:%M"
+                ),
+                end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
+            )
+        except ValueError:
+            raise ValueError(f"ValueError while processing {team_df}")
+        except TypeError:
+            raise TypeError(f"TypeError while processing {team_df}")
         return team
 
-    def df_to_teams(self, teams_df: pl.DataFrame) -> list[Team]:
+    def df_to_teams(self, teams_df: pl.DataFrame) -> list[TeamData]:
         """Converts a DataFrame to a list of Team objects.
         Args:
             teams_df (pl.DataFrame): DataFrame to convert
@@ -60,16 +66,15 @@ class TeamService:
             teams.append(self.df_row_to_team(team))
         return teams
 
-    def team_to_df(self, team: Team) -> pl.DataFrame:
-        """Converts a Team object to a DataFrame row.
+    def team_to_df(self, team: TeamData) -> pl.DataFrame:
+        """Converts a TeamData object to a DataFrame row.
         Args:
-            team (Team): Team object to convert
+            team (TeamData): Team object to convert
         Returns:
             pl.DataFrame: DataFrame row created from the Team object
         """
         team_df = pl.DataFrame(
             {
-                "id": [team.id],
                 "Team Number": [team.name],
                 "Password": [team.password],
                 "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M")],
@@ -78,10 +83,10 @@ class TeamService:
         )
         return team_df
 
-    def teams_to_df(self, teams: list[Team]) -> pl.DataFrame:
-        """Converts a list of Team objects to a DataFrame.
+    def teams_to_df(self, teams: list[TeamData]) -> pl.DataFrame:
+        """Converts a list of TeamData objects to a DataFrame.
         Args:
-            teams (list[Team]): List of Team objects to convert
+            teams (list[TeamData]): List of Team objects to convert
         Returns:
             pl.DataFrame: DataFrame created from the list of Team objects
         """
@@ -90,7 +95,7 @@ class TeamService:
             team_dfs.append(self.team_to_df(team))
         return pl.concat(team_dfs)
 
-    def update_team(self, team: Team) -> Team:
+    def update_team(self, team: TeamData) -> TeamData:
         """Update a team in the database.
         Args:
             team (Team): Team object to update
@@ -100,7 +105,7 @@ class TeamService:
             ResourceNotFoundException: If the team does not exist in the database
         """
         existing_team: Team | None = self._session.exec(
-            select(Team).where(Team.id == team.id)
+            select(Team).where(Team.name == team.name)
         ).one_or_none()
         if existing_team:
             existing_team.name = team.name
@@ -111,15 +116,22 @@ class TeamService:
             self._session.commit()
             return existing_team
         else:
-            raise ResourceNotFoundException("Team", team.id)
+            raise ResourceNotFoundException("Team", team.name)
 
-    def create_team(self, team: Team) -> Team:
+    def create_team(self, team: Team | TeamData) -> Team:
         """Create a new team in the database.
         Args:
             team (Team): Team object to create
         Returns:
             Team: Created Team object
         """
+        if isinstance(team, TeamData):
+            team = Team(
+                name=team.name,
+                password=team.password,
+                start_time=team.start_time,
+                end_time=team.end_time,
+            )
         self._session.add(team)
         self._session.commit()
         return team
@@ -148,8 +160,6 @@ class TeamService:
     def get_all_teams(self) -> List[Team]:
         """Gets a list of all the teams"""
         teams = self._session.exec(select(Team)).all()
-        if not teams:
-            raise ResourceNotFoundException(f"Teams were not found")
         return teams
 
     def get_team_with_credentials(self, name: str, password: str) -> Team:
@@ -160,6 +170,21 @@ class TeamService:
         if not team:
             raise InvalidCredentialsException("Incorrect credentials. Please try again")
         return team
+
+    def delete_all_teams(self):
+        """Deletes all teams"""
+        self._session.exec(delete(Team))
+        self._session.exec(delete(TeamMember))
+        self._session.commit()
+        return True
+
+    def delete_team(self, team: TeamData | Team) -> bool:
+        """Deletes a team"""
+        if isinstance(team, TeamData):
+            team = self.get_team(team.name)
+        self._session.delete(team)
+        self._session.commit()
+        return True
 
     def add_team_member(self, new_member: TeamMemberCreate, team: Team) -> TeamMember:
         """Adds a new team member to team: team_id.
