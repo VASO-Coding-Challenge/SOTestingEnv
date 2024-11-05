@@ -1,3 +1,4 @@
+// Author: Andrew Lockard
 import { useState, useEffect } from "react";
 
 export const CountdownTimer = ({

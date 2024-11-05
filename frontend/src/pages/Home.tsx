@@ -1,3 +1,4 @@
+// Author: Andrew Lockard
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CountdownTimer } from "../components/timer";
