@@ -8,17 +8,19 @@ import polars as pl
 
 __authors__ = ["Nicholas Almy"]
 
+DEFAULT_FILE = "es_files/teams/teams.csv"
+
 
 def load_teams():
     # Get filepath from cli args, validate it
     try:
         file: str = sys.argv[1]
     except IndexError:
-        file = "es_files/teams.csv"
+        file = DEFAULT_FILE
     if not file.endswith(".csv"):
         sys.stdout.write("Error -- File not in supported format (.csv)")
-        sys.stdout.write("...Reading from es_files/teams.csv")
-        file = "es_files/teams.csv"
+        sys.stdout.write(f"...Reading from {DEFAULT_FILE}")
+        file = DEFAULT_FILE
 
     # Read teams table
 

@@ -9,6 +9,8 @@ import datetime
 
 __authors__ = ["Nicholas Almy"]
 
+DEFAULT_FILE = "es_files/teams/teams.csv"
+
 
 def main():
     # Get filepath from cli args, validate it
@@ -49,22 +51,22 @@ def main():
     try:
         file: str = sys.argv[6]
     except IndexError:
-        file = "es_files/teams.csv"
+        file = DEFAULT_FILE
 
     if not file.endswith(".csv"):
         sys.stdout.write(
-            "Error -- File not in supported format (.csv)... setting file to es_files/teams.csv"
+            f"Error -- File not in supported format (.csv)... setting file to {DEFAULT_FILE}"
         )
-        file = "es_files/teams.csv"
+        file = DEFAULT_FILE
 
     try:
         team_table = pl.read_csv(file)
     except FileNotFoundError:
 
         sys.stdout.write(
-            f"Error -- File {file} not found... creating table at es_files/teams.csv"
+            f"Error -- File {file} not found... creating table at {DEFAULT_FILE}"
         )
-        file = "es_files/teams.csv"
+        file = DEFAULT_FILE
         pass
 
     with Session(engine) as session:
