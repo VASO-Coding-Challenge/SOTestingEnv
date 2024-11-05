@@ -17,5 +17,5 @@ with Session(engine) as session:
             "Start Time": [],
             "End Time": [],
         }
-    ).write_csv("es_files/teams.csv")
+    ).write_csv("es_files/teams/teams.csv")
     session.commit()
