@@ -150,16 +150,16 @@ The `teams` subdirectory holds all data for interacting with the Team tables in 
 
 The `questions` Subdirectory holds information for the test, where it's subdirectories, following the convention q#, represent questions and contain all relevant files.
 
-| File             | Description |
-| ---------------- | ----------- |
-| `prompt.md`      | TODO        |
-| `doc_<title>.md` | TODO        |
-| `test_cases.py`  | TODO        |
-| `demo_cases.py`  | TODO        |
+| File             | Description                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `prompt.md`      | This Markdown file holds the question body.                                             |
+| `doc_<title>.md` | Markdown files with the prefix `doc_` are question specific/supplemental documentation. |
+| `test_cases.py`  | This python file is for final submission grading by the ES.                             |
+| `demo_cases.py`  | This python file is for validation testing by the students.                             |
 
 #### `global_docs` Subdirectoy Information
 
-The `global_doc`
+The `global_docs` subdirectory holds all documentation made available regardless of question. All Markdown file in this directory will be made available for reference during test time.
 
 ### ES Scripting Suite Documentation
 
@@ -186,14 +186,14 @@ python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <s
 
 ##### Arguments
 
-| Argument          | Description                                                                                                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                          |
-| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                 |
-| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                    |
-| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                     |
-| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                       |
-| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams.csv` |
+| Argument          | Description                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                                |
+| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                       |
+| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                          |
+| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                           |
+| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                             |
+| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams/teams.csv` |
 
 ---
 
@@ -216,9 +216,9 @@ Where a team is identified by it's team number...
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                                                                  |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
+| Argument    | Description                                                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
 
 #### `teams_to_csv`
 
@@ -236,9 +236,9 @@ python3 -m backend.script.teams_to_csv <file_path>
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                                                                                              |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
+| Argument    | Description                                                                                                                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
 
 #### `teams_to_database`
 
