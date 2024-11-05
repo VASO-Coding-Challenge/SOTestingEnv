@@ -17,7 +17,7 @@ openapi_tags = {
 api = APIRouter(prefix="/api/questions")
 
 
-@api.get("/questions", response_model=QuestionsPublic, tags=["Questions"])
+@api.get("/", response_model=QuestionsPublic, tags=["Questions"])
 def get_questions(
     team: Team = Depends(authed_team),
     auth_svc: AuthService = Depends(),
