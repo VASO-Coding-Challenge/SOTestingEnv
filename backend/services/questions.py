@@ -9,15 +9,17 @@ __authors__ = ["Nicholas Almy"]
 
 
 class QuestionService:
-    """A service to handle questions for the competition"""
+    """A Singleton service to handle questions for the competition"""
+
+    _questions: QuestionsPublic = None
 
     def __init__(self):
-        # Walk through the questions directory and load all the questions
-        self.questions = self.load_questions()
+        if not QuestionService._questions:
+            QuestionService._questions = self.load_questions()
 
     def get_questions(self) -> QuestionsPublic:
         """Get all the questions for the competition"""
-        return self.questions
+        return QuestionService._questions
 
     def isQuestionDir(self, directory: str) -> bool:
         return directory.startswith("q") and directory[1:].isdigit()
@@ -102,3 +104,7 @@ class QuestionService:
         global_docs = self.load_global_docs()
 
         return QuestionsPublic(questions=questions, global_docs=global_docs)
+
+    def refresh_questions(self):
+        """Refresh the questions"""
+        QuestionService._questions = self.load_questions()
