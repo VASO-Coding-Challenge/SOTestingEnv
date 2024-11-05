@@ -101,7 +101,7 @@ NA
 
 ## Event Supervisor Command Suite Documentation
 
-### `create_team_table`
+### `add_teams`
 
 #### Description
 
@@ -119,19 +119,19 @@ This command follows these rules:
 #### Command
 
 ```bash
-python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <start_time> <end_time> <file_path>
+python3 -m backend.script.add_teams -p <prefix> -n <number_of_teams> -d <date> -s <start_time> -e <end_time> -f <file_path>
 ```
 
 #### Arguments
 
-| Argument          | Description                                                                                                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                          |
-| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                 |
-| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                    |
-| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                     |
-| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                       |
-| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams.csv` |
+| Argument          | Flag        | Description                                                                                                                                                               | Default                    |
+| ----------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `prefix`          | -p, -PREFIX | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                            | NA                         |
+| `number_of_teams` | -n, -NUMBER | Number of new teams to create. This must be an integer.                                                                                                                   | NA                         |
+| `date`            | -d, -DATE   | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                      | NA                         |
+| `start_time`      | -s, -START  | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                       | NA                         |
+| `end_time`        | -e, -END    | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                         | NA                         |
+| `file_path`       | -f, -FILE   | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. | `es_files/teams/teams.csv` |
 
 ---
 
