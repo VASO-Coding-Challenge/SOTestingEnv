@@ -23,27 +23,48 @@ class QuestionService:
         # Walk through the directory and load all the questions (questions/q1/q1.md)
         for root, dirs, files in os.walk(questions_dir):
             for dir in dirs:
-                # Get the question number
-                question_num = int(dir[1:])
-                question_path = os.path.join(root, dir, "prompt.md")
-                with open(question_path, "r") as f:
-                    question = f.read()
-                # Get the documents for the question
-                docs: List[Document] = []
-                for doc in os.listdir(os.path.join(root, dir)):
-                    if doc.startswith("doc_"):
-                        doc_title = doc[4:-3]
-                        with open(os.path.join(root, dir, doc), "r") as f:
-                            docs.append(Document(content=f.read(), title=doc_title))
-                questions.append(
-                    Question(num=question_num, writeup=question, docs=docs)
-                )
+                # Skip non-question directories
+                if not dir.startswith("q"):
+                    continue
+                # Get the question number, if subdirectory isnt in the correct format, continue to next
+                try:
+                    question_num = int(dir[1:])
+                except ValueError:
+                    continue
+
+                try:
+                    # Load the question
+                    question_path = os.path.join(root, dir, "prompt.md")
+                    with open(question_path, "r") as f:
+                        question = f.read()
+                    # Get the documents for the question
+                    docs: List[Document] = []
+                    for doc in os.listdir(os.path.join(root, dir)):
+                        if doc.startswith("doc_"):
+                            doc_title = doc[4:-3]
+                            with open(os.path.join(root, dir, doc), "r") as f:
+                                docs.append(Document(content=f.read(), title=doc_title))
+                    questions.append(
+                        Question(num=question_num, writeup=question, docs=docs)
+                    )
+                except FileNotFoundError:
+                    pass
+                except Exception as e:
+                    raise e
+
         # Load the global documents
         global_docs_path = "es_files/global_docs"
         global_docs: List[Document] = []
         for doc in os.listdir(global_docs_path):
-            with open(os.path.join(global_docs_path, doc), "r") as f:
-                global_docs.append(Document(content=f.read(), title=doc))
+            if not doc.endswith(".md"):
+                continue
+            try:
+                doc_title = doc[:-3]
+                with open(os.path.join(global_docs_path, doc), "r") as f:
+                    global_docs.append(Document(content=f.read(), title=doc_title))
+            except Exception as e:
+                print(f"Could not process file {doc_title}")
+
         return QuestionsPublic(questions=questions, global_docs=global_docs)
 
     def get_questions(self) -> QuestionsPublic:

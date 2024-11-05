@@ -17,11 +17,14 @@ api = APIRouter(prefix="/api/questions")
 
 
 @api.get("/questions", response_model=QuestionsPublic, tags=["Questions"])
-def get_questions(team: Team = Depends(authed_team)):
+def get_questions(
+    team: Team = Depends(authed_team),
+    auth_svc: AuthService = Depends(),
+    question_svc: QuestionService = Depends(),
+):
     """Get all the questions for the competition"""
     try:
-        AuthService.authenticate_team_time(team)
+        auth_svc.authenticate_team_time(team)
     except Exception as e:
         raise HTTPException(401, str(e))
-    question_svc = QuestionService()
     return question_svc.get_questions()
