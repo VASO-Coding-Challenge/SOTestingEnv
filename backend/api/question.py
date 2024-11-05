@@ -1,6 +1,7 @@
 """This API Route handles serving the questions and documentation"""
 
 from fastapi import APIRouter, Depends, HTTPException
+from ..services.exceptions import InvalidCredentialsException
 from ..models import QuestionsPublic, Team
 from ..services.questions import QuestionService
 from ..services.auth import AuthService
@@ -25,6 +26,6 @@ def get_questions(
     """Get all the questions for the competition"""
     try:
         auth_svc.authenticate_team_time(team)
-    except Exception as e:
+    except InvalidCredentialsException as e:
         raise HTTPException(401, str(e))
     return question_svc.get_questions()
