@@ -6,6 +6,10 @@ from ..models import TeamData
 from ..db import engine
 import polars as pl
 
+__authors__ = ["Nicholas Almy"]
+
+DEFAULT_FILE = "es_files/teams/teams.csv"
+
 
 def load_teams():
     # Get filepath from cli args, validate it
@@ -13,10 +17,10 @@ def load_teams():
         file: str = sys.argv[1]
         if not file.endswith(".csv"):
             sys.stdout.write("Error -- File not in supported format (.csv)")
-            file = "es_files/teams.csv"
+            file = DEFAULT_FILE
     except IndexError:
         sys.stdout.write("No file provided")
-        file = "es_files/teams.csv"
+        file = DEFAULT_FILE
 
     sys.stdout.write(f"...Writing to {file}")
 
