@@ -38,8 +38,10 @@ export const MemberInput = ({ token }: { token: string }) => {
   const add_new_member = async () => {
     const [firstname, ...rest] = newName.split(" ");
     const lastname = rest.join(" ");
-    if (firstname === "" || lastname === "") {
+    if (firstname === "") {
       throw new Error("Please enter a name.");
+    } else if (lastname === "") {
+      throw new Error("Please enter a last name separated by a space.")
     }
 
     const res = await fetch("/api/team/members", {
@@ -79,8 +81,7 @@ export const MemberInput = ({ token }: { token: string }) => {
   const add_error_handler = (msg: string = "") => {
     setErrorDisplay(
       <p className="text-red-500 text-center">
-        Error On Submission: {msg} <br></br>Please try again, make sure to
-        include first and last name separated by a space.
+        Error: {msg} 
       </p>
     );
     setTimeout(() => setErrorDisplay(<></>), 10000);
