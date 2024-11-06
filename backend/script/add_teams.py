@@ -61,43 +61,37 @@ def parse_cli() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-p",
-        "--prefix",
+        "prefix",
         type=str,
         help="The prefix for the team name. Must be alphabetic characters.",
     )
 
     parser.add_argument(
-        "-n",
-        "--number",
+        "number",
         type=int,
         help="The number of teams to create.",
     )
 
     parser.add_argument(
-        "-d",
-        "--date",
+        "date",
         type=str,
         help="The date of the competition in the format mm/dd/yyyy.",
     )
 
     parser.add_argument(
-        "-s",
-        "--start",
+        "start_time",
         type=str,
         help="The start time of the competition in the format HH:MM (24h Time).",
     )
 
     parser.add_argument(
-        "-e",
-        "--end",
+        "end_time",
         type=str,
         help="The end time of the competition in the format HH:MM (24h Time).",
     )
 
     parser.add_argument(
-        "-f",
-        "--file",
+        "file",
         type=str,
         default="es_files/teams/teams.csv",
         help=f"The file to save the team data to. Defaults to {DEFAULT_FILE}.",
