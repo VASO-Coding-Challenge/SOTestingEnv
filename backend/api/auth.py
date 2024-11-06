@@ -1,5 +1,5 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.config import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -8,7 +8,7 @@ from ..models.team import Team
 
 from ..services.auth import AuthService
 from ..services.team import TeamService
-from ..services.exceptions import InvalidCredentialsException, ResourceNotFoundException
+from ..services.exceptions import InvalidCredentialsException
 
 __authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
 

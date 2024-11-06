@@ -1,10 +1,8 @@
 """This API Route handles serving the questions and documentation"""
 
-from fastapi import APIRouter, Depends, HTTPException
-from ..services.exceptions import InvalidCredentialsException
+from fastapi import APIRouter, Depends
 from ..models import QuestionsPublic, Team
 from ..services.questions import QuestionService
-from ..services.auth import AuthService
 from .auth import active_test
 
 __authors__ = ["Nicholas Almy"]

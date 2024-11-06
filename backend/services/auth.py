@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from sqlmodel import Session
 from ..db import db_session
 
-from ..models.auth import Token, TokenData, LoginData
+from ..models.auth import Token, TokenData
 from ..models.team import Team
 
 from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
