@@ -65,6 +65,8 @@ add it to the `feature_apis` list as well as the tags in the `openapi_tags` list
 
 #### Requiring Authentication
 
+##### Basic Auth
+
 To require a user to be logged in to access a route, and get their associated Team table, add this argument to the route:
 
 ```python
@@ -75,18 +77,22 @@ team: Team = Depends(authed_team)
 ):
 ```
 
-To authorize access to functions based upon team start and end times, use the AuthService authenticate_team_time method:
+##### Timed Access
+
+To require a user to be authenticated, in their scheduled test time (between the start and end values in their team table),
+and retreieve their `Team` object, use the `active_test` function found in `/api/auth.py`. Adding it to a route is just as simple
+as basic auth:
 
 ```python
-def get_foo_bar(
-    team: Team = Depends(authed_team),
-    auth_svc: AuthService = Depends(),
+from .auth import active_test
+...
+def testing_concerns(
+    team: Team = Depends(active_test)
 ):
-    try:
-        auth_svc.authenticate_team_time(team)
-    except InvalidCredentialsException as e:
-        raise HTTPException(401, str(e))
 ```
+
+This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the 
+current time is not during their test time.
 
 #### SQLModel
 
