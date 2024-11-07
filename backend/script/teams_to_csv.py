@@ -17,13 +17,8 @@ def teams_to_csv():
     # Get filepath from cli args, validate it
     args = parse_cli()
     file = args.file
-    try:
-        file: str = sys.argv[1]
-        if not file.endswith(".csv"):
-            sys.stdout.write("Error -- File not in supported format (.csv)")
-            file = DEFAULT_FILE
-    except IndexError:
-        sys.stdout.write("No file provided")
+    if not file.endswith(".csv"):
+        sys.stdout.write("Error -- File not in supported format (.csv)")
         file = DEFAULT_FILE
 
     sys.stdout.write(f"...Writing to {file}")

@@ -16,10 +16,6 @@ def teams_to_db():
     args = parse_cli()
     file = args.file
     # Get filepath from cli args, validate it
-    try:
-        file: str = sys.argv[1]
-    except IndexError:
-        file = DEFAULT_FILE
     if not file.endswith(".csv"):
         sys.stdout.write("Error -- File not in supported format (.csv)")
         sys.stdout.write(f"...Reading from {DEFAULT_FILE}\n")
