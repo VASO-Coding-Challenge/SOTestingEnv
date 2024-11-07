@@ -10,7 +10,7 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import count, team, auth, question
+from .api import count, team, auth, question, docs
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
@@ -23,19 +23,19 @@ app = FastAPI(
     version="1.0.0",
     description=description,
     openapi_tags=[
-        # ! Insert Tags Here
         count.openapi_tags,
         team.openapi_tags,
         auth.openapi_tags,
         question.openapi_tags,
+        docs.openapi_tags,
     ],
 )
 
-# Using GZip middleware is an internet standard for compressing HTML responses over the network
+
 app.add_middleware(GZipMiddleware)
 
 # ! Plug in each seprate API file here (make sure to import above)
-feature_apis = [count, team, auth, question]
+feature_apis = [count, team, auth, question, docs]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { SubmissionWidgetProps } from "../models/submission";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
@@ -6,34 +7,25 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   globalDocs,
 }) => {
   const [activeTab, setActiveTab] = useState("submission");
-  const [submissionType, setSubmissionType] = useState("code");
-  const [code, setCode] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
-  const [consoleVisible, setConsoleVisible] = useState(false);
+  const [docsTab, setDocsTab] = useState("question");
 
   const handleTabSwitch = (tab: "submission" | "docs") => {
     setActiveTab(tab);
   };
 
-  const handleSubmissionSwitch = (submission: "code" | "file") => {
-    setSubmissionType(submission);
+  const handleDocsTabSwitch = (tab: "question" | "global") => {
+    setDocsTab(tab);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCode(e.target.value);
-  };
-
-  const handleSubmit = () => {
-    console.log("Submitting code or file");
-    console.log("Code:", code);
-    console.log("File:", file);
-    setConsoleVisible(true);
+  /* 
+  Generate the link for accessing the backend route.
+  This function will return a route depending on whether
+  the doc in question is a global doc or a question doc.
+  */
+  const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
+    return isGlobal
+      ? `/docs/global/${docTitle}`
+      : `/docs/question/${question.num}/${docTitle}`;
   };
 
   return (
@@ -64,66 +56,78 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       {activeTab === "submission" && (
         <div className="p-4 h-full flex flex-col">
           <h3 className="text-lg font-semibold mb-2">Run Your Solution</h3>
-          <div className="flex mb-4">
-            <button
-              onClick={() => handleSubmissionSwitch("code")}
-              className={`flex-1 py-2 ${
-                submissionType === "code" ? "bg-gray-200" : "bg-white"
-              } border rounded-l`}
-            >
-              Code
-            </button>
-            <button
-              onClick={() => handleSubmissionSwitch("file")}
-              className={`flex-1 py-2 ${
-                submissionType === "file" ? "bg-gray-200" : "bg-white"
-              } border rounded-r`}
-            >
-              File
-            </button>
-          </div>
-
-          {submissionType === "code" ? (
-            <textarea
-              value={code}
-              onChange={handleCodeChange}
-              placeholder="Paste your code here"
-              className={`w-full p-2 mb-3 border rounded bg-white text-black ${
-                consoleVisible ? "h-40" : "flex-grow"
-              }`}
-            ></textarea>
-          ) : (
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              className="w-full p-2 mb-4 border rounded bg-white text-black"
-            />
-          )}
-
-          <div className="flex justify-end mt-auto">
-            <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2">
-              Run
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Submit
-            </button>
-          </div>
+          {/* Code submission form goes here */}
         </div>
       )}
 
-      {activeTab === "docs" && question && (
+      {activeTab === "docs" && (
         <div className="p-4">
-          <h3 className="text-lg font-semibold mb-2">
-            Documentation for Question {question.num}
-          </h3>
-          {globalDocs.map((doc) => (
-            <div key={doc.title}>
-              <h5>{doc.title}</h5>
+          <div className="flex border-b mb-4">
+            <button
+              onClick={() => handleDocsTabSwitch("question")}
+              className={`w-1/2 py-2 text-center ${
+                docsTab === "question"
+                  ? "border-b-2 border-purple-500 font-semibold"
+                  : ""
+              }`}
+            >
+              Question Docs
+            </button>
+            <button
+              onClick={() => handleDocsTabSwitch("global")}
+              className={`w-1/2 py-2 text-center ${
+                docsTab === "global"
+                  ? "border-b-2 border-purple-500 font-semibold"
+                  : ""
+              }`}
+            >
+              Global Docs
+            </button>
+          </div>
+
+          {docsTab === "question" && (
+            <div>
+              <h4>
+                <strong>Documentation for Question {question.num}</strong>
+              </h4>
+              {question.docs.map((doc) => (
+                <div key={doc.title} className="mb-4">
+                  <ul>
+                    <Link
+                      to={generateDocRoute(doc.title, false)}
+                      target="_blank" // This is what is causing the issue.
+                      rel="noopener noreferrer"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      {doc.title}
+                    </Link>
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {docsTab === "global" && (
+            <div>
+              <h4>
+                <strong>Global Documentation</strong>
+              </h4>
+              {globalDocs.map((doc) => (
+                <div key={doc.title} className="mb-4">
+                  <ul>
+                    <Link
+                      to={generateDocRoute(doc.title, true)}
+                      target="_blank" // This is what is causing the issue.
+                      rel="noopener noreferrer"
+                      className="underline text-blue-600 hover:text-blue-800"
+                    >
+                      {doc.title}
+                    </Link>
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

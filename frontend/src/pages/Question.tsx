@@ -10,10 +10,11 @@ const QuestionPage = () => {
   const [globalDocs, setGlobalDocs] = useState<Document[]>([]);
 
   useEffect(() => {
-    fetch("/api/questions/questions", {
+    fetch("/api/questions", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
       .then((response) => {
@@ -32,6 +33,7 @@ const QuestionPage = () => {
       });
   }, []);
 
+  // State stores the selected question.
   const handleQuestionClick = (questionNum: number) => {
     const question = questions?.find((q) => q.num === questionNum) || null;
     setSelectedQuestion(question);
@@ -61,6 +63,7 @@ const QuestionPage = () => {
         )}
       </section>
 
+      {/** The selected question and the global docs get passed in as props. */}
       {selectedQuestion && (
         <SubmissionWidget question={selectedQuestion} globalDocs={globalDocs} />
       )}
