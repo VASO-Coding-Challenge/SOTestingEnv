@@ -79,19 +79,20 @@ def parse_cli() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "start_time",
+        "start",
         type=str,
         help="The start time of the competition in the format HH:MM (24h Time).",
     )
 
     parser.add_argument(
-        "end_time",
+        "end",
         type=str,
         help="The end time of the competition in the format HH:MM (24h Time).",
     )
 
     parser.add_argument(
-        "file",
+        "-f",
+        "--file",
         type=str,
         default="es_files/teams/teams.csv",
         help=f"The file to save the team data to. Defaults to {DEFAULT_FILE}.",
