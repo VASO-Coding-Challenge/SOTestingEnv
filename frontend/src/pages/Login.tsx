@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [errorDisplay, setErrorDisplay] = useState<JSX.Element>(<></>);
   type resp = {
     access_token: string;
     token_type: string;
@@ -26,8 +27,9 @@ const LoginPage = () => {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code : ${response.status}`);
-        }
+          return response.json().then((json: { message: string }) => {
+            throw new Error(json.message);
+        })};
         return response.json();
       })
       .then((responseData: resp) => {
@@ -35,10 +37,24 @@ const LoginPage = () => {
         localStorage.setItem("token", responseData.access_token);
         navigate("/");
       })
-      .catch((error) => {
-        console.error("Error :", error);
+      .catch((error: Error) => {
+        console.error("Error :", error.message);
+        login_error_handler(error.message);
+        return <></>
       });
   };
+
+  const login_error_handler = (msg: string = "") => {
+    setErrorDisplay(
+      <div className="flex flex-col items-center justify-center rounded-[10px] mb-3 pl-3 pr-3 w-half bg-[rgba(255,112,112,0.65)]">
+        <p className="text-[#0000008e] text-center">
+          Error: {msg} 
+        </p>
+      </div>
+    );
+    setTimeout(() => setErrorDisplay(<></>), 10000);
+  };
+
 
   return (
     <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
@@ -74,6 +90,7 @@ const LoginPage = () => {
           />
         </div>
         <br />
+        {errorDisplay}
         <button
           onClick={handleSubmit}
           className="mt-2 px-4 py-2 bg-gray-800 text-white font-bold rounded hover:bg-gray-400 active:bg-gray-950"
@@ -84,5 +101,7 @@ const LoginPage = () => {
     </div>
   );
 };
+
+
 
 export default LoginPage;
