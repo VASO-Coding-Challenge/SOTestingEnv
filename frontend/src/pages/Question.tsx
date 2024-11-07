@@ -7,7 +7,7 @@ const QuestionPage = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     null
   );
-  const [globalDocs, setGlobalDocs] = useState<Document[]>([]); // Default to an empty array
+  const [globalDocs, setGlobalDocs] = useState<Document[]>([]);
 
   useEffect(() => {
     fetch("/api/questions/questions", {
