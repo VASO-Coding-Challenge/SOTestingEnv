@@ -1,18 +1,15 @@
 import React, { useState } from "react";
+import { SubmissionWidgetProps } from "../models/submission";
 
-// interface Judge0Response {
-//   stdout: string | null;
-//   stderr: string | null;
-//   message?: string;
-// }
-
-const SubmissionWidget = () => {
+const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
+  question,
+  globalDocs,
+}) => {
   const [activeTab, setActiveTab] = useState("submission");
   const [submissionType, setSubmissionType] = useState("code");
   const [code, setCode] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [consoleVisible, setConsoleVisible] = useState(false);
-  // const [consoleOutput, setConsoleOutput] = useState<string | null>(null);
 
   const handleTabSwitch = (tab: "submission" | "docs") => {
     setActiveTab(tab);
@@ -32,53 +29,11 @@ const SubmissionWidget = () => {
     setCode(e.target.value);
   };
 
-  // const handleRun = async () => {
-  //   setConsoleVisible(true);
-  //   setConsoleOutput("Running code...");
-
-  //   try {
-  //     const response = await fetch(
-  //       "https://api.judge0.com/submissions?base64_encoded=false&wait=true",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "X-RapidAPI-Key": "YOUR_JUDGE0_API_KEY", // Optional if needed
-  //         },
-  //         body: JSON.stringify({
-  //           source_code: code,
-  //           language_id: 71,
-  //         }),
-  //       }
-  //     );
-
-  //     if (!response.ok) {
-  //       let errorMessage = "Error running code.";
-
-  //       // Attempt to parse JSON error message if available
-  //       try {
-  //         const errorData = await response.json();
-  //         errorMessage = errorData.message || errorMessage;
-  //       } catch {
-  //         console.error("Could not parse error response as JSON.");
-  //       }
-
-  //       throw new Error(errorMessage);
-  //     }
-
-  //     const data: Judge0Response = await response.json();
-  //     setConsoleOutput(data.stdout || data.stderr || "No output.");
-  //   } catch (error) {
-  //     const errorMessage = error instanceof Error ? error.message : "Unexpected error occurred.";
-  //     setConsoleOutput(`Error running code: ${errorMessage}`);
-  //     console.error("Error:", error);
-  //   }
-  // };
-
   const handleSubmit = () => {
     console.log("Submitting code or file");
     console.log("Code:", code);
     console.log("File:", file);
+    setConsoleVisible(true);
   };
 
   return (
@@ -146,10 +101,7 @@ const SubmissionWidget = () => {
           )}
 
           <div className="flex justify-end mt-auto">
-            <button
-              // onClick={handleRun}
-              className="bg-purple-500 text-white px-3 py-1 rounded mr-2"
-            >
+            <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2">
               Run
             </button>
             <button
@@ -159,36 +111,19 @@ const SubmissionWidget = () => {
               Submit
             </button>
           </div>
-
-          {consoleVisible && (
-            <div className="mt-4 bg-gray-100 border border-gray-300 rounded p-3 h-24 overflow-y-auto">
-              <div className="text-sm text-gray-800">
-                <strong>Output:</strong>
-              </div>
-              <pre className="text-xs text-gray-800 whitespace-pre-wrap">
-                {/* {consoleOutput} */}
-              </pre>
-            </div>
-          )}
-
-          <button
-            onClick={() => setConsoleVisible((prev) => !prev)}
-            className="text-xs text-purple-500 mt-2"
-          >
-            {/* {consoleVisible ? "Hide Console" : "Show Console"} */}
-          </button>
         </div>
       )}
 
-      {activeTab === "docs" && (
+      {activeTab === "docs" && question && (
         <div className="p-4">
-          <h3 className="text-lg font-semibold mb-2">Documentation</h3>
-          <ul className="list-disc list-inside">
-            <li>How to use the submission area</li>
-            <li>Tips for writing efficient code</li>
-            <li>Common errors and debugging tips</li>
-            <li>Resources for improving coding skills</li>
-          </ul>
+          <h3 className="text-lg font-semibold mb-2">
+            Documentation for Question {question.num}
+          </h3>
+          {globalDocs.map((doc) => (
+            <div key={doc.title}>
+              <h5>{doc.title}</h5>
+            </div>
+          ))}
         </div>
       )}
     </section>

@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { TokenJSON } from "../models/auth";
 
 const LoginPage = () => {
   const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  type resp = {
-    access_token: string;
-    token_type: string;
-  };
+
   const navigate = useNavigate();
 
   const handleSubmit = (
@@ -30,7 +28,7 @@ const LoginPage = () => {
         }
         return response.json();
       })
-      .then((responseData: resp) => {
+      .then((responseData: TokenJSON) => {
         console.log("Success :", responseData.access_token);
         sessionStorage.setItem("token", responseData.access_token);
         navigate("/Question");
