@@ -30,6 +30,6 @@ with Session(engine) as session:
     count.insert_fake_data(session)
     team.create_fake_teams(session)
     team_svc = TeamService(session)
-    team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams.csv")
+    team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams/teams.csv")
     team_members.insert_fake_team_members(session)
     session.commit()

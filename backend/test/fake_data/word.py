@@ -6,7 +6,7 @@ from backend.db import engine
 
 __authors__ = ["Nicholas Almy"]
 
-WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words_reset.csv"
+WORD_LIST = "/workspaces/SOTestingEnv/es_files/teams/unique_words_reset.csv"
 corpus = pl.read_csv(WORD_LIST)["word"]
 
 

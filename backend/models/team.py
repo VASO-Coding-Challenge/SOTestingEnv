@@ -14,7 +14,6 @@ class TeamBase(SQLModel):
     start_time: datetime
     end_time: datetime
 
-
 class Team(TeamBase, table=True):
     """Table Model for a Team Member"""
 

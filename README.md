@@ -65,6 +65,8 @@ add it to the `feature_apis` list as well as the tags in the `openapi_tags` list
 
 #### Requiring Authentication
 
+##### Basic Auth
+
 To require a user to be logged in to access a route, and get their associated Team table, add this argument to the route:
 
 ```python
@@ -74,6 +76,23 @@ def get_foo(
 team: Team = Depends(authed_team)
 ):
 ```
+
+##### Timed Access
+
+To require a user to be authenticated, in their scheduled test time (between the start and end values in their team table),
+and retreieve their `Team` object, use the `active_test` function found in `/api/auth.py`. Adding it to a route is just as simple
+as basic auth:
+
+```python
+from .auth import active_test
+...
+def testing_concerns(
+    team: Team = Depends(active_test)
+):
+```
+
+This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the 
+current time is not during their test time.
 
 #### SQLModel
 
@@ -99,11 +118,60 @@ python3 -m backend.script.reset_database
 
 NA
 
-## Event Supervisor Command Suite Documentation
+## Event Supervisor Documentation
 
-### `create_team_table`
+### ES File Structure and Question formatting
 
-#### Description
+#### General File Structure
+
+The general ES file structure should maintained in the following format, and any deviation may cause some backend components to break:
+
+```
+es_files/
+├─ questions/
+│ ├─ q1/
+│ │ ├─ prompt.md
+│ │ ├─ doc_<title>.md
+│ │ ├─ test_cases.py
+│ │ ├─ demo_case.py
+│ ├─ q2/
+│ ├─ q3/
+├─ teams/
+│ ├─ unique_words_reset.csv
+│ ├─ teams.csv
+├─ global_docs/
+│ ├─ <title>.md
+```
+
+#### `teams` Subdirectory Information
+
+The `teams` subdirectory holds all data for interacting with the Team tables in the database. As of now, there are two important files:
+
+| File                     | Description                                                               |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `teams.csv`              | File containing a snapshot of the Team table in the database.             |
+| `unique_words_reset.csv` | File containing a list of gradeschool level words for password generation |
+
+#### `questions` Subdirectory Information
+
+The `questions` Subdirectory holds information for the test, where it's subdirectories, following the convention q#, represent questions and contain all relevant files.
+
+| File             | Description                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `prompt.md`      | This Markdown file holds the question body.                                             |
+| `doc_<title>.md` | Markdown files with the prefix `doc_` are question specific/supplemental documentation. |
+| `test_cases.py`  | This python file is for final submission grading by the ES.                             |
+| `demo_cases.py`  | This python file is for validation testing by the students.                             |
+
+#### `global_docs` Subdirectoy Information
+
+The `global_docs` subdirectory holds all documentation made available regardless of question. All Markdown file in this directory will be made available for reference during test time.
+
+### ES Scripting Suite Documentation
+
+#### `create_team_table`
+
+##### Description
 
 Generates new team entries with unique identifiers based on a specified prefix and saves them to the database and a CSV file. The script takes care of password generation for each team and saves the updated team data back to the specified file. If the CSV file doesn’t exist, it will be created with the appropriate columns.
 
@@ -116,28 +184,28 @@ This command follows these rules:
 - **Existing teams** database are shown in the `teams.csv` file.
 - The generated team data is saved back to the specified file, ensuring the CSV reflects the current state of the `team` table.
 
-#### Command
+##### Command
 
 ```bash
 python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <start_time> <end_time> <file_path>
 ```
 
-#### Arguments
+##### Arguments
 
-| Argument          | Description                                                                                                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                          |
-| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                 |
-| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                    |
-| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                     |
-| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                       |
-| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams.csv` |
+| Argument          | Description                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                                |
+| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                       |
+| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                          |
+| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                           |
+| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                             |
+| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams/teams.csv` |
 
 ---
 
-### `load_teams`
+#### `load_teams`
 
-#### Description
+##### Description
 
 Loads a local `teams.csv` table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.
 
@@ -148,39 +216,39 @@ Where a team is identified by it's team number...
 2. Any team in the file but NOT in the database will be added to the database
 3. Any team in both the file and database will update the database to the file's fields (if there are changes)
 
-#### Command
+##### Command
 
 `python3 -m backend.script.load_teams <file_path>`
 
-#### Arguments
+##### Arguments
 
-| Argument    | Description                                                                                                                                                                  |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
+| Argument    | Description                                                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
 
-### `teams_to_csv`
+#### `teams_to_csv`
 
-#### Description
+##### Description
 
 Updates or generates a teams.csv file containing the current state of the database.
 
 This command is **NOT safe**... meaning any changes in the teams.csv file will be deleted!
 
-#### Command
+##### Command
 
 ```bash
 python3 -m backend.script.teams_to_csv <file_path>
 ```
 
-#### Arguments
+##### Arguments
 
-| Argument    | Description                                                                                                                                                                                              |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams.csv` |
+| Argument    | Description                                                                                                                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
 
-### `teams_to_database`
+#### `teams_to_database`
 
-#### Description
+##### Description
 
 Updates the teams table in the database to match the teams.csv file provided.
 
@@ -193,46 +261,46 @@ Where a team is identified by it's team number...
 2. Any team in the file but NOT in the database will be **ADDED** to the database
 3. Any team present in both will be **UPDATED** according the file's specifications
 
-#### Command
+##### Command
 
 ```bash
 python3 -m backend.script.teams_to_database <file_path>
 ```
 
-#### Arguments
+##### Arguments
 
 | Argument    | Description                                                                                                                      |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `file_path` | File containing updated team information. Upon successful completion, the database will be updated to the file's specifications. |
 
-### `reset_unique_words`
+#### `reset_unique_words`
 
-#### Description
+##### Description
 
 The `unique_word_list` is our current tool for password generation. As more teams are made and more passwords are generated, the word list depletes. This function resets only the word list so that new passwords can be generated.
 
-#### Command
+##### Command
 
 ```bash
 python3 -m backend.script.reset_unique_words
 ```
 
-#### Arguments
+##### Arguments
 
 NA
 
-### `reset_teams`
+#### `reset_teams`
 
-#### Description
+##### Description
 
 **Will permenantly delete ALL DATA in the team table of the database.**
 
-#### Command
+##### Command
 
 ```bash
 python3 -m backend.script.reset_teams
 ```
 
-#### Arguments
+##### Arguments
 
 NA
