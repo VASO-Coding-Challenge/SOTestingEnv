@@ -5,7 +5,7 @@ import { TokenJSON } from "../models/auth";
 const LoginPage = () => {
   const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
+  const [errorDisplay, setErrorDisplay] = useState<JSX.Element>(<></>);
   const navigate = useNavigate();
 
   const handleSubmit = (
