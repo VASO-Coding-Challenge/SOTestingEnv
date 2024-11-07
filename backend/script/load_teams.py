@@ -6,6 +6,7 @@ from ..models import TeamData
 from ..db import engine
 import polars as pl
 import argparse
+from argparse import RawTextHelpFormatter
 
 __authors__ = ["Nicholas Almy"]
 
@@ -68,11 +69,12 @@ def load_teams():
 
 def parse_cli() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Loads a local teams.csv table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.\n\
-            This command is safe... meaning it follows these rules: Where a team is identified by it's team number...\n\
-            1)Any team in the database but NOT in the file will be added to the file\n\
-            2)Any team in the file but NOT in the database will be added to the database\n\
-            3)Any team in both the file and database will update the database to the file's fields (if there are changes)"
+        description="Loads a local teams.csv table into the database. This command will take care of password generation for teams as they are initialized and add them to the csv file. No password overwriting occurs in this script.\
+            \r\n\nThis command is safe... meaning it follows these rules: Where a team is identified by it's team number...\n\
+            \r\n1)Any team in the database but NOT in the file will be added to the file\n\
+            \r\n2)Any team in the file but NOT in the database will be added to the database\n\
+            \r\n3)Any team in both the file and database will update the database to the file's fields (if there are changes)",
+        formatter_class=RawTextHelpFormatter,
     )
 
     parser.add_argument(
