@@ -5,21 +5,20 @@ from ..services import TeamService, PasswordService, ResourceNotFoundException
 from ..models import TeamData
 from ..db import engine
 import polars as pl
+import argparse
+from argparse import RawTextHelpFormatter
 
 __authors__ = ["Nicholas Almy"]
 
 DEFAULT_FILE = "es_files/teams/teams.csv"
 
 
-def load_teams():
+def teams_to_csv():
     # Get filepath from cli args, validate it
-    try:
-        file: str = sys.argv[1]
-        if not file.endswith(".csv"):
-            sys.stdout.write("Error -- File not in supported format (.csv)")
-            file = DEFAULT_FILE
-    except IndexError:
-        sys.stdout.write("No file provided")
+    args = parse_cli()
+    file = args.file
+    if not file.endswith(".csv"):
+        sys.stdout.write("Error -- File not in supported format (.csv)")
         file = DEFAULT_FILE
 
     sys.stdout.write(f"...Writing to {file}")
@@ -37,5 +36,23 @@ def load_teams():
     sys.stdout.write(f"Saved/updated to file {file}")
 
 
+def parse_cli() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Updates or generates a teams.csv file containing the current state of the database.\n"
+        "This command is NOT safe... meaning any changes in the teams.csv file will be deleted!",
+        formatter_class=RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=str,
+        default=DEFAULT_FILE,
+        help="File containing updated team information. Upon completing, this file is altered to show the current state of the team table in the database.",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    load_teams()
+    teams_to_csv()

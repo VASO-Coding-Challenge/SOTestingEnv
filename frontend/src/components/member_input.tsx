@@ -80,9 +80,11 @@ export const MemberInput = ({ token }: { token: string }) => {
 
   const add_error_handler = (msg: string = "") => {
     setErrorDisplay(
-      <p className="text-red-500 text-center">
-        Error: {msg} 
-      </p>
+      <div className="flex flex-col items-center justify-center rounded-[10px] mb-3 pl-3 pr-3 w-half border-2 border-red-900 bg-[rgba(255,112,121,0.65)]">
+        <p className="text-center">
+          Error: {msg} 
+        </p>
+      </div>
     );
     setTimeout(() => setErrorDisplay(<></>), 10000);
   };

@@ -24,7 +24,9 @@ const LoginPage = () => {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code : ${response.status}`);
+          return response.json().then((json: { message: string }) => {
+            throw new Error(json.message);
+          });
         }
         return response.json();
       })
@@ -33,9 +35,20 @@ const LoginPage = () => {
         localStorage.setItem("token", responseData.access_token);
         navigate("/");
       })
-      .catch((error) => {
-        console.error("Error :", error);
+      .catch((error: Error) => {
+        console.error("Error :", error.message);
+        login_error_handler(error.message);
+        return <></>;
       });
+  };
+
+  const login_error_handler = (msg: string = "") => {
+    setErrorDisplay(
+      <div className="flex flex-col items-center justify-center rounded-[10px] mb-3 pl-3 pr-3 w-half border-2 border-red-900 bg-[rgba(255,112,121,0.65)]">
+        <p className="text-[#0000008e] text-center">Error: {msg}</p>
+      </div>
+    );
+    setTimeout(() => setErrorDisplay(<></>), 10000);
   };
 
   return (
@@ -72,6 +85,7 @@ const LoginPage = () => {
           />
         </div>
         <br />
+        {errorDisplay}
         <button
           onClick={handleSubmit}
           className="mt-2 px-4 py-2 bg-gray-800 text-white font-bold rounded hover:bg-gray-400 active:bg-gray-950"

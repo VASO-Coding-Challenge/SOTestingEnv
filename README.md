@@ -169,7 +169,7 @@ The `global_docs` subdirectory holds all documentation made available regardless
 
 ### ES Scripting Suite Documentation
 
-#### `create_team_table`
+#### `add_teams`
 
 ##### Description
 
@@ -187,19 +187,19 @@ This command follows these rules:
 ##### Command
 
 ```bash
-python3 -m backend.script.create_team_table <prefix> <number_of_teams> <date> <start_time> <end_time> <file_path>
+python3 -m backend.script.add_teams PREFIX NUMBER DATE START END [-f, --file=es_files/teams/teams.csv]
 ```
 
 ##### Arguments
 
-| Argument          | Description                                                                                                                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prefix`          | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                                                                |
-| `number_of_teams` | Number of new teams to create. This must be an integer.                                                                                                                                                       |
-| `date`            | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                                                          |
-| `start_time`      | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                           |
-| `end_time`        | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                                                             |
-| `file_path`       | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. DEFAULT: `es_files/teams/teams.csv` |
+| Argument | Flags        | Description                                                                                                                                                               | Default                    |
+| -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `PREFIX` | `NA`         | Alphabetic prefix for team names. Each new team name will start with this prefix, followed by a unique number.                                                            | `NA`                       |
+| `NUMBER` | `NA`         | Number of new teams to create. This must be an integer.                                                                                                                   | `NA`                       |
+| `DATE`   | `NA`         | Date for team activities in the format `mm/dd/yyyy`.                                                                                                                      | `NA`                       |
+| `START`  | `NA`         | Start time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                       | `NA`                       |
+| `END`    | `NA`         | End time for team activities in `HH:MM` format (24h time), on the specified date.                                                                                         | `NA`                       |
+| `FILE`   | `-f, --file` | Path to the CSV file where the updated team information will be saved. If the file does not exist, it will be created with default columns. Must have a `.csv` extension. | `es_files/teams/teams.csv` |
 
 ---
 
@@ -218,13 +218,15 @@ Where a team is identified by it's team number...
 
 ##### Command
 
-`python3 -m backend.script.load_teams <file_path>`
+```bash
+python3 -m backend.script.load_teams [-f, --file=es_files/teams/teams.csv]
+```
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                                                                        |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
+| Argument | Flag         | Description                                                                                                                                    | Default                    |
+| -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `FILE`   | `-f, --FILE` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. | `es_files/teams/teams.csv` |
 
 #### `teams_to_csv`
 
@@ -237,16 +239,16 @@ This command is **NOT safe**... meaning any changes in the teams.csv file will b
 ##### Command
 
 ```bash
-python3 -m backend.script.teams_to_csv <file_path>
+python3 -m backend.script.teams_to_csv [-f, --file=es_files/teams/teams.csv]
 ```
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                                                                                                    |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | OPTIONAL. File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. Default: `es_files/teams/teams.csv` |
+| Argument | Flags        | Description                                                                                                                                                      | Default                    |
+| -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `FILE`   | `-f, --file` | File to be filled with team table information. Upon completing, this file is altered or generated to show the current state of the `team` table in the database. | `es_files/teams/teams.csv` |
 
-#### `teams_to_database`
+#### `teams_to_db`
 
 ##### Description
 
@@ -264,14 +266,14 @@ Where a team is identified by it's team number...
 ##### Command
 
 ```bash
-python3 -m backend.script.teams_to_database <file_path>
+python3 -m backend.script.teams_to_db [-f, --file=es_files/teams/teams.csv]
 ```
 
 ##### Arguments
 
-| Argument    | Description                                                                                                                      |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | File containing updated team information. Upon successful completion, the database will be updated to the file's specifications. |
+| Argument | Flags        | Description                                                                                                                      | Default                    |
+| -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `FILE`   | `-f, --file` | File containing updated team information. Upon successful completion, the database will be updated to the file's specifications. | `es_files/teams/teams.csv` |
 
 #### `reset_unique_words`
 
@@ -287,7 +289,7 @@ python3 -m backend.script.reset_unique_words
 
 ##### Arguments
 
-NA
+`NA`
 
 #### `reset_teams`
 
@@ -303,4 +305,4 @@ python3 -m backend.script.reset_teams
 
 ##### Arguments
 
-NA
+`NA`
