@@ -3,8 +3,14 @@
 from ..services import PasswordService
 from sqlmodel import Session
 from ..db import engine
+import argparse
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
+
+
+parser = argparse.ArgumentParser(
+    description="Reset Unique Word List: This script resets the unique words list for password generation",
+).parse_args()
 
 with Session(engine) as session:
     pwd_svc = PasswordService(session)
