@@ -5,13 +5,16 @@ from ..services import TeamService, PasswordService, ResourceNotFoundException
 from ..models import TeamData
 from ..db import engine
 import polars as pl
+import argparse
 
 __authors__ = ["Nicholas Almy"]
 
 DEFAULT_FILE = "es_files/teams/teams.csv"
 
 
-def load_teams():
+def teams_to_db():
+    args = parse_cli()
+    file = args.file
     # Get filepath from cli args, validate it
     try:
         file: str = sys.argv[1]
@@ -73,5 +76,23 @@ def load_teams():
     sys.stdout.write(f"Saved/updated to file {file}")
 
 
+def parse_cli() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Updates the teams table in the database to match the teams.csv file provided.\n"
+        "This command is **NOT safe**... meaning any changes and deletions in the teams.csv will be perminant!",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=str,
+        default=DEFAULT_FILE,
+        help="File containing updated team information. Upon completing, this database is altered to show the current state of the CSV File.",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    load_teams()
+    teams_to_db()
