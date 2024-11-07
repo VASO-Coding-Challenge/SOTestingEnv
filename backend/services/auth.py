@@ -5,13 +5,13 @@ from fastapi import Depends, HTTPException, status
 from sqlmodel import Session
 from ..db import db_session
 
-from ..models.auth import Token, TokenData, LoginData
+from ..models.auth import Token, TokenData
 from ..models.team import Team
 
 from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 
 from .team import TeamService
-from .exceptions import InvalidCredentialsException, ResourceNotFoundException
+from .exceptions import InvalidCredentialsException, ResourceNotFoundException, ResourceNotAllowedException
 
 __authors__ = ["Mustafa Aljumayli", "Andrew Lockard", "Nicholas Almy"]
 
@@ -98,10 +98,9 @@ class AuthService:
         except jwt.InvalidTokenError:
             raise InvalidCredentialsException("Login invalid, try logging in again.")
 
-    def authenticate_team_time(self, team: Team) -> bool:
+    def authenticate_team_time(self, team: Team) -> None:
         """Authenticates a Teams permissions based on the time."""
         if team.start_time > datetime.now():
-            raise InvalidCredentialsException("Your testing time is active yet.")
+            raise ResourceNotAllowedException("Your testing time is not active yet.")
         elif team.end_time < datetime.now():
-            raise InvalidCredentialsException("You have run out of time.")
-        return True
+            raise ResourceNotAllowedException("You have run out of time.")

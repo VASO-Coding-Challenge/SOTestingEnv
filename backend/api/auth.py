@@ -1,5 +1,5 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.config import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -8,7 +8,7 @@ from ..models.team import Team
 
 from ..services.auth import AuthService
 from ..services.team import TeamService
-from ..services.exceptions import InvalidCredentialsException, ResourceNotFoundException
+from ..services.exceptions import InvalidCredentialsException
 
 __authors__ = ["Mustafa Aljumayli", "Andrew Lockard"]
 
@@ -30,6 +30,17 @@ def authed_team(
     Designed to be dependency injected into API definition"""
     token = credentials.credentials  # This extracts the token from the header
     return auth_service.get_team_from_token(token)
+
+def active_test(
+        credientials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+        auth_service: AuthService = Depends(),
+) -> Team:
+    """Retrieves the current team object like authed_team, but will also throw a 403 error if the
+    student's test is not currently active."""
+    token = credientials.credentials
+    team = auth_service.get_team_from_token(token)
+    auth_service.authenticate_team_time(team)
+    return Team
 
 
 @api.post("/login", response_model=Token, tags=["Auth"])
