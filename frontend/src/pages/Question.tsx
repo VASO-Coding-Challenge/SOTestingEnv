@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import SubmissionWidget from "../components/SubmissionWidget";
 import { QuestionsPublic, Question, Document } from "../models/questions";
+import LeftSideBar from "../components/LeftSideBar";
+import Markdown from "react-markdown";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
@@ -35,32 +37,21 @@ const QuestionPage = () => {
 
   // State stores the selected question.
   const handleQuestionClick = (questionNum: number) => {
-    const question = questions?.find((q) => q.num === questionNum) || null;
+    const question = questions?.find((q) => q.num - 1 === questionNum) || null;
     setSelectedQuestion(question);
   };
 
   return (
     <div className="flex">
+      <LeftSideBar
+        num={questions?.length}
+        onTabClick={handleQuestionClick}
+      ></LeftSideBar>
       <section>
         <h1>Questions</h1>
-        {questions ? (
-          <div className="question-list">
-            {questions.map((question) => (
-              <div
-                key={question.num}
-                className="question-item"
-                onClick={() => handleQuestionClick(question.num)}
-                style={{ cursor: "pointer", marginBottom: "10px" }}
-              >
-                <h2>Question {question.num}</h2>
-                <p>{question.writeup}</p>
-                <span>🔍 Click for details</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Loading questions...</p>
-        )}
+        <h2>Question {selectedQuestion?.num}</h2>
+        <Markdown>{`### Header` + selectedQuestion?.writeup}</Markdown>
+        <span>🔍 Click for details</span>
       </section>
 
       {/** The selected question and the global docs get passed in as props. */}
