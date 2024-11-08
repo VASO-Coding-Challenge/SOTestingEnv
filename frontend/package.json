@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.6",
+    "@mui/material": "^6.1.6",
     "eslint-plugin-react": "^7.37.1",
     "github-markdown-css": "^5.7.0",
     "prismjs": "^1.29.0",
