@@ -47,10 +47,9 @@ const QuestionPage = () => {
         num={questions?.length}
         onTabClick={handleQuestionClick}
       ></LeftSideBar>
-      <section>
-        <h1>Questions</h1>
-        <h2>Question {selectedQuestion?.num}</h2>
-        <Markdown>{`### Header` + selectedQuestion?.writeup}</Markdown>
+      <section className="w-5/6 prose px-3 pt-3">
+        <p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p>
+        <Markdown>{selectedQuestion?.writeup}</Markdown>
         <span>🔍 Click for details</span>
       </section>
 

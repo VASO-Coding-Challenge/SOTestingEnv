@@ -20,7 +20,6 @@ const SidebarContainer = styled(Box)({
 
 const StyledTab = styled(Tab)({
   minHeight: "80px",
-  maxWidth: "180px",
   fontSize: "1rem",
   fontWeight: "bold",
   textTransform: "none",
