@@ -50,7 +50,6 @@ const QuestionPage = () => {
       <section className="w-5/6 prose px-3 pt-3">
         <p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p>
         <Markdown>{selectedQuestion?.writeup}</Markdown>
-        <span>🔍 Click for details</span>
       </section>
 
       {/** The selected question and the global docs get passed in as props. */}

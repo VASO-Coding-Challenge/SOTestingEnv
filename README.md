@@ -51,6 +51,12 @@ Now move to App.tsx. Import the page from the component you had just created. an
 <Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
 ```
 
+Due to frontend dependencies with viewing markdown, make sure you run:
+
+```bash
+npm install react-markdown remark-gfm github-markdown-css prismjs
+```
+
 Then you're all set to continue development!
 
 ### Backend
@@ -91,7 +97,7 @@ def testing_concerns(
 ):
 ```
 
-This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the 
+This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the
 current time is not during their test time.
 
 #### SQLModel
