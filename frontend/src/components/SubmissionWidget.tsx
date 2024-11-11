@@ -1,10 +1,14 @@
+// SubmissionWidget.tsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { SubmissionWidgetProps } from "../models/submission";
+import { Link } from "react-router-dom";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const __Authors__ = ["Mustafa Aljumayli"];
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
-  globalDocs,
+  // globalDocs,
 }) => {
   const [activeTab, setActiveTab] = useState("submission");
   const [docsTab, setDocsTab] = useState("question");
@@ -17,15 +21,17 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     setDocsTab(tab);
   };
 
-  /* 
-  Generate the link for accessing the backend route.
-  This function will return a route depending on whether
-  the doc in question is a global doc or a question doc.
-  */
   const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
+    // This matches the API paths from your FastAPI router
     return isGlobal
-      ? `/docs/global/${docTitle}`
-      : `/docs/question/${question.num}/${docTitle}`;
+      ? `/docs/global_docs/${docTitle}`
+      : `/docs/questions/${question.num}/${docTitle}`;
+  };
+
+  const openDocInNewTab = (docTitle: string, isGlobal: boolean) => {
+    const docRoute = generateDocRoute(docTitle, isGlobal);
+    const fullUrl = `${window.location.origin}${docRoute}`;
+    window.open(fullUrl, "_blank"); // Open in a new tab
   };
 
   return (
@@ -93,14 +99,12 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               {question.docs.map((doc) => (
                 <div key={doc.title} className="mb-4">
                   <ul>
-                    <Link
-                      to={generateDocRoute(doc.title, false)}
-                      target="_blank" // This is what is causing the issue.
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => openDocInNewTab(doc.title, false)}
                       className="underline text-blue-600 hover:text-blue-800"
                     >
                       {doc.title}
-                    </Link>
+                    </button>
                   </ul>
                 </div>
               ))}
@@ -112,20 +116,28 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               <h4>
                 <strong>Global Documentation</strong>
               </h4>
-              {globalDocs.map((doc) => (
+              {/* {globalDocs.map((doc) => (
                 <div key={doc.title} className="mb-4">
                   <ul>
-                    <Link
-                      to={generateDocRoute(doc.title, true)}
-                      target="_blank" // This is what is causing the issue.
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => openDocInNewTab(doc.title, true)}
                       className="underline text-blue-600 hover:text-blue-800"
                     >
                       {doc.title}
-                    </Link>
+                    </button>
                   </ul>
                 </div>
-              ))}
+              ))}  */}
+              <li>
+                <Link
+                  to="../../public/python-3.13-docs-html/index.html"
+                  target="__blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500"
+                >
+                  Python 3 Documentation
+                </Link>
+              </li>
             </div>
           )}
         </div>

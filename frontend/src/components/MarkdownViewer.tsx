@@ -1,5 +1,7 @@
+// MarkdownViewer.tsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Prism from "prismjs";
 import "github-markdown-css/github-markdown.css";
@@ -12,14 +14,10 @@ const MarkdownViewer: React.FC = () => {
     docTitle: string;
   }>();
 
-  /*
-    This is where I try to reconstruct the URL for re-routing.
-    TODO: Make sure that this routes correctly with React Router.
-   */
   const finalUrl =
     docType === "global"
-      ? `/docs/global/${docTitle}.md`
-      : `/docs/question/${questionNum}/doc_${docTitle}.md`;
+      ? `/docs/global_docs/${docTitle}.md`
+      : `/docs/questions/${questionNum}/doc_${docTitle}.md`;
 
   const [content, setContent] = useState<string>("");
 
