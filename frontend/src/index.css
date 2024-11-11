@@ -16,7 +16,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+}
+
+.markdown-body {
+  background-color: white !important;
+  color: black !important;
+  padding: 16px; /* Optional padding */
+  border-radius: 8px; /* Optional rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 body {

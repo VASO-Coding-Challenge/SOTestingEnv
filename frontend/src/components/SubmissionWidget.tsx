@@ -21,18 +21,17 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     setDocsTab(tab);
   };
 
-  const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
-    // This matches the API paths from your FastAPI router
-    return isGlobal
-      ? `/docs/global_docs/${docTitle}`
-      : `/docs/questions/${question.num}/${docTitle}`;
-  };
+  // const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
+  //   return isGlobal
+  //     ? `/docs/global_docs/${docTitle}`
+  //     : `/docs/questions/${question.num}/${docTitle}`;
+  // };
 
-  const openDocInNewTab = (docTitle: string, isGlobal: boolean) => {
-    const docRoute = generateDocRoute(docTitle, isGlobal);
-    const fullUrl = `${window.location.origin}${docRoute}`;
-    window.open(fullUrl, "_blank"); // Open in a new tab
-  };
+  // const openDocInNewTab = (docTitle: string, isGlobal: boolean) => {
+  //   const docRoute = generateDocRoute(docTitle, isGlobal);
+  //   const fullUrl = `${window.location.origin}${docRoute}`;
+  //   window.open(fullUrl, "_blank");
+  // };
 
   return (
     <section className="w-full max-w-lg h-[95vh] mx-auto bg-white rounded-lg shadow-md p-4 mt-1 mb-2 lg:ml-auto lg:mr-4 relative">
@@ -98,13 +97,17 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               </h4>
               {question.docs.map((doc) => (
                 <div key={doc.title} className="mb-4">
-                  <ul>
-                    <button
-                      onClick={() => openDocInNewTab(doc.title, false)}
-                      className="underline text-blue-600 hover:text-blue-800"
-                    >
-                      {doc.title}
-                    </button>
+                  <ul className="list-disc pl-6 text-black">
+                    <li key={doc.title}>
+                      <Link
+                        to={`/markdown-viewer/questions/${question.num}/${doc.title}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-200"
+                      >
+                        {doc.title}
+                      </Link>
+                    </li>
                   </ul>
                 </div>
               ))}
@@ -133,7 +136,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   to="../../public/python-3.13-docs-html/index.html"
                   target="__blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500"
+                  className="text-blue-500 hover:text-blue-300"
                 >
                   Python 3 Documentation
                 </Link>

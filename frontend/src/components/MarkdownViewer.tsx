@@ -1,4 +1,3 @@
-// MarkdownViewer.tsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
@@ -7,36 +6,36 @@ import Prism from "prismjs";
 import "github-markdown-css/github-markdown.css";
 import "prismjs/themes/prism-tomorrow.css";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const __Authors__ = ["Mustafa ALjumayli"];
+
 const MarkdownViewer: React.FC = () => {
-  const { docType, questionNum, docTitle } = useParams<{
-    docType: string;
-    questionNum?: string;
+  const { questionNum, docTitle } = useParams<{
+    questionNum: string;
     docTitle: string;
   }>();
 
-  const finalUrl =
-    docType === "global"
-      ? `/docs/global_docs/${docTitle}.md`
-      : `/docs/questions/${questionNum}/doc_${docTitle}.md`;
-
   const [content, setContent] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMarkdown = async () => {
+      const url = `http://localhost:4402/docs/questions/${questionNum}/${docTitle}`;
       try {
-        const res = await fetch(finalUrl);
-        if (!res.ok) {
-          throw new Error(`Failed to fetch: ${res.status}`);
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch document: ${response.statusText}`);
         }
-        const text = await res.text();
+        const text = await response.text();
         setContent(text);
       } catch (error) {
-        console.error("Error fetching markdown:", error);
+        console.error("Error fetching document:", error);
+        setError("Failed to load the markdown document.");
       }
     };
 
     void fetchMarkdown();
-  }, [finalUrl]);
+  }, [questionNum, docTitle]);
 
   useEffect(() => {
     Prism.highlightAll();
@@ -44,7 +43,11 @@ const MarkdownViewer: React.FC = () => {
 
   return (
     <div className="markdown-body">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      {error ? (
+        <div className="text-red-500">{error}</div>
+      ) : (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      )}
     </div>
   );
 };

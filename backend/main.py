@@ -3,6 +3,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from .services.exceptions import (
     InvalidCredentialsException,
@@ -33,6 +34,14 @@ app = FastAPI(
 
 
 app.add_middleware(GZipMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4400"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ! Plug in each seprate API file here (make sure to import above)
 feature_apis = [count, team, auth, question, docs]
