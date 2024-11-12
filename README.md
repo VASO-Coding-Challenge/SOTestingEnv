@@ -51,14 +51,6 @@ Now move to App.tsx. Import the page from the component you had just created. an
 <Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
 ```
 
-Due to frontend dependencies with viewing markdown, make sure you run:
-
-```bash
-npm install react-markdown remark-gfm github-markdown-css prismjs
-```
-
-Then you're all set to continue development!
-
 ### Backend
 
 To help with backend implementation, you can reference the `count` demo feature.
