@@ -1,6 +1,7 @@
 // SubmissionWidget.tsx
 import React, { useState } from "react";
 import { SubmissionWidgetProps } from "../models/submission";
+import { Link } from "react-router-dom";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -92,7 +93,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                     <li>
                       <button
                         onClick={() => openDocInNewTab(doc)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-500 hover:text-blue-300"
                       >
                         {doc.title}
                       </button>
@@ -114,10 +115,20 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                     <li>
                       <button
                         onClick={() => openDocInNewTab(doc)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-500 hover:text-blue-300"
                       >
                         {doc.title}
                       </button>
+                      <li>
+                        <Link
+                          to="../../public/python-3.13-docs-html/index.html"
+                          target="__blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:text-blue-300"
+                        >
+                          Python 3 Documentation
+                        </Link>
+                      </li>
                     </li>
                   </ul>
                 </div>
