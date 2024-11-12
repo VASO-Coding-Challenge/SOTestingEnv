@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 
+/public/python-3.13-docs-html/
 # Ignore weird auto generated file
 vite.config.ts.timestamp*
 
