@@ -48,8 +48,9 @@ const QuestionPage = () => {
         onTabClick={handleQuestionClick}
       ></LeftSideBar>
       <section className="w-5/6 prose px-3 pt-3">
-        <p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p>
-        <Markdown>{selectedQuestion?.writeup}</Markdown>
+        {/**<p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p> */}
+        <Markdown className="markdown">{"## Problem " + selectedQuestion?.num}</Markdown>
+        <Markdown className="markdown">{selectedQuestion?.writeup}</Markdown>
       </section>
 
       {/** The selected question and the global docs get passed in as props. */}
