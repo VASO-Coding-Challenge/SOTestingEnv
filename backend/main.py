@@ -31,7 +31,7 @@ app = FastAPI(
     ],
 )
 
-
+# Using GZip middleware is an internet standard for compressing HTML responses over the network
 app.add_middleware(GZipMiddleware)
 app.add_middleware(
     CORSMiddleware,
