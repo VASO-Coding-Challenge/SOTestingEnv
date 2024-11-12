@@ -1,14 +1,10 @@
 // SubmissionWidget.tsx
 import React, { useState } from "react";
 import { SubmissionWidgetProps } from "../models/submission";
-import { Link } from "react-router-dom";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const __Authors__ = ["Mustafa Aljumayli"];
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
-  // globalDocs,
+  globalDocs,
 }) => {
   const [activeTab, setActiveTab] = useState("submission");
   const [docsTab, setDocsTab] = useState("question");
@@ -21,17 +17,12 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     setDocsTab(tab);
   };
 
-  // const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
-  //   return isGlobal
-  //     ? `/docs/global_docs/${docTitle}`
-  //     : `/docs/questions/${question.num}/${docTitle}`;
-  // };
-
-  // const openDocInNewTab = (docTitle: string, isGlobal: boolean) => {
-  //   const docRoute = generateDocRoute(docTitle, isGlobal);
-  //   const fullUrl = `${window.location.origin}${docRoute}`;
-  //   window.open(fullUrl, "_blank");
-  // };
+  const openDocInNewTab = (doc: { content: string; title: string }) => {
+    sessionStorage.setItem("docContent", doc.content);
+    sessionStorage.setItem("docTitle", doc.title);
+    const fullUrl = `${window.location.origin}/markdown-viewer/${doc.title}`;
+    window.open(fullUrl, "_blank");
+  };
 
   return (
     <section className="w-full max-w-lg h-[95vh] mx-auto bg-white rounded-lg shadow-md p-4 mt-1 mb-2 lg:ml-auto lg:mr-4 relative">
@@ -98,15 +89,13 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               {question.docs.map((doc) => (
                 <div key={doc.title} className="mb-4">
                   <ul className="list-disc pl-6 text-black">
-                    <li key={doc.title}>
-                      <Link
-                        to={`/markdown-viewer/questions/${question.num}/${doc.title}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-200"
+                    <li>
+                      <button
+                        onClick={() => openDocInNewTab(doc)}
+                        className="text-blue-600 hover:text-blue-800"
                       >
                         {doc.title}
-                      </Link>
+                      </button>
                     </li>
                   </ul>
                 </div>
@@ -119,28 +108,20 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               <h4>
                 <strong>Global Documentation</strong>
               </h4>
-              {/* {globalDocs.map((doc) => (
+              {globalDocs.map((doc) => (
                 <div key={doc.title} className="mb-4">
-                  <ul>
-                    <button
-                      onClick={() => openDocInNewTab(doc.title, true)}
-                      className="underline text-blue-600 hover:text-blue-800"
-                    >
-                      {doc.title}
-                    </button>
+                  <ul className="list-disc pl-6 text-black">
+                    <li>
+                      <button
+                        onClick={() => openDocInNewTab(doc)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {doc.title}
+                      </button>
+                    </li>
                   </ul>
                 </div>
-              ))}  */}
-              <li>
-                <Link
-                  to="../../public/python-3.13-docs-html/index.html"
-                  target="__blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-300"
-                >
-                  Python 3 Documentation
-                </Link>
-              </li>
+              ))}
             </div>
           )}
         </div>

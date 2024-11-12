@@ -16,10 +16,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/login" element={<Login />} />
         <Route path="/question" element={<Question />} />
         {/** The route below is where we view the markdown. */}
-        <Route
-          path="/markdown-viewer/questions/:questionNum/:docTitle"
-          element={<MarkdownViewer />}
-        />
+        <Route path="/markdown-viewer/:docTitle" element={<MarkdownViewer />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
