@@ -21,7 +21,7 @@ def main():
         os.chdir("es_files/")
     except:
         os.mkdir("es_files/")
-        os.chdir("questions/")
+        os.chdir("es_files/")
 
     # Create the questions directory if it doesn't exist
     try:
