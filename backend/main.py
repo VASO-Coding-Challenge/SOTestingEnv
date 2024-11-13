@@ -10,7 +10,7 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import count, team, auth, question, docs
+from .api import team, auth, question, docs
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
