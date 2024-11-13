@@ -51,6 +51,18 @@ Now move to App.tsx. Import the page from the component you had just created. an
 <Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
 ```
 
+#### Uploading the HTML Python Documentation
+
+To upload the HTML Python Documentation, visit this link:
+https://docs.python.org/3/download.html
+
+Download the zip folder located at the intersection of the
+"HTML" row and "Packed as .zip" column. Extract that Zip folder and 
+drag it into the project's "public" folder.
+
+You're all set to have added Python Documentation for the project.
+
+
 ### Backend
 
 To help with backend implementation, you can reference the `count` demo feature.

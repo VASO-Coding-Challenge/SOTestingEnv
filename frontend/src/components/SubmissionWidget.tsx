@@ -26,7 +26,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   };
 
   return (
-    <section className="w-full max-w-lg h-[95vh] mx-auto bg-white rounded-lg shadow-md p-4 mt-1 mb-2 lg:ml-auto lg:mr-4 relative">
+    <section className="w-full lg:w-1/2 h-auto mt-5 lg:h-[98vh] bg-white rounded-lg shadow-lg p-6 lg:sticky top-4 mx-auto lg:mx-0">
       <div className="flex border-b">
         <button
           onClick={() => handleTabSwitch("submission")}
@@ -104,37 +104,37 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             </div>
           )}
 
-          {docsTab === "global" && (
-            <div>
-              <h4>
-                <strong>Global Documentation</strong>
-              </h4>
-              {globalDocs.map((doc) => (
-                <div key={doc.title} className="mb-4">
-                  <ul className="list-disc pl-6 text-black">
-                    <li>
-                      <button
-                        onClick={() => openDocInNewTab(doc)}
-                        className="text-blue-500 hover:text-blue-300"
-                      >
-                        {doc.title}
-                      </button>
-                      <li>
-                        <Link
-                          to="../../public/python-3.13-docs-html/index.html"
-                          target="__blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-300"
-                        >
-                          Python 3 Documentation
-                        </Link>
-                      </li>
-                    </li>
-                  </ul>
-                </div>
-              ))}
+        {docsTab === "global" && (
+          <div>
+            <h4>
+              <strong>Global Documentation</strong>
+            </h4>
+            <div className="mb-4">
+              <ul className="list-disc pl-6 text-black">
+                <li>
+                  <Link
+                    to="/python-3.13-docs-html/index.html"
+                    target="__blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-300"
+                  >
+                    Python 3 Documentation
+                  </Link>
+                </li>
+                {globalDocs.map((doc) => (
+                  <li key={doc.title}>
+                    <button
+                      onClick={() => openDocInNewTab(doc)}
+                      className="text-blue-500 hover:text-blue-300"
+                    >
+                      {doc.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
+          </div>
+        )}
         </div>
       )}
     </section>
