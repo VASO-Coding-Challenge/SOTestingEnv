@@ -175,7 +175,7 @@ The `global_docs` subdirectory holds all documentation made available regardless
 
 ### ES Scripting Suite Documentation
 
-#### `generate-blank-questions`
+#### `generate_blank_questions`
 
 Generates a template file structure for `the es_files/questions` subdirectory. If questions already exist in the directory, this will generate more questions starting from the largest indexed `q#` found in the subdirectory. Generated questions will be in the format
 
@@ -189,7 +189,7 @@ Generates a template file structure for `the es_files/questions` subdirectory. I
 ##### Command
 
 ```bash
-python3 -m backend.script.generate-blank-questions AMT
+python3 -m backend.script.generate_blank_questions AMT
 ```
 
 ##### Arguments
