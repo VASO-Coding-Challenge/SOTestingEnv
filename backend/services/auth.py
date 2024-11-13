@@ -1,7 +1,6 @@
 import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
-
 from sqlmodel import Session
 from ..db import db_session
 
@@ -11,7 +10,11 @@ from ..models.team import Team
 from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 
 from .team import TeamService
-from .exceptions import InvalidCredentialsException, ResourceNotFoundException, ResourceNotAllowedException
+from .exceptions import (
+    InvalidCredentialsException,
+    ResourceNotFoundException,
+    ResourceNotAllowedException,
+)
 
 __authors__ = ["Mustafa Aljumayli", "Andrew Lockard", "Nicholas Almy"]
 
@@ -35,19 +38,18 @@ class AuthService:
                 "Invalid Credentials. Please check your Name and Password"
             )
         team.active_JWT = True
-        self._session.add(team)  # Add this to the session
+        self._session.add(team)
         self._session.commit()
 
-        # Create TokenData, and convert the datetime to an ISO string
+        # Create TokenData to be encoded
         token_data = TokenData(
             id=team.id,
             name=team.name,
             expiration_time=(
                 datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            ).isoformat(),  # convert datetime to a string
+            ).isoformat(),
         )
 
-        # Serialize the token data to a JSON-compatible format
         access_token = jwt.encode(
             token_data.model_dump(), SECRET_KEY, algorithm="HS256"
         )

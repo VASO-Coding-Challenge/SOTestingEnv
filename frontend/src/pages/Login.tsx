@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { TokenJSON } from "../models/auth";
 
 const LoginPage = () => {
   const [number, setNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorDisplay, setErrorDisplay] = useState<JSX.Element>(<></>);
-  type resp = {
-    access_token: string;
-    token_type: string;
-  };
   const navigate = useNavigate();
 
   const handleSubmit = (
@@ -29,10 +26,11 @@ const LoginPage = () => {
         if (!response.ok) {
           return response.json().then((json: { message: string }) => {
             throw new Error(json.message);
-        })};
+          });
+        }
         return response.json();
       })
-      .then((responseData: resp) => {
+      .then((responseData: TokenJSON) => {
         console.log("Success :", responseData.access_token);
         localStorage.setItem("token", responseData.access_token);
         navigate("/");
@@ -40,21 +38,18 @@ const LoginPage = () => {
       .catch((error: Error) => {
         console.error("Error :", error.message);
         login_error_handler(error.message);
-        return <></>
+        return <></>;
       });
   };
 
   const login_error_handler = (msg: string = "") => {
     setErrorDisplay(
       <div className="flex flex-col items-center justify-center rounded-[10px] mb-3 pl-3 pr-3 w-half border-2 border-red-900 bg-[rgba(255,112,121,0.65)]">
-        <p className="text-[#0000008e] text-center">
-          Error: {msg} 
-        </p>
+        <p className="text-[#0000008e] text-center">Error: {msg}</p>
       </div>
     );
     setTimeout(() => setErrorDisplay(<></>), 10000);
   };
-
 
   return (
     <div className="flex flex-col items-center min-h-screen pt-12 bg-[#fef7ff] text-[#000000] font-sans">
@@ -101,7 +96,5 @@ const LoginPage = () => {
     </div>
   );
 };
-
-
 
 export default LoginPage;
