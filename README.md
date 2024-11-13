@@ -6,12 +6,14 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ## Get Programming
 
-### Inital Setup
+### Download the Repo
 
 1. Install Docker Desktop, VSCode, and the DevContainer VSCode extension
 2. Clone the repo into VSCode and open it
 
 ### Setup [Judge0](https://github.com/judge0/judge0)
+
+*Note: This is to be completed *outside* the devcontainer
 
 1. Download the [judge0 config file](https://github.com/judge0/judge0/blob/ffd7a48cc6da86d6ac155ef10dbd67d02736070b/judge0.conf)
 2. Place the file in the `judge0` directory
