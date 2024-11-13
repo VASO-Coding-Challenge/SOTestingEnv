@@ -189,7 +189,7 @@ Generates a template file structure for `the es_files/questions` subdirectory. I
 ##### Command
 
 ```bash
-python3 -m backend.script.add_teams AMT
+python3 -m backend.script.generate-blank-questions AMT
 ```
 
 ##### Arguments
