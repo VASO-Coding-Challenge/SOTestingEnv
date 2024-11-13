@@ -6,12 +6,33 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ## Get Programming
 
+### Inital Setup
+
+1. Install Docker Desktop, VSCode, and the DevContainer VSCode extension
+2. Clone the repo into VSCode and open it
+
+### Setup [Judge0](https://github.com/judge0/judge0)
+
+1. Download the [judge0 config file](https://github.com/judge0/judge0/blob/ffd7a48cc6da86d6ac155ef10dbd67d02736070b/judge0.conf)
+2. Place the file in the `judge0` directory
+3. Visit [this website](https://www.random.org/passwords/?num=1&len=32&format=plain&rnd=new) to generate a random password
+4. Use this password as the `REDIS_PASSWORD` variable in the `judge0.conf` file.
+5. Visit [this website again](https://www.random.org/passwords/?num=1&len=32&format=plain&rnd=new) to generate a new random password
+6. Use this new password as the `POSTGRES_PASSWORD` variable in the `judge0.conf` file.
+
+> Note: the following judge0 setup steps must be run every time you wish to run the development server
+
+7. Make sure your current working directory is set to `judge0` (`cd judge0`)
+8. Run `bash start.sh` to launch the judge0 server
+9. The first time you run this: put some pizza in the oven
+
+> When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
+
 ### Running the DevContainer
 
-1. Install Docker Desktop and the DevContainers extension in VSCode
-2. Clone the repo into VSCode and open it
-3. Press `Ctrl+Shift+P` on windows (`Cmd+Shift+P`?? on mac) to open the command pallet and run `Dev Containers: Build and Reopen in Container` (In the future to open you can just use `Dev Containers: Reopen in Container`)
-4. Grab some water while the container builds
+1. Navigate back to the repo in VSCode
+2. Press `Ctrl+Shift+P` on windows (`Cmd+Shift+P` on mac) to open the command pallet and run `Dev Containers: Build and Reopen in Container` (In the future to open you can just use `Dev Containers: Reopen in Container`)
+3. Grab some water while the container builds
 
 ### Installing Dependencies
 
