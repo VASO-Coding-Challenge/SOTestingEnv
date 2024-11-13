@@ -90,6 +90,7 @@ def testing_concerns(
 ```
 
 This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the
+This function will return a `401` error if the team is not authenticated (there is no valid JWT token), and a `403` error if the
 current time is not during their test time.
 
 #### SQLModel

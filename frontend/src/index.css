@@ -37,3 +37,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.markdown > * {
+  all: revert;
+}
