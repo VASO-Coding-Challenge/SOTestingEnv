@@ -34,8 +34,10 @@ def main():
     question_num = 0
     for dir in os.listdir():
         if os.path.isdir(dir):
-            if int(dir[-1]) > question_num:
-                question_num = int(dir[-1])
+            if dir[0] == "q" and dir[1:].isdigit():
+                num = int(dir[1:])
+                if num > question_num:
+                    question_num = num
 
     # Generate the new directories
     for i in range(question_num, args.amt + question_num):
