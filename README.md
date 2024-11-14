@@ -61,6 +61,8 @@ Download the zip folder located at the intersection of the
 drag it into the project's "public" folder.
 
 You're all set to have added Python Documentation for the project.
+##### For Future Reference
+Current Python Version for documentation: 3.13
 
 
 ### Backend
