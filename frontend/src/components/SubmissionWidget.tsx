@@ -113,7 +113,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               <ul className="list-disc pl-6 text-black">
                 <li>
                   <Link
-                    to="/python-3.13-docs-html/index.html"
+                    to="/python_docs/index.html"
                     target="__blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:text-blue-300"

@@ -72,12 +72,15 @@ To add in a new set of documentation, i.e. Java, JavaScript...
 
 2. Extract the zip(if needed), and place into the project's "public" folder.
 
-3. Find the index.html file for your set of documentation.
+3. Make sure to rename the tile of the folder to something like python_docs
+or {PROGRAMMING_LANGUAGE}_docs
 
-4. Navigate to SubmissionWidget.tsx and find the section where the docsTab
+4. Find the index.html file for your set of documentation.
+
+5. Navigate to SubmissionWidget.tsx and find the section where the docsTab
 is set to "global".
 
-5. Underneath the pre-existing Python list tag, create the following
+6. Underneath the pre-existing Python list tag, create the following
 JSX Link tag nested inside of an HTML list tag (Similar to the Python one previously placed):
 
 ```jsx
@@ -92,7 +95,7 @@ JSX Link tag nested inside of an HTML list tag (Similar to the Python one previo
 </li>
 ``` 
 
-6. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
+7. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
 
 
 ### Backend
