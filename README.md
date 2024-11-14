@@ -53,16 +53,46 @@ Now move to App.tsx. Import the page from the component you had just created. an
 
 #### Uploading the HTML Python Documentation
 
-To upload the HTML Python Documentation, visit this link:
+1. To upload the HTML Python Documentation, visit this link:
 https://docs.python.org/3/download.html
 
-Download the zip folder located at the intersection of the
-"HTML" row and "Packed as .zip" column. Extract that Zip folder and 
-drag it into the project's "public" folder.
+2. Download the zip folder located at the intersection of the
+"HTML" row and "Packed as .zip" column. 
+
+3. Extract that Zip folder and drag it into the project's "public" folder.
 
 You're all set to have added Python Documentation for the project.
-##### For Future Reference
+
+##### For Future Reference, Placing more documentation
 Current Python Version for documentation: 3.13
+
+To add in a new set of documentation, i.e. Java, JavaScript...
+
+1. Make sure to grab the html documentation for the language.
+
+2. Extract the zip(if needed), and place into the project's "public" folder.
+
+3. Find the index.html file for your set of documentation.
+
+4. Navigate to SubmissionWidget.tsx and find the section where the docsTab
+is set to "global".
+
+5. Underneath the pre-existing Python list tag, create the following
+JSX Link tag nested inside of an HTML list tag (Similar to the Python one previously placed):
+
+```jsx
+<li>
+    <Link 
+        to="YOUR_FOLDER_NAME'S_PATH_TO_INDEX.HTML" 
+        target="__blank" 
+        rel="noopener noreferrer"
+        className="text-blue-500 hover:text-blue-300">
+    'YOUR_PROGRAMMING_LANGUAGE' Documentation
+    </Link>
+</li>
+``` 
+
+6. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
 
 
 ### Backend
