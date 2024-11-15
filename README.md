@@ -61,6 +61,8 @@ https://docs.python.org/3/download.html
 
 3. Extract that Zip folder and drag it into the project's "public" folder.
 
+4. Rename the folder to "python_docs"
+
 You're all set to have added Python Documentation for the project.
 
 ##### For Future Reference, Placing more documentation
