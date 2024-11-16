@@ -47,7 +47,7 @@ const QuestionPage = () => {
         num={questions?.length}
         onTabClick={handleQuestionClick}
       ></LeftSideBar>
-      <section className="w-5/6 prose px-3 pt-3">
+      <section className="w-4/6 prose px-3 pt-3 overscroll-contain">
         {/**<p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p> */}
         <Markdown className="markdown">{"## Problem " + selectedQuestion?.num}</Markdown>
         <Markdown className="markdown">{selectedQuestion?.writeup}</Markdown>

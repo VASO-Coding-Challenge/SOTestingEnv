@@ -1,51 +1,32 @@
+// MarkdownViewer.tsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Prism from "prismjs";
 import "github-markdown-css/github-markdown.css";
 import "prismjs/themes/prism-tomorrow.css";
 
 const MarkdownViewer: React.FC = () => {
-  const { docType, questionNum, docTitle } = useParams<{
-    docType: string;
-    questionNum?: string;
-    docTitle: string;
-  }>();
-
-  /*
-    This is where I try to reconstruct the URL for re-routing.
-    TODO: Make sure that this routes correctly with React Router.
-   */
-  const finalUrl =
-    docType === "global"
-      ? `/docs/global/${docTitle}.md`
-      : `/docs/question/${questionNum}/doc_${docTitle}.md`;
-
   const [content, setContent] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
 
   useEffect(() => {
-    const fetchMarkdown = async () => {
-      try {
-        const res = await fetch(finalUrl);
-        if (!res.ok) {
-          throw new Error(`Failed to fetch: ${res.status}`);
-        }
-        const text = await res.text();
-        setContent(text);
-      } catch (error) {
-        console.error("Error fetching markdown:", error);
-      }
-    };
+    const docContent = sessionStorage.getItem("docContent");
+    const docTitle = sessionStorage.getItem("docTitle");
 
-    void fetchMarkdown();
-  }, [finalUrl]);
+    if (docContent && docTitle) {
+      setContent(docContent);
+      setTitle(docTitle);
+    } else {
+      console.error("Failed to load document content.");
+    }
 
-  useEffect(() => {
     Prism.highlightAll();
   }, [content]);
 
   return (
     <div className="markdown-body">
+      <h1>{title}</h1>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   );
