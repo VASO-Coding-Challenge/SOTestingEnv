@@ -63,6 +63,8 @@ https://docs.python.org/3/download.html
 
 4. Rename the folder to "python_docs"
 
+5. Make sure to add the newly added documentation's path in the .gitignore file.
+
 You're all set to have added Python Documentation for the project.
 
 ##### For Future Reference, Placing more documentation
@@ -97,7 +99,9 @@ JSX Link tag nested inside of an HTML list tag (Similar to the Python one previo
 </li>
 ``` 
 
-7. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
+7. Make sure to add the newly added documentation's path in the .gitignore file.
+
+8. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
 
 
 ### Backend
