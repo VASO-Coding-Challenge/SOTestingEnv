@@ -1,6 +1,7 @@
+// SubmissionWidget.tsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { SubmissionWidgetProps } from "../models/submission";
+import { Link } from "react-router-dom";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -17,19 +18,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     setDocsTab(tab);
   };
 
-  /* 
-  Generate the link for accessing the backend route.
-  This function will return a route depending on whether
-  the doc in question is a global doc or a question doc.
-  */
-  const generateDocRoute = (docTitle: string, isGlobal: boolean) => {
-    return isGlobal
-      ? `/docs/global/${docTitle}`
-      : `/docs/question/${question.num}/${docTitle}`;
+  const openDocInNewTab = (doc: { content: string; title: string }) => {
+    sessionStorage.setItem("docContent", doc.content);
+    sessionStorage.setItem("docTitle", doc.title);
+    const fullUrl = `${window.location.origin}/markdown-viewer/${doc.title}`;
+    window.open(fullUrl, "_blank");
   };
 
   return (
-    <section className="w-full max-w-lg h-[95vh] mx-auto bg-white rounded-lg shadow-md p-4 mt-1 mb-2 lg:ml-auto lg:mr-4 relative">
+    <section className="w-full lg:w-1/2 h-auto mt-5 lg:h-[98vh] bg-white rounded-lg shadow-lg p-6 lg:sticky top-4 mx-auto lg:mx-0">
       <div className="flex border-b">
         <button
           onClick={() => handleTabSwitch("submission")}
@@ -92,42 +89,52 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               </h4>
               {question.docs.map((doc) => (
                 <div key={doc.title} className="mb-4">
-                  <ul>
-                    <Link
-                      to={generateDocRoute(doc.title, false)}
-                      target="_blank" // This is what is causing the issue.
-                      rel="noopener noreferrer"
-                      className="underline text-blue-600 hover:text-blue-800"
-                    >
-                      {doc.title}
-                    </Link>
+                  <ul className="list-disc pl-6 text-black">
+                    <li>
+                      <button
+                        onClick={() => openDocInNewTab(doc)}
+                        className="text-blue-500 hover:text-blue-300"
+                      >
+                        {doc.title}
+                      </button>
+                    </li>
                   </ul>
                 </div>
               ))}
             </div>
           )}
 
-          {docsTab === "global" && (
-            <div>
-              <h4>
-                <strong>Global Documentation</strong>
-              </h4>
-              {globalDocs.map((doc) => (
-                <div key={doc.title} className="mb-4">
-                  <ul>
-                    <Link
-                      to={generateDocRoute(doc.title, true)}
-                      target="_blank" // This is what is causing the issue.
-                      rel="noopener noreferrer"
-                      className="underline text-blue-600 hover:text-blue-800"
+        {docsTab === "global" && (
+          <div>
+            <h4>
+              <strong>Global Documentation</strong>
+            </h4>
+            <div className="mb-4">
+              <ul className="list-disc pl-6 text-black">
+                <li>
+                  <Link
+                    to="/python_docs/index.html"
+                    target="__blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-300"
+                  >
+                    Python 3 Documentation
+                  </Link>
+                </li>
+                {globalDocs.map((doc) => (
+                  <li key={doc.title}>
+                    <button
+                      onClick={() => openDocInNewTab(doc)}
+                      className="text-blue-500 hover:text-blue-300"
                     >
                       {doc.title}
-                    </Link>
-                  </ul>
-                </div>
-              ))}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
+          </div>
+        )}
         </div>
       )}
     </section>

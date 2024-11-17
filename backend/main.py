@@ -3,6 +3,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from .services.exceptions import (
     InvalidCredentialsException,
@@ -10,7 +11,7 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import count, team, auth, question, docs
+from .api import team, auth, question, docs
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
@@ -23,7 +24,6 @@ app = FastAPI(
     version="1.0.0",
     description=description,
     openapi_tags=[
-        count.openapi_tags,
         team.openapi_tags,
         auth.openapi_tags,
         question.openapi_tags,
@@ -33,9 +33,17 @@ app = FastAPI(
 
 
 app.add_middleware(GZipMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4400"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ! Plug in each seprate API file here (make sure to import above)
-feature_apis = [count, team, auth, question, docs]
+feature_apis = [team, auth, question, docs]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)

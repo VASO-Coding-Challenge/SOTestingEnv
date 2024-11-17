@@ -6,12 +6,35 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ## Get Programming
 
+### Download the Repo
+
+1. Install Docker Desktop, VSCode, and the DevContainer VSCode extension
+2. Clone the repo into VSCode and open it
+
+### Setup [Judge0](https://github.com/judge0/judge0)
+
+*Note: This is to be completed *outside\* the devcontainer
+
+1. Download the [judge0 config file](https://github.com/judge0/judge0/blob/ffd7a48cc6da86d6ac155ef10dbd67d02736070b/judge0.conf)
+2. Place the file in the `judge0` directory
+3. Visit [this website](https://www.random.org/passwords/?num=1&len=32&format=plain&rnd=new) to generate a random password
+4. Use this password as the `REDIS_PASSWORD` variable in the `judge0.conf` file.
+5. Visit [this website again](https://www.random.org/passwords/?num=1&len=32&format=plain&rnd=new) to generate a new random password
+6. Use this new password as the `POSTGRES_PASSWORD` variable in the `judge0.conf` file.
+
+> Note: the following judge0 setup steps must be run every time you wish to run the development server
+
+7. Make sure your current working directory is set to `judge0` (`cd judge0`)
+8. Run `bash start.sh` to launch the judge0 server
+9. The first time you run this: put some pizza in the oven
+
+> When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
+
 ### Running the DevContainer
 
-1. Install Docker Desktop and the DevContainers extension in VSCode
-2. Clone the repo into VSCode and open it
-3. Press `Ctrl+Shift+P` on windows (`Cmd+Shift+P`?? on mac) to open the command pallet and run `Dev Containers: Build and Reopen in Container` (In the future to open you can just use `Dev Containers: Reopen in Container`)
-4. Grab some water while the container builds
+1. Navigate back to the repo in VSCode
+2. Press `Ctrl+Shift+P` on windows (`Cmd+Shift+P` on mac) to open the command pallet and run `Dev Containers: Build and Reopen in Container` (In the future to open you can just use `Dev Containers: Reopen in Container`)
+3. Grab some water while the container builds
 
 ### Installing Dependencies
 
@@ -51,13 +74,59 @@ Now move to App.tsx. Import the page from the component you had just created. an
 <Route path="[PATH THAT SHOWS IN THE URL]" element ={<[YOUR PAGE] />} />
 ```
 
-Due to frontend dependencies with viewing markdown, make sure you run:
+#### Uploading the HTML Python Documentation
 
-```bash
-npm install react-markdown remark-gfm github-markdown-css prismjs
+1. To upload the HTML Python Documentation, visit this link:
+   https://docs.python.org/3/download.html
+
+2. Download the zip folder located at the intersection of the
+   "HTML" row and "Packed as .zip" column.
+
+3. Extract that Zip folder and drag it into the project's "public" folder.
+
+4. Rename the folder to "python_docs"
+
+5. Make sure to add the newly added documentation's path in the .gitignore file.
+
+You're all set to have added Python Documentation for the project.
+
+##### For Future Reference, Placing more documentation
+
+Current Python Version for documentation: 3.13
+
+To add in a new set of documentation, i.e. Java, JavaScript...
+
+1. Make sure to grab the html documentation for the language.
+
+2. Extract the zip(if needed), and place into the project's "public" folder.
+
+3. Make sure to rename the tile of the folder to something like python_docs
+   or {PROGRAMMING_LANGUAGE}\_docs
+
+4. Find the index.html file for your set of documentation.
+
+5. Navigate to SubmissionWidget.tsx and find the section where the docsTab
+   is set to "global".
+
+6. Underneath the pre-existing Python list tag, create the following
+   JSX Link tag nested inside of an HTML list tag (Similar to the Python one previously placed):
+
+```jsx
+<li>
+  <Link
+    to="YOUR_FOLDER_NAME'S_PATH_TO_INDEX.HTML"
+    target="__blank"
+    rel="noopener noreferrer"
+    className="text-blue-500 hover:text-blue-300"
+  >
+    'YOUR_PROGRAMMING_LANGUAGE' Documentation
+  </Link>
+</li>
 ```
 
-Then you're all set to continue development!
+7. Make sure to add the newly added documentation's path in the .gitignore file.
+
+8. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
 
 ### Backend
 
@@ -174,6 +243,29 @@ The `questions` Subdirectory holds information for the test, where it's subdirec
 The `global_docs` subdirectory holds all documentation made available regardless of question. All Markdown file in this directory will be made available for reference during test time.
 
 ### ES Scripting Suite Documentation
+
+#### `generate_blank_questions`
+
+Generates a template file structure for `the es_files/questions` subdirectory. If questions already exist in the directory, this will generate more questions starting from the largest indexed `q#` found in the subdirectory. Generated questions will be in the format
+
+```
+├─ q1/
+│ ├─ prompt.md
+│ ├─ test_cases.py
+│ ├─ demo_case.py
+```
+
+##### Command
+
+```bash
+python3 -m backend.script.generate_blank_questions AMT
+```
+
+##### Arguments
+
+| Argument | Description                                     | Default |
+| -------- | ----------------------------------------------- | ------- |
+| AMT      | The amount of questions to generate. Minimum 1. | 3       |
 
 #### `add_teams`
 
