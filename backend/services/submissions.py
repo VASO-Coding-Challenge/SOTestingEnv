@@ -1,7 +1,7 @@
 """Service to handle the Submissions and interaction with Judge0 API"""
 
 import os
-from ..models import Submission, ConsoleLog
+from ..models import Submission, ConsoleLog, Team
 
 
 __authors__ = ["Nicholas Almy"]
@@ -31,10 +31,10 @@ class SubmissionService:
         with open(os.path.join(submissions_dir, question_dir, file), "w") as f:
             f.write(submission.file_contents)
 
-    def submit_and_run(self, team_name: str, submission: Submission) -> ConsoleLog:
+    def submit_and_run(self, team: Team, submission: Submission) -> ConsoleLog:
         """Submit a file to the submission folder, runs it on a validation set and sends console logs back"""
-        self.submit(team_name, submission)
-        return self.run_submission(submission.question_num, team_name, forScore=False)
+        self.submit(team.name, submission)
+        return self.run_submission(submission.question_num, team.name, forScore=False)
 
     def run_submission(
         self, question_num: int, team_name: str, forScore: bool = False
