@@ -75,24 +75,3 @@ async def get_current_team(
         raise InvalidCredentialsException("Token is Invalid")
 
     return token_data
-
-
-@api.post("/logout", tags=["Auth"])
-async def logout(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-    auth_service: AuthService = Depends(),
-    team_service: TeamService = Depends(),
-):
-    """
-    Log out the current team by deactivating the JWT.
-    """
-    token = credentials.credentials
-    token_data = auth_service.decode_token(token)
-
-    # Fetch the team and set active_JWT to False
-    team = team_service.get_team(token_data.id)
-    if team:
-        team.active_JWT = False
-        auth_service._session.add(team)
-        auth_service._session.commit()
-    return {"message": "Logged out successfully"}

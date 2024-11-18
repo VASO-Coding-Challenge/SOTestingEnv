@@ -17,7 +17,7 @@ class TokenData(SQLModel, table=False):
 
     id: int
     name: str
-    expiration_time: str
+    exp: datetime
 
 
 class LoginData(SQLModel, table=False):

@@ -20,7 +20,6 @@ class Team(TeamBase, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     password: str
-    active_JWT: bool = Field(default=False)
     members: list["TeamMember"] = Relationship(
         cascade_delete=True, back_populates="team"
     )
