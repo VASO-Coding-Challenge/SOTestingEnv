@@ -3,6 +3,7 @@ import SubmissionWidget from "../components/SubmissionWidget";
 import { QuestionsPublic, Question, Document } from "../models/questions";
 import LeftSideBar from "../components/LeftSideBar";
 import Markdown from "react-markdown";
+import { LogOut } from "../components/LogOutButton";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
@@ -57,6 +58,9 @@ const QuestionPage = () => {
       {selectedQuestion && (
         <SubmissionWidget question={selectedQuestion} globalDocs={globalDocs} />
       )}
+      <div className="absolute bottom-0 right-0 mr-10 scale-75">
+        <LogOut />
+      </div>
     </div>
   );
 };
