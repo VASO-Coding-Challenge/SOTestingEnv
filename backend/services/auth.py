@@ -45,7 +45,8 @@ class AuthService:
             id=team.id,
             name=team.name,
             exp=(
-                datetime.now(tz=timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+                datetime.now(tz=timezone.utc)
+                + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             ),
         )
         print(token_data.model_dump())
@@ -59,17 +60,19 @@ class AuthService:
     def decode_token(self, token: str) -> TokenData:
         """Given a token, this function will return the TokenData which was encoded."""
         try:
-            payload = jwt.decode(
-                token, SECRET_KEY, algorithms=["HS256"]
-            )
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
             # Validate and extract fields from payload
             return TokenData(**payload)
 
         except jwt.ExpiredSignatureError:
-            raise InvalidCredentialsException("Your JWT Token expired, please log in again.")
+            raise InvalidCredentialsException(
+                "Your JWT Token expired, please log in again."
+            )
         except jwt.InvalidTokenError:
-            raise InvalidCredentialsException("Your JWT token is invalid. Please log in again.")
+            raise InvalidCredentialsException(
+                "Your JWT token is invalid. Please log in again."
+            )
 
     def get_team_from_token(self, token: str) -> Team:
         """Gets a team from the users JWT token
