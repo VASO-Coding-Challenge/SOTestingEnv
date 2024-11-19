@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from ..models import Team, Submission, ConsoleLog
 from ..services.submissions import SubmissionService
 from .auth import active_test
+import sys
 
 __authors__ = ["Nicholas Almy"]
 

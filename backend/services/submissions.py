@@ -1,6 +1,10 @@
 """Service to handle the Submissions and interaction with Judge0 API"""
 
 import os
+import sys
+import requests  # type: ignore
+import json
+import judge0api as api
 from ..models import Submission, ConsoleLog, Team
 
 
@@ -15,6 +19,7 @@ class SubmissionService:
 
     def submit(self, team_name: str, submission: Submission) -> None:
         """Submit a file to the submission folder... Only supports Python files"""
+        sys.stdout.write(f"Debug: Team name is {team_name}")
         submissions_dir = "es_files/submissions"
         question_dir = f"q{submission.question_num}"
         file = f"{team_name}.py"
@@ -32,7 +37,7 @@ class SubmissionService:
             f.write(submission.file_contents)
 
     def submit_and_run(self, team: Team, submission: Submission) -> ConsoleLog:
-        """Submit a file to the submission folder, runs it on a validation set and sends console logs back"""
+        """Submit a file to the submission folder, runs it and returns the console logs"""
         self.submit(team.name, submission)
         return self.run_submission(submission.question_num, team.name, forScore=False)
 
@@ -47,5 +52,30 @@ class SubmissionService:
         Returns:
             ConsoleLog: The console log of the submission
         """
-        # TODO: Run Judge0 API
-        return ConsoleLog(console_log="Not Implemented...")
+        submission_path = f"es_files/submissions/q{question_num}/{team_name}.py"
+        with open(submission_path, "r") as f:
+            submission_code = f.read()
+        res = requests.post(
+            "http://host.docker.internal:2358/submissions?wait=true",
+            headers={"Content-Type": "application/json"},
+            json={
+                "source_code": submission_code,
+                "language_id": 71,
+            },
+        )
+
+        if res.status_code == 201:
+            token = res.json()["token"]
+        else:
+            sys.stdout.write(f"Error: {res.json()}")
+            return ConsoleLog(console_log=f"Error: Submission Failed")
+
+        res = requests.get(f"http://host.docker.internal:2358/submissions/{token}")
+        if res.status_code == 200:
+            actual_response = res.json()["stdout"]
+            sys.stdout.write(f"\n\n{res.json()}\n\n")
+            if actual_response is None:
+                actual_response = ""
+            return ConsoleLog(console_log=actual_response)
+        else:
+            return ConsoleLog(console_log=f"Error: {res.json()["error"]} Submission")

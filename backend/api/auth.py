@@ -31,16 +31,17 @@ def authed_team(
     token = credentials.credentials  # This extracts the token from the header
     return auth_service.get_team_from_token(token)
 
+
 def active_test(
-        credientials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-        auth_service: AuthService = Depends(),
+    credientials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    auth_service: AuthService = Depends(),
 ) -> Team:
     """Retrieves the current team object like authed_team, but will also throw a 403 error if the
     student's test is not currently active."""
     token = credientials.credentials
     team = auth_service.get_team_from_token(token)
     auth_service.authenticate_team_time(team)
-    return Team
+    return team
 
 
 @api.post("/login", response_model=Token, tags=["Auth"])
