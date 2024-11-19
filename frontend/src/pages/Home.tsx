@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CountdownTimer } from "../components/timer";
 import { MemberInput } from "../components/member_input";
+import { LogOut } from "../components/LogOutButton";
 
 enum Display {
   LOADING,
@@ -93,7 +94,10 @@ const Home = () => {
       );
     } else if (display == Display.ENDED) {
       timer_or_continue = (
-        <h1 className="text-[32px]">Your Competition has Ended.</h1>
+        <>
+          <h1 className="text-[32px]">Your Competition has Ended.</h1>
+          <LogOut />
+        </>
       );
     }
     return (
