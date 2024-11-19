@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { SubmissionWidgetProps } from "../models/submission";
 import { Link } from "react-router-dom";
+import { LogOut } from "./LogOutButton";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -27,6 +28,9 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   return (
     <section className="w-full lg:w-1/2 h-auto mt-5 lg:h-[98vh] bg-white rounded-lg shadow-lg p-6 lg:sticky top-4 mx-auto lg:mx-0">
+      <div className="absolute bottom-0 right-0 mr-10 scale-75">
+        <LogOut />
+      </div>
       <div className="flex border-b">
         <button
           onClick={() => handleTabSwitch("submission")}

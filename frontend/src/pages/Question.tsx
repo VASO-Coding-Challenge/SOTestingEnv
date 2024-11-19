@@ -44,11 +44,13 @@ const QuestionPage = () => {
 
   return (
     <div className="flex">
-      <LeftSideBar
-        num={questions?.length}
-        onTabClick={handleQuestionClick}
-      ></LeftSideBar>
-      <section className="w-4/6 prose px-3 pt-3 overscroll-contain">
+      <div className="fixed">
+        <LeftSideBar
+          num={questions?.length}
+          onTabClick={handleQuestionClick}
+        ></LeftSideBar>
+      </div>
+      <section className="w-4/6 prose px-3 pt-3 overscroll-contain ml-[200px]">
         {/**<p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p> */}
         <Markdown className="markdown">
           {"## Problem " + selectedQuestion?.num}
@@ -60,9 +62,6 @@ const QuestionPage = () => {
       {selectedQuestion && (
         <SubmissionWidget question={selectedQuestion} globalDocs={globalDocs} />
       )}
-      <div className="absolute bottom-0 right-0 mr-10 scale-75">
-        <LogOut />
-      </div>
     </div>
   );
 };
