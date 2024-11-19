@@ -1,5 +1,5 @@
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from sqlmodel import Session
 from ..db import db_session
@@ -37,7 +37,6 @@ class AuthService:
             raise InvalidCredentialsException(
                 "Invalid Credentials. Please check your Name and Password"
             )
-        team.active_JWT = True
         self._session.add(team)
         self._session.commit()
 
@@ -45,10 +44,12 @@ class AuthService:
         token_data = TokenData(
             id=team.id,
             name=team.name,
-            expiration_time=(
-                datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            ).isoformat(),
+            exp=(
+                datetime.now(tz=timezone.utc)
+                + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
         )
+        print(token_data.model_dump())
 
         access_token = jwt.encode(
             token_data.model_dump(), SECRET_KEY, algorithm="HS256"
@@ -59,24 +60,18 @@ class AuthService:
     def decode_token(self, token: str) -> TokenData:
         """Given a token, this function will return the TokenData which was encoded."""
         try:
-            payload = jwt.decode(
-                token, SECRET_KEY, algorithms=["HS256"], options={"verify_exp": False}
-            )
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
             # Validate and extract fields from payload
             return TokenData(**payload)
 
         except jwt.ExpiredSignatureError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token has expired",
-                headers={"WWW-Authenticate": "Bearer"},
+            raise InvalidCredentialsException(
+                "Your JWT Token expired, please log in again."
             )
         except jwt.InvalidTokenError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
-                headers={"WWW-Authenticate": "Bearer"},
+            raise InvalidCredentialsException(
+                "Your JWT token is invalid. Please log in again."
             )
 
     def get_team_from_token(self, token: str) -> Team:

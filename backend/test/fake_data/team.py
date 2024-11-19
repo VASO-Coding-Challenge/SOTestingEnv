@@ -13,7 +13,6 @@ team1 = Team(
     password="a-b-c",
     start_time=datetime.now() - timedelta(minutes=30),
     end_time=datetime.now() + timedelta(minutes=30),
-    active_JWT=False,
 )
 team2 = Team(
     id=2,
@@ -21,7 +20,6 @@ team2 = Team(
     password="a-b-c",
     start_time=datetime.now() + timedelta(minutes=2),
     end_time=datetime.now() + timedelta(hours=1, minutes=2),
-    active_JWT=False,
 )
 team3 = Team(
     id=3,
@@ -29,7 +27,6 @@ team3 = Team(
     password="a-b-c",
     start_time=datetime.now() + timedelta(hours=1),
     end_time=datetime.now() + timedelta(hours=2),
-    active_JWT=False,
 )
 
 
