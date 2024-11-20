@@ -30,6 +30,27 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 > When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
 
+**IMPORTANT NOTE FOR OS X USERS (And maybe others)**
+Depending on your docker version, the Judge0 workers may not run properly.
+
+To fix the issue, you need modify the Docker Group settings...
+
+1. You can also locate the `settings-store.json` file (or `settings.json` for Docker Desktop versions 4.34 and earlier) at:
+
+- Mac: `~/Library/Group\ Containers/group.com.docker/settings-store.json`
+- Windows: `C:\Users\[USERNAME]\AppData\Roaming\Docker\settings-store.json`
+- Linux: `~/.docker/desktop/settings-store.json`
+
+Open the path in your terminal (Mac OS X zsh example)
+
+```zsh
+open ~/Library/Group\ Containers/group.com.docker/settings-store.json
+```
+
+2. Find `"DeprecatedCgroupv1"`,
+   - If it exists, set to `true`
+   - If it does not, append `"DeprecatedCgroupv1": true,` to the json.
+
 ### Running the DevContainer
 
 1. Navigate back to the repo in VSCode
