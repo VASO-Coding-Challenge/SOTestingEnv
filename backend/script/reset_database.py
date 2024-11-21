@@ -16,9 +16,7 @@ __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 # * Note this should only be used during development, we will need different scripts for production
 
 
-# Delete old database if it exists
-if os.path.exists("backend/database.db"):
-    os.remove("backend/database.db")
+SQLModel.metadata.drop_all(engine)
 
 SQLModel.metadata.create_all(engine)
 
