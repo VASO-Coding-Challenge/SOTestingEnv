@@ -41,7 +41,7 @@ def active_test(
     token = credientials.credentials
     team = auth_service.get_team_from_token(token)
     auth_service.authenticate_team_time(team)
-    return Team
+    return team
 
 
 @api.post("/login", response_model=Token, tags=["Auth"])

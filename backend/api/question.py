@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from ..models import QuestionsPublic, Team
 from ..services.questions import QuestionService
 from .auth import active_test
+import sys
 
 __authors__ = ["Nicholas Almy"]
 

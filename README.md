@@ -13,7 +13,7 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ### Setup [Judge0](https://github.com/judge0/judge0)
 
-*Note: This is to be completed *outside* the devcontainer
+*Note: This is to be completed *outside\* the devcontainer
 
 1. Download the [judge0 config file](https://github.com/judge0/judge0/blob/ffd7a48cc6da86d6ac155ef10dbd67d02736070b/judge0.conf)
 2. Place the file in the `judge0` directory
@@ -29,6 +29,27 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 9. The first time you run this: put some pizza in the oven
 
 > When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
+
+**IMPORTANT NOTE FOR OS X USERS (And maybe others)**
+Depending on your docker version, the Judge0 workers may not run properly.
+
+To fix the issue, you need modify the Docker Group settings...
+
+1. You can also locate the `settings-store.json` file (or `settings.json` for Docker Desktop versions 4.34 and earlier) at:
+
+- Mac: `~/Library/Group\ Containers/group.com.docker/settings-store.json`
+- Windows: `C:\Users\[USERNAME]\AppData\Roaming\Docker\settings-store.json`
+- Linux: `~/.docker/desktop/settings-store.json`
+
+Open the path in your terminal (Mac OS X zsh example)
+
+```zsh
+open ~/Library/Group\ Containers/group.com.docker/settings-store.json
+```
+
+2. Find `"DeprecatedCgroupv1"`,
+   - If it exists, set to `true`
+   - If it does not, append `"DeprecatedCgroupv1": true,` to the json.
 
 ### Running the DevContainer
 
@@ -77,10 +98,10 @@ Now move to App.tsx. Import the page from the component you had just created. an
 #### Uploading the HTML Python Documentation
 
 1. To upload the HTML Python Documentation, visit this link:
-https://docs.python.org/3/download.html
+   https://docs.python.org/3/download.html
 
 2. Download the zip folder located at the intersection of the
-"HTML" row and "Packed as .zip" column. 
+   "HTML" row and "Packed as .zip" column.
 
 3. Extract that Zip folder and drag it into the project's "public" folder.
 
@@ -91,6 +112,7 @@ https://docs.python.org/3/download.html
 You're all set to have added Python Documentation for the project.
 
 ##### For Future Reference, Placing more documentation
+
 Current Python Version for documentation: 3.13
 
 To add in a new set of documentation, i.e. Java, JavaScript...
@@ -100,32 +122,32 @@ To add in a new set of documentation, i.e. Java, JavaScript...
 2. Extract the zip(if needed), and place into the project's "public" folder.
 
 3. Make sure to rename the tile of the folder to something like python_docs
-or {PROGRAMMING_LANGUAGE}_docs
+   or {PROGRAMMING_LANGUAGE}\_docs
 
 4. Find the index.html file for your set of documentation.
 
 5. Navigate to SubmissionWidget.tsx and find the section where the docsTab
-is set to "global".
+   is set to "global".
 
 6. Underneath the pre-existing Python list tag, create the following
-JSX Link tag nested inside of an HTML list tag (Similar to the Python one previously placed):
+   JSX Link tag nested inside of an HTML list tag (Similar to the Python one previously placed):
 
 ```jsx
 <li>
-    <Link 
-        to="YOUR_FOLDER_NAME'S_PATH_TO_INDEX.HTML" 
-        target="__blank" 
-        rel="noopener noreferrer"
-        className="text-blue-500 hover:text-blue-300">
+  <Link
+    to="YOUR_FOLDER_NAME'S_PATH_TO_INDEX.HTML"
+    target="__blank"
+    rel="noopener noreferrer"
+    className="text-blue-500 hover:text-blue-300"
+  >
     'YOUR_PROGRAMMING_LANGUAGE' Documentation
-    </Link>
+  </Link>
 </li>
-``` 
+```
 
 7. Make sure to add the newly added documentation's path in the .gitignore file.
 
 8. Refresh the project and you'll see your link placed inside the Global Docs tab under Docs!
-
 
 ### Backend
 
