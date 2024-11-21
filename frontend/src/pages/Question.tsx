@@ -3,7 +3,6 @@ import SubmissionWidget from "../components/SubmissionWidget";
 import { QuestionsPublic, Question, Document } from "../models/questions";
 import LeftSideBar from "../components/LeftSideBar";
 import Markdown from "react-markdown";
-import { LogOut } from "../components/LogOutButton";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
