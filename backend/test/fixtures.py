@@ -6,26 +6,33 @@ from ..services import (
     PasswordService,
     QuestionService,
     SubmissionService,
-    TeamService
+    TeamService,
 )
 from sqlmodel import Session
+
+__authors__ = ["Andrew Lockard"]
+
 
 @pytest.fixture()
 def team_svc(session: Session):
     return TeamService(session)
 
+
 @pytest.fixture()
 def auth_svc(session: Session):
     return AuthService(session)
+
 
 @pytest.fixture()
 def password_svc(session: Session):
     return PasswordService(session)
 
+
 @pytest.fixture()
 def question_svc():
     # TODO: Need to create mocks to change how sample questions and documentation are loaded
     return QuestionService()
+
 
 @pytest.fixture()
 def submission_svc():
