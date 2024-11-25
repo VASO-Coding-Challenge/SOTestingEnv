@@ -9,3 +9,6 @@ __all__ = ["team", "passwords", "exceptions"]
 from .team import TeamService
 from .passwords import PasswordService
 from .exceptions import ResourceNotFoundException
+from .questions import QuestionService
+from .submissions import SubmissionService
+from .auth import AuthService
