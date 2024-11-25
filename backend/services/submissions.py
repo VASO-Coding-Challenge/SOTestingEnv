@@ -3,8 +3,6 @@
 import os
 import sys
 import requests  # type: ignore
-import json
-import judge0api as api
 from ..models import Submission, ConsoleLog, Team
 
 
