@@ -27,6 +27,10 @@ class QuestionService:
 
     def isLocalDocumentationFile(self, file: str) -> bool:
         return file.startswith("doc_") and file.endswith(".md")
+    
+    def hasStarterCode(self, question_num: int) -> bool:
+        starter_code_path = f"es_files/questions/q{question_num}/starter.py"
+        return os.path.exists(starter_code_path)
 
     def read_document(self, path: str, title: str) -> Document:
         try:
@@ -75,11 +79,20 @@ class QuestionService:
             raise FileNotFoundError(
                 f"Question {question_num} does not contain a prompt.md file"
             )
+        if not self.hasStarterCode(question_num):
+            starter_code = ""
+        else:
+            starter_code = self.load_starter_code(question_num)
 
         # Get the documents for the question
         docs: List[Document] = self.load_local_docs(question_num)
 
-        return Question(num=question_num, writeup=question, docs=docs)
+        return Question(num=question_num, writeup=question, starter_code=, docs=docs)
+
+    def load_starter_code(self, question_num: int) -> str:
+        starter_code_path = f"es_files/questions/q{question_num}/starter.py"
+        with open(starter_code_path, "r") as f:
+            return f.read()
 
     def load_questions(self):
         """Load all the questions from the questions directory"""

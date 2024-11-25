@@ -64,6 +64,12 @@ def generateQuestion(question_num: int):
             f'"""Template demo testing code for question {question_num}. This is for student submission trial and error."""'
             "\n\ndef demo():\n    pass\n"
         )
+
+    with open("starter.py", "w") as f:
+        f.write(
+            f'"""Template starter code for question {question_num}. This is for the submission box."""'
+            f"\n\ndef question{question_num}_func():\n    pass\n"
+        )
     # Go back to the questions directory
     os.chdir("..")
 
