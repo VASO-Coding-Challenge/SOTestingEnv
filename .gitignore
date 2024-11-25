@@ -1,4 +1,6 @@
 database.db
+test_database.db
+*.db
 .DS_Store
 judge0.conf
 # Byte-compiled / optimized / DLL files

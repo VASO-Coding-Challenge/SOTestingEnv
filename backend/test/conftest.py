@@ -19,8 +19,8 @@ def test_engine():
 @pytest.fixture(scope="function")
 def session(test_engine):
     """Resets database tables and return a new session object"""
-    SQLModel.metadata.drop_all()
-    SQLModel.metadata.create_all()
+    SQLModel.metadata.drop_all(test_engine)
+    SQLModel.metadata.create_all(test_engine)
     session = Session(test_engine)
     try:
         yield session
