@@ -230,6 +230,7 @@ es_files/
 │ │ ├─ doc_<title>.md
 │ │ ├─ test_cases.py
 │ │ ├─ demo_case.py
+│ │ ├─ starter.py
 │ ├─ q2/
 │ ├─ q3/
 ├─ teams/
@@ -258,6 +259,7 @@ The `questions` Subdirectory holds information for the test, where it's subdirec
 | `doc_<title>.md` | Markdown files with the prefix `doc_` are question specific/supplemental documentation. |
 | `test_cases.py`  | This python file is for final submission grading by the ES.                             |
 | `demo_cases.py`  | This python file is for validation testing by the students.                             |
+| `starter.py`     | This python file is inserted into the text box for the students to work from.           |
 
 #### `global_docs` Subdirectoy Information
 
