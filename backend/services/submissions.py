@@ -3,7 +3,6 @@
 import os
 import sys
 import requests  # type: ignore
-import json
 from ..models import Submission, ConsoleLog, Team
 
 
