@@ -1,6 +1,8 @@
 from sqlmodel import Session
 from datetime import datetime, timedelta
 
+import pytest
+
 from backend.models.team import Team
 from backend.services.passwords import PasswordService
 from backend.db import engine
@@ -34,4 +36,9 @@ def create_fake_teams(session: Session):
     """Adds the fake team data for testing purposes with hashed passwords."""
     # Add the teams to the session
     session.add_all([team1, team2, team3])
+
+
+@pytest.fixture()
+def fake_team_fixture(session: Session):
+    create_fake_teams(session)
     session.commit()
