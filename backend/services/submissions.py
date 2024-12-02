@@ -70,10 +70,16 @@ class SubmissionService:
                 "Judge0 did not return as expected, please ensure it is running and try again."
             )
 
-        output = res.json()
-        test_results = json.loads(output["stdout"])
-        print(test_results)
-        return ConsoleLog(console_log=output["stdout"])
+        res_output = res.json()
+        test_results = json.loads(res_output["stdout"])
+        out_str = "Note: These tests may or may not be used in final score calculation.\n"
+        for test in test_results["tests"]:
+            if test["status"] == "failed":
+                out_str += f"{test['name'].split(" ")[0]} {test['output']}\n"
+            else:
+                out_str += f"{test['name'].split(" ")[0]} passed!\n"
+
+        return ConsoleLog(console_log=out_str[:-1])
 
         # else:
         #     sys.stdout.write(f"Error: {res.json()}")
