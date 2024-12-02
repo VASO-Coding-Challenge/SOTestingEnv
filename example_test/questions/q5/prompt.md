@@ -11,11 +11,3 @@ Your function should return either `true` or `false`.
 | F | T | F | T |
 | F | F | T | F |
 | F | F | F | T |
-
-## Starter Code
-
-```python
-def three_input_truth_table(a: bool, b: bool, c: bool) -> bool:
-    # TODO: Fill out this function
-    return False
-```

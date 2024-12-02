@@ -7,11 +7,3 @@ Your function should return either `true` or `false`.
 | T | F | T |
 | F | T | T |
 | F | F | F |
-
-## Starter Code
-
-```python
-def two_input_truth_table(a: bool, b: bool) -> bool:
-    # TODO: Fill out this function
-    return False
-```
