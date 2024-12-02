@@ -3,5 +3,5 @@
 # Stop via sending the `Control+C` to send interrupt signal
 
 proxy: caddy run
-backend: uvicorn --port=4402 --reload backend.main:app
+backend: uvicorn --port=4402 --reload backend.main:app --reload-exclude es_files*
 frontend: cd frontend && npm run dev
