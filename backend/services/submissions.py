@@ -72,6 +72,8 @@ class SubmissionService:
 
         res_output = res.json()
         test_results = json.loads(res_output["stdout"])
+        print(test_results)
+        # TODO: Parse for syntax error and return prettier stack trace, runtime errors look good already
         out_str = "Note: These tests may or may not be used in final score calculation.\n"
         for test in test_results["tests"]:
             if test["status"] == "failed":
