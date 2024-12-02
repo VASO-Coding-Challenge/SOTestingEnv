@@ -3,11 +3,12 @@
 import os
 import sys
 import requests  # type: ignore
-from ..models import Submission, ConsoleLog, Team
+import base64
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
-from exceptions import ResourceNotFoundException
 
+from ..models import Submission, ConsoleLog, Team
+from backend.services.exceptions import ResourceNotFoundException
 
 __authors__ = ["Nicholas Almy", "Andrew Lockard"]
 
@@ -84,7 +85,7 @@ class SubmissionService:
 
     def package_submission(
         self, team_name: str, question_number: int, demo=False
-    ) -> str:
+    ) -> bytes:
         """Packages submission files into a string of a .zip contents.
 
         This packages together all files in autograder_utils
@@ -95,39 +96,44 @@ class SubmissionService:
         utils_dir = "backend/autograder_utils"
         question_dir = os.path.join("es_files", "questions", f"q{question_number}")
 
-        # with BytesIO() as f: # Creates an in memory buffer we can use just like a file
-        with ZipFile(
-            "new_zip.zip", "w"
-        ) as new_zip:  # Creates a new zip in memory we can add to
-            # Add all files in autograder_utils
-            if not os.path.exists(utils_dir):
-                raise ResourceNotFoundException("No Utils Created.")
+        with BytesIO() as f:  # Creates an in memory buffer we can use just like a file
+            with ZipFile(
+                f, "w"
+            ) as new_zip:  # Creates a new zip in memory we can add to
+                # Add all files in autograder_utils
+                if not os.path.exists(utils_dir):
+                    raise ResourceNotFoundException("No Utils Created.")
 
-            for file in os.listdir(utils_dir):
-                new_zip.write(os.path.join(utils_dir, file), arcname=file)
+                for file in os.listdir(utils_dir):
+                    new_zip.write(os.path.join(utils_dir, file), arcname=file)
 
-            # Add test/demo case file
-            if demo:
-                path = os.path.join(question_dir, "demo_cases.py")
-                if not os.path.exists(path):
-                    raise ResourceNotFoundException(
-                        f"Question {question_number} not found"
-                    )
-                new_zip.write(path, arcname="demo_cases.py")
-            else:
-                path = os.path.join(question_dir, "test_cases.py")
-                if not os.path.exists(path):
-                    raise ResourceNotFoundException(
-                        f"Question {question_number} not found"
-                    )
-                new_zip.write(path, arcname="test_cases.py")
+                # Add test/demo case file
+                if demo:
+                    path = os.path.join(question_dir, "demo_cases.py")
+                    if not os.path.exists(path):
+                        raise ResourceNotFoundException(
+                            f"Question {question_number} not found"
+                        )
+                    new_zip.write(path, arcname="demo_cases.py")
+                else:
+                    path = os.path.join(question_dir, "test_cases.py")
+                    if not os.path.exists(path):
+                        raise ResourceNotFoundException(
+                            f"Question {question_number} not found"
+                        )
+                    new_zip.write(path, arcname="test_cases.py")
 
-            # Add submission file
-            path = os.path.join(
-                submissions_dir, f"q{question_number}", f"{team_name}.py"
-            )
-            if not os.path.exists(path):
-                raise ResourceNotFoundException(
-                    f"Team {team_name} did not submit question {question_number}"
+                # Add submission file
+                path = os.path.join(
+                    submissions_dir, f"q{question_number}", f"{team_name}.py"
                 )
-            new_zip.write(path, arcname="submission.py")
+                if not os.path.exists(path):
+                    raise ResourceNotFoundException(
+                        f"Team {team_name} did not submit question {question_number}"
+                    )
+                new_zip.write(path, arcname="submission.py")
+            return base64.b64encode(f.getvalue())
+
+if __name__ == "__main__":
+    ser = SubmissionService()
+    print(ser.package_submission("b1", 1))
