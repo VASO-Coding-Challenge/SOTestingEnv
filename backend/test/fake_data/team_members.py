@@ -3,8 +3,10 @@
 from sqlmodel import Session
 from ...db import engine
 
+import pytest
+
 from ...models.team_members import TeamMember
-from .team import team1, team2
+from .team import team1, team2, fake_team_fixture
 
 __authors__ = ["Andrew Lockard"]
 
@@ -27,4 +29,9 @@ def insert_fake_team_members(session: Session):
     """Inserts the team members"""
     for member in members:
         session.add(member)
+
+
+@pytest.fixture()
+def fake_team_members_fixture(fake_team_fixture, session: Session):
+    insert_fake_team_members(session)
     session.commit()

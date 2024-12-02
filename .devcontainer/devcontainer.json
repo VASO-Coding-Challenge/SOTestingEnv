@@ -31,11 +31,13 @@
                     "editor.defaultFormatter": "ms-python.black-formatter"
                 },
                 "[html]": {
-                    "editor.formatOnSave": false,
+                    "editor.formatOnSave": false
                 },
                 "python.analysis.extraPaths": [
                     "/backend/"
-                ]
+                ],
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false
             }
         }
     }
