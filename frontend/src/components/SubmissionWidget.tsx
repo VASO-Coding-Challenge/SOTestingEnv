@@ -19,17 +19,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<"submission" | "docs">("submission");
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
-  const [code, setCode] = useState<string>("");
-  const [submissionResponse, setSubmissionResponse] = useState("");
+  const [code, setCode] = useState<string>(sessionStorage.getItem(`question_1`) || question.starterCode || "# Start coding here");
+  const [submissionResponse, setSubmissionResponse] = useState<string>(sessionStorage.getItem(`output_1`) || "No Submission Yet");
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
-    // console.log(`Code saved for question_${question.num}:`, code);
   }, [code]);
 
   useEffect(() => {
     sessionStorage.setItem(`output_${question.num}`, submissionResponse);
-    // console.log(`Code saved for question_${question.num}:`, code);
   }, [submissionResponse]);
 
   useEffect(() => {
@@ -37,12 +35,10 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       sessionStorage.getItem(`question_${question.num}`) || question.starterCode || "# Start coding here";
     setCode(savedCode);
     const savedResponse =
-      sessionStorage.getItem(`output_${question.num}`);
+      sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
     setSubmissionResponse(savedResponse);
-    // console.log(`Code loaded for question_${question.num}:`, savedCode);
   }, [question]);
 
-  // Logs whenever submissionResponse is changed; using for debugging 
   useEffect(() => {
     console.log(submissionResponse);
   }, [submissionResponse]);
