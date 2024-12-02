@@ -12,6 +12,7 @@ import { SubmissionWidgetProps } from "../models/submission";
 import { Link } from "react-router-dom";
 import UploadIcon from "@mui/icons-material/Upload";
 import { Editor } from "@monaco-editor/react";
+import { styled } from "@mui/system";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -21,6 +22,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>("");
   const [submissionResponse, setSubmissionResponse] = useState("");
+
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
@@ -103,18 +105,21 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   };
 
   return (
+    <section className="lg:padding-0 sticky inset-y-0 right-0">
     <Box
       sx={{
-        width: "70%",
+        width: "700px",
         height: "100vh",
-        position: "sticky",
-        top: 0,
-        margin: "0 auto",
+        position: "fixed",
+        top: 1,
         borderRadius: "12px",
         overflow: "hidden",
         boxShadow: 3,
+        marginLeft: 2,
+        right: 0,
         display: "flex",
         flexDirection: "column",
+        justifyContent: "flex-end",
         bgcolor: "#fff",
       }}
     >
@@ -123,8 +128,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         value={activeTab}
         onChange={(event, newValue) => handleTabSwitch(newValue)}
         variant="fullWidth"
-        indicatorColor="primary"
-        textColor="primary"
+        indicatorColor="secondary"
+        textColor="secondary"
       >
         <Tab value="submission" label="Submission" />
         <Tab value="docs" label="Docs" />
@@ -208,7 +213,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             }}
           >
             <IconButton
-              color="primary"
+              color="secondary"
               component="label"
               sx={{ border: "1px solid #ddd", borderRadius: "50%", p: 1 }}
             >
@@ -217,6 +222,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                 hidden
                 type="file"
                 accept=".py"
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 onChange={handleFileUpload}
               />
             </IconButton>
@@ -224,14 +230,14 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="outlined"
-                color="primary"
+                color="secondary"
                 onClick={() => handleQuestionSubmission(String(question.num), code)}
               >
                 Run Code
               </Button>
               <Button
                 variant="contained"
-                color="primary"
+                color="secondary"
                 onClick={handleSubmitCode}
               >
                 Submit Code
@@ -246,17 +252,19 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         <Box
           sx={{
             flex: 1,
-            display: "flex",
+            display: "flex-grow",
             flexDirection: "column",
-            padding: 2,
+            width: "100%",
+            padding: 2, 
           }}
         >
           <Tabs
             value={docsTab}
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             onChange={(event, newValue) => handleDocsTabSwitch(newValue)}
             variant="fullWidth"
-            textColor="primary"
-            indicatorColor="primary"
+            textColor="secondary"
+            indicatorColor="secondary"
             sx={{ mb: 2 }}
           >
             <Tab value="question" label="Question Docs" />
@@ -319,6 +327,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         </Box>
       )}
     </Box>
+  </section>
   );
 };
 

@@ -52,7 +52,7 @@ const QuestionPage = () => {
           onTabClick={handleQuestionClick}
         ></LeftSideBar>
       </div>
-      <section className="w-1/8 prose px-3 pt-3 overscroll-contain ml-[200px]">
+      <section className="w-1/8 prose px-3 pt-3 overscroll-contain ml-[200px] mr-5">
         {/**<p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p> */}
         <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
           {"## Problem " + selectedQuestion?.num}
