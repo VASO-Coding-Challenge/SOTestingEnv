@@ -89,12 +89,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       })
     }
 
-
-  const handleSubmitCode = () => {
-    console.log("Submitting Code:", code);
-    // TODO: Add logic to handle code submission
-  };
-
   const handleTabSwitch = (tab: "submission" | "docs") => {
     setActiveTab(tab);
   };
@@ -230,17 +224,11 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             </IconButton>
 
             <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => handleQuestionSubmission(String(question.num), code)}
-              >
-                Run Code
-              </Button>
+
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleSubmitCode}
+                onClick={() => handleQuestionSubmission(String(question.num), code)}
               >
                 Submit Code
               </Button>
