@@ -19,7 +19,7 @@ __authors__ = ["Andrew Lockard"]
 def team_svc(session: Session):
     return TeamService(session)
 
-@pytest.fixture
+@pytest.fixture()
 def auth_svc_with_mock(session, mock_team_service):
     """Provides an AuthService instance with the mocked TeamService."""
     with patch("backend.services.auth.Depends", return_value=mock_team_service):
