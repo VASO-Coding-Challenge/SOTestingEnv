@@ -42,3 +42,76 @@ def test_get_team_incorrect(team_svc, fake_team_fixture):
                 password="password",
             )
         )
+
+
+def test_create_team_basic(team_svc, fake_team_fixture):
+    """Test the creation of an ordinary Team in the database"""
+    new_team = Team(
+        name="C4",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="password",
+    )
+    team_svc.create_team(new_team)
+    assert team_svc.get_team("C4").name == new_team.name
+
+
+def test_get_all_teams_basic(team_svc, fake_team_fixture):
+    """Test getting all teams in the database"""
+    print(team_svc.get_all_teams())
+    assert len(team_svc.get_all_teams()) == 3
+
+
+def test_update_team_basic(team_svc, fake_team_fixture):
+    """Test updating an ordinary Team in the database"""
+    team = team_svc.get_team("B1")
+    team.name = "A1"
+    team_svc.update_team(team)
+    assert team_svc.get_team(1).name == "A1"
+
+
+def test_update_team_not_exist(team_svc, fake_team_fixture):
+    """Test updating a team that does not exist results in an Error"""
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.update_team(
+            Team(
+                name="H6",
+                start_time=datetime.now(),
+                end_time=datetime.now(),
+                password="password",
+            )
+        )
+
+
+def test_delete_team_basic(team_svc, fake_team_fixture):
+    """Test deleting an ordinary Team in the database"""
+    team_svc.delete_team(1)
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.get_team(1)
+
+
+def test_delete_team_not_exist(team_svc, fake_team_fixture):
+    """Test deleting a team that does not exist results in an Error"""
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.delete_team(60)
+
+
+def test_delete_all_teams_basic(team_svc, fake_team_fixture):
+    """Test deleting all teams in the database"""
+    team_svc.delete_all_teams()
+    assert len(team_svc.get_all_teams()) == 0
+
+
+def test_add_team_member_basic(team_svc, fake_team_fixture, fake_team_members_fixture):
+    """Test adding a team member to a team"""
+    team_svc.add_team_member(1, 1)
+    assert len(team_svc.get_team(1).members) == 1
+
+
+def test_delete_team_deletes_team_members(
+    team_svc, fake_team_fixture, fake_team_members_fixture
+):
+    """Test that deleting a team also deletes its team members"""
+    team_svc.delete_team(1)
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.get_team_member(1, 1)
