@@ -14,7 +14,9 @@ def test_authenticate_team_success(auth_svc, fake_team_fixture):
     assert token.token_type == "bearer"
     assert token.access_token is not None
 
-    decoded_token = jwt.decode(token.access_token, key=SECRET_KEY, algorithms=[ALGORITHM])
+    decoded_token = jwt.decode(
+        token.access_token, key=SECRET_KEY, algorithms=[ALGORITHM]
+    )
     assert decoded_token["id"] == team1.id
     assert decoded_token["name"] == team1.name
 
@@ -23,14 +25,18 @@ def test_authenticate_team_invalid_password(auth_svc, fake_team_fixture):
     """Tests if a team tries to authenticate with the wrong password."""
     with pytest.raises(InvalidCredentialsException) as exc_msg:
         auth_svc.authenticate_team(team2.name, "MADEUP_PASSWORD")
-    assert str(exc_msg.value) == "Invalid Credentials. Please check your Name and Password"
+    assert (
+        str(exc_msg.value) == "Invalid Credentials. Please check your Name and Password"
+    )
 
 
 def test_authenticate_team_invalid_team_name(auth_svc, fake_team_fixture):
     """Tests if a team tries to authenticate with the wrong team name."""
     with pytest.raises(InvalidCredentialsException) as exc_msg:
         auth_svc.authenticate_team("wrong-name", team2.password)
-    assert str(exc_msg.value) == "Invalid Credentials. Please check your Name and Password"
+    assert (
+        str(exc_msg.value) == "Invalid Credentials. Please check your Name and Password"
+    )
 
 
 def test_decode_token_success(auth_svc, fake_team_fixture):
@@ -71,7 +77,10 @@ def test_get_team_from_token_success(auth_svc, fake_team_fixture):
     token_data = TokenData(
         id=team3.id,
         name=team3.name,
-        exp=(datetime.now(tz=timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp(),
+        exp=(
+            datetime.now(tz=timezone.utc)
+            + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        ).timestamp(),
     )
 
     token = jwt.encode(

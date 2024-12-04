@@ -21,6 +21,7 @@ team_auth_fail = Team(
     end_time=datetime.now() - timedelta(minutes=5),
 )
 
+
 @pytest.fixture
 def mock_team_service():
     """Creates a mock TeamService."""
@@ -34,5 +35,7 @@ def mock_team_service():
             return team_auth_fail
         return None
 
-    mock_service.get_team_with_credentials = Mock(side_effect=mock_get_team_with_credentials)
+    mock_service.get_team_with_credentials = Mock(
+        side_effect=mock_get_team_with_credentials
+    )
     return mock_service
