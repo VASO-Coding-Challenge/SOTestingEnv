@@ -133,7 +133,7 @@ class SubmissionService:
                     path = os.path.join(question_dir, "test_cases.py")
                     if not os.path.exists(path):
                         raise ResourceNotFoundException(
-                            f"Question {question_number} not found"
+                            f"Demo cases for question {question_number} not found"
                         )
                     new_zip.write(path, arcname="test_cases.py")
 
