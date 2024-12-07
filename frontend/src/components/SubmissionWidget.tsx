@@ -12,6 +12,7 @@ import { SubmissionWidgetProps } from "../models/submission";
 import { LogOut } from "./LogOutButton";
 import { Link } from "react-router-dom";
 import UploadIcon from "@mui/icons-material/Upload";
+import RestoreIcon from '@mui/icons-material/Restore';
 import { Editor } from "@monaco-editor/react";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
@@ -68,6 +69,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       }
     }
   };
+
+  const resetCode = () => {
+    if (sessionStorage.getItem(question.starter_code) ){
+      sessionStorage.removeItem(`question_${question.num}`)
+      setCode(question.starter_code)
+    } else {
+      setCode("# Start Coding Here")
+    }
+  }
 
   // POST request to submit code, setSubmissionResponse to console_log output for API route
   const handleQuestionSubmission = (questionNum: string, code: string) => {
@@ -137,8 +147,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         value={activeTab}
         onChange={(event, newValue) => handleTabSwitch(newValue)}
         variant="fullWidth"
-        indicatorColor="primary"
-        textColor="primary"
+        indicatorColor="secondary"
+        textColor="secondary"
       >
         <Tab value="submission" label="Submission" />
         <Tab value="docs" label="Docs" />
@@ -154,6 +164,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             padding: 2,
           }}
         >
+          {/* Box for Clear Icon button */}
+          <IconButton
+                color="secondary"
+                component="label"
+                sx={{ border: "1px solid #ddd", borderRadius: "100%", p: 1 }}
+                onClick={() => resetCode}
+              >
+                <RestoreIcon />
+          </IconButton>
           <Paper
             sx={{
               flex: 1,
@@ -226,7 +245,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
-                color="primary"
+                color="secondary"
                 onClick={() =>
                   handleQuestionSubmission(String(question.num), code)
                 }
@@ -238,7 +257,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
               {/* Box for Upload Icon button */}
               <IconButton
-                color="primary"
+                color="secondary"
                 component="label"
                 sx={{ border: "1px solid #ddd", borderRadius: "50%", p: 1 }}
               >
@@ -274,8 +293,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             value={docsTab}
             onChange={(event, newValue) => handleDocsTabSwitch(newValue)}
             variant="fullWidth"
-            textColor="primary"
-            indicatorColor="primary"
+            textColor="secondary"
+            indicatorColor="secondary"
             sx={{ mb: 2 }}
           >
             <Tab value="question" label="Question Docs" />
@@ -292,7 +311,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   <li key={doc.title}>
                     <Typography
                       variant="body2"
-                      color="primary"
+                      color="secondary"
                       sx={{ cursor: "pointer" }}
                       onClick={() => openDocInNewTab(doc)}
                     >
@@ -324,7 +343,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   <li key={doc.title}>
                     <Typography
                       variant="body2"
-                      color="primary"
+                      color="secondary"
                       sx={{ cursor: "pointer" }}
                       onClick={() => openDocInNewTab(doc)}
                     >
