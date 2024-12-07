@@ -3,8 +3,8 @@ import pytest
 import jwt
 from backend.services.exceptions import InvalidCredentialsException
 from backend.models.auth import TokenData
-from backend.test.fixtures import auth_svc
-from backend.test.fake_data.team import fake_team_fixture, team1, team2, team3
+from .fixtures import auth_svc
+from .fake_data.team import fake_team_fixture, team1, team2, team3
 from backend.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 

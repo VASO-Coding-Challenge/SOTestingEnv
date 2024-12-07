@@ -29,7 +29,7 @@ def auth_svc_with_mock(session, mock_team_service):
 
 @pytest.fixture()
 def auth_svc(session: Session):
-    return AuthService(session)
+    return AuthService(session, team_svc)
 
 
 @pytest.fixture()
