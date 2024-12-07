@@ -10,7 +10,7 @@ export const LogOut = () => {
 
   return (
     <button
-      className="my-10 px-4 py-2 bg-gray-800 text-white font-bold rounded-lg text-[28px] hover:bg-gray-400 active:bg-gray-950"
+      className="my-1 px-4 py-2 bg-gray-800 text-white font-bold rounded-lg text-[28px] hover:bg-gray-400 active:bg-gray-950"
       onClick={handle_log_out}
     >
       Log Out
