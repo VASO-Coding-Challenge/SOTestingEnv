@@ -3,7 +3,6 @@ import SubmissionWidget from "../components/SubmissionWidget";
 import { QuestionsPublic, Question, Document } from "../models/questions";
 import LeftSideBar from "../components/LeftSideBar";
 import Markdown from "react-markdown";
-import { LogOut } from "../components/LogOutButton";
 import remarkGfm from "remark-gfm";
 
 const QuestionPage = () => {
@@ -36,7 +35,6 @@ const QuestionPage = () => {
         console.error("Error:", error);
       });
   }, []);
-  
 
   // State stores the selected question.
   const handleQuestionClick = (questionNum: number) => {
@@ -52,12 +50,13 @@ const QuestionPage = () => {
           onTabClick={handleQuestionClick}
         ></LeftSideBar>
       </div>
-      <section className="w-1/8 prose px-3 pt-3 overscroll-contain ml-[200px] mr-5">
-        {/**<p className="text-2xl">{`Problem ` + selectedQuestion?.num}</p> */}
+      <section className="w-4/5 prose px-3 pt-3 overscroll-contain ml-[200px]">
         <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
           {"## Problem " + selectedQuestion?.num}
         </Markdown>
-        <Markdown className="markdown" remarkPlugins={[remarkGfm]}>{selectedQuestion?.writeup}</Markdown>
+        <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
+          {selectedQuestion?.writeup}
+        </Markdown>
       </section>
       {/** The selected question and the global docs get passed in as props. */}
       {selectedQuestion && (

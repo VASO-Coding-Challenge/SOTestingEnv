@@ -9,44 +9,59 @@ import {
   IconButton,
 } from "@mui/material";
 import { SubmissionWidgetProps } from "../models/submission";
+import { LogOut } from "./LogOutButton";
 import { Link } from "react-router-dom";
 import UploadIcon from "@mui/icons-material/Upload";
 import { Editor } from "@monaco-editor/react";
-import { styled } from "@mui/system";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
   globalDocs,
 }) => {
-  const [activeTab, setActiveTab] = useState<"submission" | "docs">("submission");
+  const [activeTab, setActiveTab] = useState<"submission" | "docs">(
+    "submission"
+  );
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
-  const [code, setCode] = useState<string>("");
-  const [submissionResponse, setSubmissionResponse] = useState("");
-
+  const [code, setCode] = useState<string>(
+    sessionStorage.getItem(`question_1`) ||
+      question.starterCode ||
+      "# Start coding here"
+  );
+  const [submissionResponse, setSubmissionResponse] = useState<string>(
+    sessionStorage.getItem(`output_1`) || "No Submission Yet"
+  );
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
-    // console.log(`Code saved for question_${question.num}:`, code);
   }, [code]);
 
   useEffect(() => {
+    sessionStorage.setItem(`output_${question.num}`, submissionResponse);
+  }, [submissionResponse]);
+
+  useEffect(() => {
     const savedCode =
-      sessionStorage.getItem(`question_${question.num}`) || question.starterCode || "# Start coding here";
+      sessionStorage.getItem(`question_${question.num}`) ||
+      question.starterCode ||
+      "# Start coding here";
     setCode(savedCode);
-    // console.log(`Code loaded for question_${question.num}:`, savedCode);
+    const savedResponse =
+      sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
+    setSubmissionResponse(savedResponse);
   }, [question]);
 
-  // Logs whenever submissionResponse is changed
   useEffect(() => {
     console.log(submissionResponse);
   }, [submissionResponse]);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files?.[0]) {
       const file = event.target.files[0];
       if (file.type === "text/x-python" || file.name.endsWith(".py")) {
-        const fileContent = await file.text(); 
-        setCode(fileContent); 
+        const fileContent = await file.text();
+        setCode(fileContent);
       } else {
         alert("Please upload a valid Python (.py) file.");
       }
@@ -67,7 +82,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         file_contents: code,
         question_num: questionNum,
       }),
-      }).then((response) => {
+    })
+      .then((response) => {
         if (!response.ok) {
           return response.json().then((json: { message: string }) => {
             throw new Error(json.message);
@@ -76,17 +92,12 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         return response.json();
       })
       .then((responseData: string) => {
-        setSubmissionResponse(responseData.console_log); 
-      }).catch((error: Error) => {
+        setSubmissionResponse(responseData.console_log);
+      })
+      .catch((error: Error) => {
         console.error("Error :", error.message);
         return <></>;
-      })
-    }
-
-
-  const handleSubmitCode = () => {
-    console.log("Submitting Code:", code);
-    // TODO: Add logic to handle code submission
+      });
   };
 
   const handleTabSwitch = (tab: "submission" | "docs") => {
@@ -105,21 +116,18 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   };
 
   return (
-    <section className="lg:padding-0 sticky inset-y-0 right-0">
     <Box
       sx={{
-        width: "700px",
+        width: "70%",
         height: "100vh",
-        position: "fixed",
-        top: 1,
+        position: "sticky",
+        top: 0,
+        margin: "0 auto",
         borderRadius: "12px",
         overflow: "hidden",
         boxShadow: 3,
-        marginLeft: 2,
-        right: 0,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "flex-end",
         bgcolor: "#fff",
       }}
     >
@@ -128,8 +136,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         value={activeTab}
         onChange={(event, newValue) => handleTabSwitch(newValue)}
         variant="fullWidth"
-        indicatorColor="secondary"
-        textColor="secondary"
+        indicatorColor="primary"
+        textColor="primary"
       >
         <Tab value="submission" label="Submission" />
         <Tab value="docs" label="Docs" />
@@ -169,40 +177,41 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
           </Paper>
 
           <Paper
-    sx={{
-      flex: 1,
-      border: "1px solid #ddd",
-      borderRadius: "8px",
-      overflow: "hidden",
-      padding: 2,
-      mb: 2,
-      bgcolor: "#f9f9f9",
-    }}
-  >
-    <Typography variant="h6" sx={{ mb: 1 }}>
-      Output
-    </Typography>
-    <Box
-      sx={{
-        maxHeight: "200px",
-        overflowY: "auto",
-        padding: 1,
-        backgroundColor: "#f0f0f0",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <Typography
-        variant="body1"
-        sx={{
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
-      >
-        {submissionResponse || "No output yet. Run your code to see the result here."}
-      </Typography>
-    </Box>
-  </Paper>
+            sx={{
+              flex: 1,
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              overflow: "hidden",
+              padding: 2,
+              mb: 2,
+              bgcolor: "#f9f9f9",
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Output
+            </Typography>
+            <Box
+              sx={{
+                maxHeight: "300px",
+                overflowY: "auto",
+                padding: 1,
+                backgroundColor: "#f0f0f0",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {submissionResponse ||
+                  "No output yet. Run your code to see the result here."}
+              </Typography>
+            </Box>
+          </Paper>
 
           {/* File Upload and Action Buttons */}
           <Box
@@ -212,37 +221,40 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               alignItems: "center",
             }}
           >
-            <IconButton
-              color="secondary"
-              component="label"
-              sx={{ border: "1px solid #ddd", borderRadius: "50%", p: 1 }}
-            >
-              <UploadIcon />
-              <input
-                hidden
-                type="file"
-                accept=".py"
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                onChange={handleFileUpload}
-              />
-            </IconButton>
-
+            {/* Box for submit code button */}
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => handleQuestionSubmission(String(question.num), code)}
-              >
-                Run Code
-              </Button>
-              <Button
                 variant="contained"
-                color="secondary"
-                onClick={handleSubmitCode}
+                color="primary"
+                onClick={() =>
+                  handleQuestionSubmission(String(question.num), code)
+                }
               >
-                Submit Code
+                <p className="text-white font-bold rounded-lg text-[20px]">
+                  Submit Code
+                </p>
               </Button>
+
+              {/* Box for Upload Icon button */}
+              <IconButton
+                color="primary"
+                component="label"
+                sx={{ border: "1px solid #ddd", borderRadius: "50%", p: 1 }}
+              >
+                <UploadIcon />
+                <input
+                  hidden
+                  type="file"
+                  accept=".py"
+                  onChange={() => handleFileUpload}
+                />
+              </IconButton>
             </Box>
+
+            {/* Logout Component */}
+            <div className="scale-75">
+              <LogOut />
+            </div>
           </Box>
         </Box>
       )}
@@ -252,19 +264,17 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         <Box
           sx={{
             flex: 1,
-            display: "flex-grow",
+            display: "flex",
             flexDirection: "column",
-            width: "100%",
-            padding: 2, 
+            padding: 2,
           }}
         >
           <Tabs
             value={docsTab}
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             onChange={(event, newValue) => handleDocsTabSwitch(newValue)}
             variant="fullWidth"
-            textColor="secondary"
-            indicatorColor="secondary"
+            textColor="primary"
+            indicatorColor="primary"
             sx={{ mb: 2 }}
           >
             <Tab value="question" label="Question Docs" />
@@ -327,7 +337,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         </Box>
       )}
     </Box>
-  </section>
   );
 };
 
