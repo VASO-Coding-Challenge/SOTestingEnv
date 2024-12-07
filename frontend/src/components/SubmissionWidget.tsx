@@ -24,9 +24,9 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
     sessionStorage.getItem(`question_1`) ||
-      question.starterCode ||
-      "# Start coding here"
+      question?.starter_code 
   );
+
   const [submissionResponse, setSubmissionResponse] = useState<string>(
     sessionStorage.getItem(`output_1`) || "No Submission Yet"
   );
@@ -40,14 +40,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   }, [submissionResponse]);
 
   useEffect(() => {
+    if (question){
     const savedCode =
       sessionStorage.getItem(`question_${question.num}`) ||
-      question.starterCode ||
-      "# Start coding here";
+      question.starter_code || "# Start Coding Here";
     setCode(savedCode);
     const savedResponse =
       sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
     setSubmissionResponse(savedResponse);
+    }
   }, [question]);
 
   useEffect(() => {
