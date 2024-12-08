@@ -54,7 +54,6 @@ async def authenticate(
     token = auth_service.authenticate_team(
         name=login_data.name,
         password=login_data.password,
-        team_service=team_service,
     )
 
     return token

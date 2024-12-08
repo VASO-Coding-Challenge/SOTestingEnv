@@ -22,21 +22,22 @@ __authors__ = ["Mustafa Aljumayli", "Andrew Lockard", "Nicholas Almy"]
 class AuthService:
     """Service that handles authentication and JWT token generation."""
 
-    def __init__(self, session: Session = Depends(db_session)):
+    def __init__(
+        self, session: Session = Depends(db_session), team_svc: TeamService = Depends()
+    ):
         self._session = session
+        self._team_svc = team_svc
 
-    def authenticate_team(
-        self, name: str, password: str, team_service: TeamService = Depends()
-    ) -> Token:
+    def authenticate_team(self, name: str, password: str) -> Token:
         """
         Authenticate the team by checking if the team exists with the given credentials.
         If valid, encode the JWT with token data and return that JWT token.
         """
-        team = team_service.get_team_with_credentials(name, password)
-        if not team or team.password != password:
-            raise InvalidCredentialsException(
-                "Invalid Credentials. Please check your Name and Password"
-            )
+        try:
+            team = self._team_svc.get_team_with_credentials(name, password)
+        except InvalidCredentialsException as e:
+            raise e
+
         self._session.add(team)
         self._session.commit()
 
