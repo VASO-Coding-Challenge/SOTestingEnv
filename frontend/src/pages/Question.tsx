@@ -4,6 +4,7 @@ import { QuestionsPublic, Question, Document } from "../models/questions";
 import LeftSideBar from "../components/LeftSideBar";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useNavigate } from "react-router-dom";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
@@ -11,6 +12,12 @@ const QuestionPage = () => {
     null
   );
   const [globalDocs, setGlobalDocs] = useState<Document[]>([]);
+  const navigate = useNavigate()
+
+  const handleUnauthorized = (status: number) => {
+    localStorage.removeItem("token");
+    navigate(status === 401 ? "/login" : "/thank-you");
+  };
 
   useEffect(() => {
     fetch("/api/questions", {
@@ -21,6 +28,10 @@ const QuestionPage = () => {
       },
     })
       .then((response) => {
+        if (response.status === 401 || response.status == 403){
+          handleUnauthorized(response.status);
+          return;
+        }
         if (!response.ok) {
           throw new Error(`HTTP Error with Status Code: ${response.status}`);
         }
@@ -46,7 +57,7 @@ const QuestionPage = () => {
     <div className="flex">
       <div className="fixed">
         <LeftSideBar
-          num={questions?.length}
+          num={questions?.length ?? 0}
           onTabClick={handleQuestionClick}
         ></LeftSideBar>
       </div>

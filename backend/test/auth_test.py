@@ -11,7 +11,7 @@ from backend.models.auth import TokenData
 from sqlmodel import Session
 from .fixtures import auth_svc, team_svc
 from .fake_data.auth import create_good_teams
-from backend.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 def test_authenticate_team_success(auth_svc, create_good_teams):
@@ -22,9 +22,7 @@ def test_authenticate_team_success(auth_svc, create_good_teams):
     assert token.token_type == "bearer"
     assert token.access_token is not None
 
-    decoded_token = jwt.decode(
-        token.access_token, key=SECRET_KEY, algorithms=[ALGORITHM]
-    )
+    decoded_token = jwt.decode(token.access_token, key=SECRET_KEY, algorithms=["HS256"])
     assert decoded_token["id"] == team.id
     assert decoded_token["name"] == team.name
 
@@ -75,7 +73,7 @@ def test_decode_expired_token(auth_svc, create_good_teams):
         exp=(datetime.now(tz=timezone.utc) - timedelta(hours=1)).timestamp(),
     )
 
-    token = jwt.encode(expired_token_data.model_dump(), SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(expired_token_data.model_dump(), SECRET_KEY, algorithm="HS256")
 
     with pytest.raises(InvalidCredentialsException) as exc_msg:
         auth_svc.decode_token(token)
@@ -105,7 +103,7 @@ def test_get_team_from_token_success(auth_svc, create_good_teams):
     )
 
     token = jwt.encode(
-        payload=token_data.model_dump(), key=SECRET_KEY, algorithm=ALGORITHM
+        payload=token_data.model_dump(), key=SECRET_KEY, algorithm="HS256"
     )
 
     retrieved_team = auth_svc.get_team_from_token(token=token)
@@ -126,7 +124,7 @@ def test_get_team_from_token_expired(auth_svc, create_good_teams):
     )
 
     token = jwt.encode(
-        payload=expired_token_data.model_dump(), key=SECRET_KEY, algorithm=ALGORITHM
+        payload=expired_token_data.model_dump(), key=SECRET_KEY, algorithm="HS256"
     )
 
     with pytest.raises(InvalidCredentialsException, match="Login expired"):
@@ -153,7 +151,7 @@ def test_get_team_from_token_team_not_found(auth_svc, create_good_teams):
     )
 
     token = jwt.encode(
-        payload=token_data.model_dump(), key=SECRET_KEY, algorithm=ALGORITHM
+        payload=token_data.model_dump(), key=SECRET_KEY, algorithm="HS256"
     )
 
     with pytest.raises(
