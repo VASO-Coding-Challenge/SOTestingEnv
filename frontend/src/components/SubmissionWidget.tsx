@@ -6,14 +6,21 @@ import {
   Typography,
   Paper,
   Button,
-  IconButton,
+  IconButton, 
+  Link as MuiLink,
+  List,
+  ListItem, 
+  ListItemText,
+  Divider
 } from "@mui/material";
 import { SubmissionWidgetProps } from "../models/submission";
 import { LogOut } from "./LogOutButton";
-import { Link } from "react-router-dom";
 import UploadIcon from "@mui/icons-material/Upload";
 import RestoreIcon from '@mui/icons-material/Restore';
+import DownloadIcon from '@mui/icons-material/Download';
+import Tooltip from "@mui/material/Tooltip";
 import { Editor } from "@monaco-editor/react";
+import { Link } from "react-router-dom";
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -25,7 +32,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
     sessionStorage.getItem(`question_1`) ||
-      question?.starter_code 
+      question.starter_code 
   );
 
   const [submissionResponse, setSubmissionResponse] = useState<string>(
@@ -70,9 +77,23 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     }
   };
 
+  const downloadCode = () => {
+    const blob = new Blob([code], { type: "text/x-python" });
+    const url = URL.createObjectURL(blob);
+  
+    // Create a temporary anchor element to trigger the download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `code_question_${question.num}.py`; // File name
+    a.click();
+  
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+  };
+  
+
   const resetCode = () => {
-    if (sessionStorage.getItem(question.starter_code) ){
-      sessionStorage.removeItem(`question_${question.num}`)
+    if (question.starter_code) {
       setCode(question.starter_code)
     } else {
       setCode("# Start Coding Here")
@@ -164,24 +185,94 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             padding: 2,
           }}
         >
-          {/* Box for Clear Icon button */}
-          <IconButton
-                color="secondary"
-                component="label"
-                sx={{ border: "1px solid #ddd", borderRadius: "100%", p: 1 }}
-                onClick={() => resetCode}
-              >
-                <RestoreIcon />
-          </IconButton>
           <Paper
             sx={{
               flex: 1,
               border: "1px solid #ddd",
               borderRadius: "8px",
               overflow: "hidden",
+              position: "relative",
               mb: 2,
+              paddingTop: "50px",
             }}
           >
+            {/* Toolbar */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: 1,
+                right: 3,
+                zIndex: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              {/* Upload Icon Button */}
+              <Tooltip title="Upload Code" arrow>
+                <IconButton
+                  color="secondary"
+                  component="label"
+                  sx={{
+                    border: "1px #ddd",
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                  }}
+                >
+                  <UploadIcon />
+                  <input
+                    hidden
+                    type="file"
+                    accept=".py"
+                    onChange={() => handleFileUpload} 
+                  />
+                </IconButton>
+              </Tooltip>
+
+              {/* Download Code Button */}
+              <Tooltip title="Download Code" arrow>
+                <IconButton
+                  color="secondary"
+                  sx={{
+                    border: "1px #ddd",
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                  }}
+                  onClick={downloadCode}
+                >
+                  <DownloadIcon /> 
+                </IconButton>
+              </Tooltip>
+
+              {/* Reset Code Button */}
+              <Tooltip title="Reset Code" arrow>
+                <IconButton
+                  color="secondary"
+                  sx={{
+                    border: "1px #ddd",
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                  }}
+                  onClick={resetCode}
+                >
+                  <RestoreIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+          {/* Divider Under Toolbar */}
+            <Divider
+              sx={{
+                position: "absolute",
+                top: "30px",
+                left: 0,
+                right: 0,
+                zIndex: 1,
+              }}
+            />
             <Editor
               height="100%"
               defaultLanguage="python"
@@ -245,36 +336,17 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
-                color="secondary"
+                color="primary"
                 onClick={() =>
                   handleQuestionSubmission(String(question.num), code)
                 }
               >
-                <p className="text-white font-bold rounded-lg text-[20px]">
-                  Submit Code
-                </p>
+                  Submit
               </Button>
-
-              {/* Box for Upload Icon button */}
-              <IconButton
-                color="secondary"
-                component="label"
-                sx={{ border: "1px solid #ddd", borderRadius: "50%", p: 1 }}
-              >
-                <UploadIcon />
-                <input
-                  hidden
-                  type="file"
-                  accept=".py"
-                  onChange={() => handleFileUpload}
-                />
-              </IconButton>
             </Box>
 
             {/* Logout Component */}
-            <div className="scale-75">
               <LogOut />
-            </div>
           </Box>
         </Box>
       )}
@@ -303,55 +375,148 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
           {docsTab === "question" && (
             <Box>
-              <Typography variant="h6" sx={{ mb: 1 }}>
+              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
                 Documentation for Question
               </Typography>
-              <ul>
+              <List
+                sx={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  "& .MuiListItem-root": {
+                    padding: "0.5rem 0",
+                  },
+                }}
+              >
                 {question.docs.map((doc) => (
-                  <li key={doc.title}>
-                    <Typography
-                      variant="body2"
-                      color="secondary"
-                      sx={{ cursor: "pointer" }}
+                  <ListItem
+                    key={doc.title}
+                    sx={{
+                      padding: 0,
+                      marginBottom: "0.5rem",
+                      borderRadius: "4px",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
+                    }}
+                  >
+                    <MuiLink
+                      underline="none"
+                      sx={{
+                        display: "flex", // Ensures the link spans the full ListItem
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                        color: "primary.main",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        "&:hover": {
+                          textDecoration: "underline",
+                          color: "secondary.main",
+                        },
+                      }}
                       onClick={() => openDocInNewTab(doc)}
                     >
                       {doc.title}
-                    </Typography>
-                  </li>
+                    </MuiLink>
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
             </Box>
           )}
 
           {docsTab === "global" && (
             <Box>
-              <Typography variant="h6" sx={{ mb: 1 }}>
+              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
                 Global Documentation
               </Typography>
-              <ul>
-                <li>
-                  <Link
+              <List
+                sx={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  "& .MuiListItem-root": {
+                    padding: "0.5rem 0",
+                  },
+                }}
+              >
+                {/* Static Documentation Link */}
+                <ListItem
+                  sx={{
+                    padding: 0,
+                    marginBottom: "0.5rem",
+                    borderRadius: "4px",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    },
+                  }}
+                >
+                  <MuiLink
                     to="/python_docs/index.html"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ textDecoration: "none", color: "#1976d2" }}
+                    underline="none"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: "100%",
+                      color: "#1976d2",
+                      fontSize: "1rem",
+                      fontWeight: 500,
+                      textAlign: "center",
+                      cursor: "pointer",
+                      "&:hover": {
+                        textDecoration: "underline",
+                        color: "secondary.main",
+                      },
+                    }}
+                    component={Link}
                   >
                     Python 3 Documentation
-                  </Link>
-                </li>
+                  </MuiLink>
+                </ListItem>
+
+                {/* Dynamic Documentation Links */}
                 {globalDocs.map((doc) => (
-                  <li key={doc.title}>
-                    <Typography
-                      variant="body2"
-                      color="secondary"
-                      sx={{ cursor: "pointer" }}
+                  <ListItem
+                    key={doc.title}
+                    sx={{
+                      padding: 0,
+                      marginBottom: "0.5rem",
+                      borderRadius: "4px",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
+                    }}
+                  >
+                    <MuiLink
+                      underline="none"
+                      sx={{
+                        display: "flex", 
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                        color: "primary.main",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        "&:hover": {
+                          textDecoration: "underline",
+                          color: "secondary.main",
+                        },
+                      }}
                       onClick={() => openDocInNewTab(doc)}
                     >
                       {doc.title}
-                    </Typography>
-                  </li>
+                    </MuiLink>
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
             </Box>
           )}
         </Box>
