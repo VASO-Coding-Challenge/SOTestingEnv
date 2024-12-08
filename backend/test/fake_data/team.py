@@ -38,7 +38,10 @@ def create_fake_teams(session: Session):
     session.add_all([team1, team2, team3])
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture
 def fake_team_fixture(session: Session):
-    create_fake_teams(session)
-    session.commit()
+    def load_fixture():
+        create_fake_teams(session)
+        session.commit()
+
+    return load_fixture
