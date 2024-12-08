@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useState, useEffect } from "react";
@@ -226,7 +227,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                     hidden
                     type="file"
                     accept=".py"
-                    onChange={() => handleFileUpload} 
+                    onChange={handleFileUpload} 
                   />
                 </IconButton>
               </Tooltip>
