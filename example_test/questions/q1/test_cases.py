@@ -6,6 +6,10 @@ from decorators import weight
 
 class Test(unittest.TestCase):
 
-    @weight(2)
+    @weight(1)
     def test_first_five(self):
         self.assertEqual(first_five("Hello World"), "Hello")
+
+    @weight(1)
+    def test_first_five(self):
+        self.assertEqual(first_five("Bacon Cheeseburger"), "Bacon")
