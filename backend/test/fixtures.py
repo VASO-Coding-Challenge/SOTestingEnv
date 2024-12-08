@@ -9,7 +9,7 @@ from ..services import (
     SubmissionService,
     TeamService,
 )
-from backend.test.fake_data.auth import mock_team_service
+
 from sqlmodel import Session
 
 __authors__ = ["Andrew Lockard"]
@@ -21,14 +21,7 @@ def team_svc(session: Session):
 
 
 @pytest.fixture()
-def auth_svc_with_mock(session, mock_team_service):
-    """Provides an AuthService instance with the mocked TeamService."""
-    with patch("backend.services.auth.Depends", return_value=mock_team_service):
-        yield AuthService(session)
-
-
-@pytest.fixture()
-def auth_svc(session: Session):
+def auth_svc(session: Session, team_svc):
     return AuthService(session, team_svc)
 
 

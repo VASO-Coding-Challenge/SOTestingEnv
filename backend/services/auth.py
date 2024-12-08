@@ -33,11 +33,11 @@ class AuthService:
         Authenticate the team by checking if the team exists with the given credentials.
         If valid, encode the JWT with token data and return that JWT token.
         """
-        team = self._team_svc.get_team_with_credentials(name, password)
-        if not team or team.password != password:
-            raise InvalidCredentialsException(
-                "Invalid Credentials. Please check your Name and Password"
-            )
+        try:
+            team = self._team_svc.get_team_with_credentials(name, password)
+        except InvalidCredentialsException as e:
+            raise e
+
         self._session.add(team)
         self._session.commit()
 
