@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -9,8 +11,7 @@ import {
   IconButton, 
   Link as MuiLink,
   List,
-  ListItem, 
-  ListItemText,
+  ListItem,
   Divider
 } from "@mui/material";
 import { SubmissionWidgetProps } from "../models/submission";
@@ -281,7 +282,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               onChange={(value) => setCode(value || "")}
               options={{
                 fontSize: 14,
-                minimap: { enabled: true },
+                minimap: { enabled: false },
                 scrollBeyondLastLine: false,
               }}
             />
