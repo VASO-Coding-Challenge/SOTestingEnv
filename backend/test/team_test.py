@@ -6,7 +6,6 @@ from ..models import Team, TeamMember
 from ..services.exceptions import ResourceNotFoundException
 
 import pytest
-from .fixtures import team_svc
 from .fake_data.team import fake_team_fixture, team1, team2, team3
 from .fake_data.team_members import fake_team_members_fixture
 

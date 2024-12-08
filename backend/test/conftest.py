@@ -4,22 +4,17 @@ import pytest
 import os
 
 from sqlmodel import create_engine, Session, SQLModel
+from sqlmodel.pool import StaticPool
 
-SQLITE_DATABASE_NAME = "test_database.db"
-SQLITE_DATABASE_URL = f"sqlite:///backend/test/{SQLITE_DATABASE_NAME}"
+from .fixtures import *
 
 __authors__ = ["Andrew Lockard"]
 
 
-@pytest.fixture(scope="session")
-def test_engine():
-    return create_engine(SQLITE_DATABASE_URL)
-
-
 @pytest.fixture(scope="function")
-def session(test_engine):
+def session():
     """Resets database tables and return a new session object"""
-    SQLModel.metadata.drop_all(test_engine)
+    test_engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool, echo=True) # Uses a fully in memory database
     SQLModel.metadata.create_all(test_engine)
     session = Session(test_engine)
     try:

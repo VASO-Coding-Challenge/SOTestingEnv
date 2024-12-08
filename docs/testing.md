@@ -66,7 +66,6 @@ This suffix is needed so pytest knows you are using this as a test function!
 
 In that file, go ahead and import the following:
 
-- The fixture you're going to test that we setup in step 1
 - Any test data fixtures you will want to use in your tests
 - The pytest module
 - Any exceptions that your service raises
