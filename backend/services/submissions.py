@@ -42,21 +42,67 @@ class SubmissionService:
     def submit_and_run(self, team: Team, submission: Submission) -> ConsoleLog:
         """Submit a file to the submission folder, runs it and returns the console logs"""
         self.submit(team.name, submission)
-        return self.run_submission(submission.question_num, team.name, forScore=False)
+        return self.run_submission(submission.question_num, team.name)
 
     def run_submission(
-        self, question_num: int, team_name: str, forScore: bool = False
-    ) -> ConsoleLog | list[ScoredTest]:
+        self, question_num: int, team_name: str 
+    ) -> ConsoleLog:
         """Run a submission on an Autograder and return the console logs
         Args:
             question_num (int): The question number
             team_name (str): The team name
-            forScore (bool): Whether the submission is for final grading or not
         Returns:
             ConsoleLog: The console log of the submission
-            ScoredTest: Returned if forScore is true. Inlcudes points used for scoring
         """
-        submission_zip = self.package_submission(team_name, question_num, not forScore)
+        submission_zip = self.package_submission(team_name, question_num, True)
+        test_results = self.send_to_judge0(submission_zip)
+        print(test_results)
+        out_str = "Note: These tests may or may not be used in final score calculation.\n"
+        for test in test_results:
+            if test["status"] == "failed":
+                if test["output"][-16:] == "invalid syntax\n\n":
+                    # Invalid syntax needs stack trace cleanup
+                    output_lines: list[str] = test["output"].splitlines()
+                    lines_to_inlcude = [1, 8, 9, 10, 11]
+                    out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
+                else:   
+                    # Runtime errors and test failures look good already
+                    out_str += f"{test['name'].split(" ")[0]} {test['output']}"
+            else:
+                out_str += f"{test['name'].split(" ")[0]} passed!\n"
+
+        return ConsoleLog(console_log=out_str[:-1])
+            
+
+    def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
+        """Grades a students submission against test questions
+        Args:
+            question_num (int): the question number that we are trying to grade
+            team_name (str): the name of the team that we are trying to grade
+
+        Returns:
+            list[ScoredTest]: a list of objects representing the scored tests
+        """
+        submission_zip = self.package_submission(team_name, question_num, False)
+        test_results = self.send_to_judge0(submission_zip)
+        # Tally up scores
+        scored_tests = []
+        for test in test_results:
+            if test["status"] == "passed":
+                scored_tests.append(ScoredTest(console_log="Passed", test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
+            else:
+                scored_tests.append(ScoredTest(console_log=test["output"], test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
+
+        return scored_tests
+
+
+    def send_to_judge0(self, submission_zip: bytes):
+        """Sends the submission zip to judge0
+        Args:
+            submission_zip: the zip file containing all code to be executed in the judge0 environment
+        Returns:
+            A list of tests in this JSON form: {"name": str, "score": int, "max_score": int, "status": str, "output": str (only included if test failed)}
+        """
         res = requests.post(
             "http://host.docker.internal:2358/submissions?wait=true",
             headers={"Content-Type": "application/json"},
@@ -73,31 +119,7 @@ class SubmissionService:
 
         res_output = res.json()
         test_results = json.loads(res_output["stdout"])
-        print(test_results)
-        if not forScore:
-            out_str = "Note: These tests may or may not be used in final score calculation.\n"
-            for test in test_results["tests"]:
-                if test["status"] == "failed":
-                    if test["output"][-16:] == "invalid syntax\n\n":
-                        # Invalid syntax needs stack trace cleanup
-                        output_lines: list[str] = test["output"].splitlines()
-                        lines_to_inlcude = [1, 8, 9, 10, 11]
-                        out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
-                    else:   
-                        # Runtime errors and test failures look good already
-                        out_str += f"{test['name'].split(" ")[0]} {test['output']}"
-                else:
-                    out_str += f"{test['name'].split(" ")[0]} passed!\n"
-
-            return ConsoleLog(console_log=out_str[:-1])
-        else:
-            # Tally up scores
-            scored_tests = []
-            for test in test_results["tests"]:
-                scored_tests.append(ScoredTest(console_log=test["output"], test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
-
-            return scored_tests
-
+        return test_results["tests"]
 
     def package_submission(
         self, team_name: str, question_number: int, demo=False
@@ -107,6 +129,9 @@ class SubmissionService:
         This packages together all files in autograder_utils
         as well as the `test_cases.py` (if demo = False) file for that question.
         With demo=True, `demo_cases.py` is packaged instead.
+
+        This submission file is built according to the specs on the judge0 documentation
+        and includes autograder utils from the gradescope_utils package.
         """
 
         utils_dir = "backend/autograder_utils"
