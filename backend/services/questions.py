@@ -16,6 +16,17 @@ class QuestionService:
     def __init__(self):
         pass
 
+    def get_question_count(self) -> int:
+        """Returns the number of questions"""
+        if self._questions != None:
+            return len(self._questions.questions)
+
+        q_count = 1
+        while os.path.exists(f"es_files/questions/q{q_count}"):
+            q_count += 1
+
+        return q_count - 1
+
     def get_questions(self) -> QuestionsPublic:
         """Get all the questions for the competition"""
         if QuestionService._questions is None:
