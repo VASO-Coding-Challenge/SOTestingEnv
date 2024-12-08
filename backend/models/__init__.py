@@ -11,4 +11,4 @@ from .team import Team, TeamData
 from .team_members import TeamMember, TeamMemberCreate, TeamMemberPublic
 from .word import Word
 from .question import Document, Question, QuestionsPublic
-from .submission import Submission, ConsoleLog
+from .submission import Submission, ConsoleLog, ScoredTest

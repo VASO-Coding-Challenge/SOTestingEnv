@@ -18,7 +18,7 @@ class ConsoleLog(SQLModel):
 
     console_log: str
 
-class ScoredTest(SQLModel):
+class ScoredTest(ConsoleLog):
     """Model to hold a scored test"""
 
     test_name: str

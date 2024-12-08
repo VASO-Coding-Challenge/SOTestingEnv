@@ -7,7 +7,7 @@ import base64
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
 
-from ..models import Submission, ConsoleLog, Team
+from ..models import Submission, ConsoleLog, Team, ScoredTest
 from backend.services.exceptions import ResourceNotFoundException
 
 __authors__ = ["Nicholas Almy", "Andrew Lockard"]
@@ -46,7 +46,7 @@ class SubmissionService:
 
     def run_submission(
         self, question_num: int, team_name: str, forScore: bool = False
-    ) -> ConsoleLog:
+    ) -> ConsoleLog | list[ScoredTest]:
         """Run a submission on an Autograder and return the console logs
         Args:
             question_num (int): The question number
@@ -54,6 +54,7 @@ class SubmissionService:
             forScore (bool): Whether the submission is for final grading or not
         Returns:
             ConsoleLog: The console log of the submission
+            ScoredTest: Returned if forScore is true. Inlcudes points used for scoring
         """
         submission_zip = self.package_submission(team_name, question_num, not forScore)
         res = requests.post(
@@ -73,35 +74,30 @@ class SubmissionService:
         res_output = res.json()
         test_results = json.loads(res_output["stdout"])
         print(test_results)
-        out_str = "Note: These tests may or may not be used in final score calculation.\n"
-        for test in test_results["tests"]:
-            if test["status"] == "failed":
-                if test["output"][-16:] == "invalid syntax\n\n":
-                    # Invalid syntax needs stack trace cleanup
-                    output_lines: list[str] = test["output"].splitlines()
-                    lines_to_inlcude = [1, 8, 9, 10, 11]
-                    out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
-                else:   
-                    # Runtime errors and test failures look good already
-                    out_str += f"{test['name'].split(" ")[0]} {test['output']}"
-            else:
-                out_str += f"{test['name'].split(" ")[0]} passed!\n"
+        if not forScore:
+            out_str = "Note: These tests may or may not be used in final score calculation.\n"
+            for test in test_results["tests"]:
+                if test["status"] == "failed":
+                    if test["output"][-16:] == "invalid syntax\n\n":
+                        # Invalid syntax needs stack trace cleanup
+                        output_lines: list[str] = test["output"].splitlines()
+                        lines_to_inlcude = [1, 8, 9, 10, 11]
+                        out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
+                    else:   
+                        # Runtime errors and test failures look good already
+                        out_str += f"{test['name'].split(" ")[0]} {test['output']}"
+                else:
+                    out_str += f"{test['name'].split(" ")[0]} passed!\n"
 
-        return ConsoleLog(console_log=out_str[:-1])
+            return ConsoleLog(console_log=out_str[:-1])
+        else:
+            # Tally up scores
+            scored_tests = []
+            for test in test_results["tests"]:
+                scored_tests.append(ScoredTest(console_log=test["output"], test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
 
-        # else:
-        #     sys.stdout.write(f"Error: {res.json()}")
-        #     return ConsoleLog(console_log=f"Error: Submission Failed")
+            return scored_tests
 
-        # res = requests.get(f"http://host.docker.internal:2358/submissions/{token}")
-        # if res.status_code == 200:
-        #     actual_response = res.json()["stdout"]
-        #     sys.stdout.write(f"\n\n{res.json()}\n\n")
-        #     if actual_response is None:
-        #         actual_response = ""
-        #     return ConsoleLog(console_log=actual_response)
-        # else:
-        #     return ConsoleLog(console_log=f"Error: {res.json()["error"]} Submission")
 
     def package_submission(
         self, team_name: str, question_number: int, demo=False
