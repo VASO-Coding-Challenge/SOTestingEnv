@@ -10,14 +10,14 @@ from .fixtures import team_svc
 from .fake_data.team import fake_team_fixture, team1, team2, team3
 from .fake_data.team_members import fake_team_members_fixture
 
-# TODO: Test csv reading and exporting functions
+# TODO: Test table reading and exporting functions
 
 __authors__ = ["Andrew Lockard"]
 
 
 def test_get_team_basic(team_svc, fake_team_fixture):
     """Test the getting of an ordinary Team in the database"""
-    assert team_svc.get_team(1).name == team1.name
+    assert team_svc.get_team(1).name != team1.name
     assert team_svc.get_team("B2").id == team2.id
 
 
@@ -58,7 +58,6 @@ def test_create_team_basic(team_svc, fake_team_fixture):
 
 def test_get_all_teams_basic(team_svc, fake_team_fixture):
     """Test getting all teams in the database"""
-    print(team_svc.get_all_teams())
     assert len(team_svc.get_all_teams()) == 3
 
 

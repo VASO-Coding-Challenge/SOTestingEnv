@@ -31,7 +31,7 @@ def insert_fake_team_members(session: Session):
         session.add(member)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function", autouse=True)
 def fake_team_members_fixture(fake_team_fixture, session: Session):
     insert_fake_team_members(session)
     session.commit()
