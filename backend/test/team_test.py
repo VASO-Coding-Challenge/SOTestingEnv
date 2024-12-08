@@ -1,14 +1,18 @@
 """File to contain all Team and TeamMember related tests"""
 
 from datetime import datetime
-from ..models import Team, TeamMember
+from backend.models import Team, TeamMember
+import polars as pl
 
-from ..services.exceptions import ResourceNotFoundException
+from backend.services.exceptions import (
+    InvalidCredentialsException,
+    ResourceNotFoundException,
+)
 
 import pytest
-from .fixtures import team_svc
-from .fake_data.team import fake_team_fixture, team1, team2, team3
-from .fake_data.team_members import fake_team_members_fixture
+from backend.test.fixtures import team_svc
+from backend.test.fake_data.team import fake_team_fixture, team1, team2, team3
+from backend.test.fake_data.team_members import fake_team_members_fixture
 
 # TODO: Test table reading and exporting functions
 
@@ -58,6 +62,21 @@ def test_create_team_basic(team_svc, fake_team_fixture):
     )
     team_svc.create_team(new_team)
     assert team_svc.get_team("C4").name == new_team.name
+
+
+def test_df_to_table_basic(team_svc, fake_team_fixture):
+    """Test the creation of an ordinary Team in the database"""
+    fake_team_fixture()
+    new_team = pl.DataFrame(
+        {
+            "Team Number": ["C4"],
+            "Start Time": [datetime.now().strftime("%m/%d/%Y %H:%M")],
+            "End Time": [datetime.now().strftime("%m/%d/%Y %H:%M")],
+            "Password": ["password"],
+        }
+    )
+    new_team = team_svc.df_to_teams(new_team)[0]
+    assert "C4" == new_team.name
 
 
 def test_get_all_teams_basic(team_svc, fake_team_fixture):
@@ -111,6 +130,20 @@ def test_delete_team_not_exist(team_svc, fake_team_fixture):
         )
 
 
+def test_get_team_members_with_credentials(team_svc, fake_team_fixture):
+    """Test getting team members with credentials"""
+    fake_team_fixture()
+    team = team_svc.get_team_with_credentials("B1", "a-b-c")
+    assert team.name == "B1"
+
+
+def test_get_team_with_credentials_incorrect(team_svc, fake_team_fixture):
+    """Test getting team with incorrect credentials"""
+    fake_team_fixture()
+    with pytest.raises(InvalidCredentialsException):
+        team_svc.get_team_with_credentials("B1", "password")
+
+
 def test_delete_all_teams_basic(team_svc, fake_team_fixture):
     """Test deleting all teams in the database"""
     fake_team_fixture()
@@ -121,16 +154,26 @@ def test_delete_all_teams_basic(team_svc, fake_team_fixture):
 def test_add_team_member_basic(team_svc, fake_team_fixture, fake_team_members_fixture):
     """Test adding a team member to a team"""
     fake_team_fixture()
+    original_len = len(team_svc.get_team(1).members)
     new_member = TeamMember(first_name="John", last_name="Doe", team_id=1, id=None)
     team_svc.add_team_member(new_member, team_svc.get_team(1))
-    assert len(team_svc.get_team(1).members) == 1
+    assert len(team_svc.get_team(1).members) == original_len + 1
+
+
+def test_delete_team_members(team_svc, fake_team_fixture, fake_team_members_fixture):
+    """Test deleting a team member from a team"""
+    fake_team_fixture()
+    old_num = len(team_svc.get_team(1).members)
+    new_member = TeamMember(first_name="John", last_name="Doe", team_id=1, id=None)
+    team_svc.add_team_member(new_member, team_svc.get_team(1))
+    team_svc.delete_team_member(1, team_svc.get_team(1))
+    assert len(team_svc.get_team(1).members) == old_num
 
 
 def test_delete_team_deletes_team_members(
-    team_svc, fake_team_fixture, fake_team_members_fixture
+    team_svc, fake_team_fixture, fake_team_members_fixture, session
 ):
     """Test that deleting a team also deletes its team members"""
     fake_team_fixture()
-    team_svc.delete_team(1)
-    with pytest.raises(ResourceNotFoundException):
-        team_svc.get_team_member(1, 1)
+    team_svc.delete_team(team_svc.get_team(1))
+    assert session.get(TeamMember, 1) is None

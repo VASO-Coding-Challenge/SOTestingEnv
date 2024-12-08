@@ -180,8 +180,7 @@ class TeamService:
 
     def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
-        if isinstance(team, TeamData):
-            team = self.get_team(team.name)
+        team = self.get_team(team.name)
         self._session.delete(team)
         self._session.commit()
         return True
