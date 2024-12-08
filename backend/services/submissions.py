@@ -18,10 +18,7 @@ submissions_dir = "es_files/submissions"
 class SubmissionService:
     """Service that deals with Submission CRUD operations"""
 
-    def __init__(self):
-        pass
-
-    def submit(self, team_name: str, submission: Submission) -> None:
+    def submit(team_name: str, submission: Submission) -> None:
         """Submit a file to the submission folder... Only supports Python files"""
         # sys.stdout.write(f"Debug: Team name is {team_name}")
         question_dir = f"q{submission.question_num}"
@@ -39,13 +36,13 @@ class SubmissionService:
         with open(os.path.join(submissions_dir, question_dir, file), "w") as f:
             f.write(submission.file_contents)
 
-    def submit_and_run(self, team: Team, submission: Submission) -> ConsoleLog:
+    def submit_and_run(team: Team, submission: Submission) -> ConsoleLog:
         """Submit a file to the submission folder, runs it and returns the console logs"""
-        self.submit(team.name, submission)
-        return self.run_submission(submission.question_num, team.name)
+        SubmissionService.submit(team.name, submission)
+        return SubmissionService.run_submission(submission.question_num, team.name)
 
     def run_submission(
-        self, question_num: int, team_name: str 
+        question_num: int, team_name: str 
     ) -> ConsoleLog:
         """Run a submission on an Autograder and return the console logs
         Args:
@@ -54,8 +51,8 @@ class SubmissionService:
         Returns:
             ConsoleLog: The console log of the submission
         """
-        submission_zip = self.package_submission(team_name, question_num, True)
-        test_results = self.send_to_judge0(submission_zip)
+        submission_zip = SubmissionService.package_submission(team_name, question_num, True)
+        test_results = SubmissionService.send_to_judge0(submission_zip)
         print(test_results)
         out_str = "Note: These tests may or may not be used in final score calculation.\n"
         for test in test_results:
@@ -74,7 +71,7 @@ class SubmissionService:
         return ConsoleLog(console_log=out_str[:-1])
             
 
-    def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
+    def grade_submission(question_num: int, team_name: str) -> list[ScoredTest]:
         """Grades a students submission against test questions
         Args:
             question_num (int): the question number that we are trying to grade
@@ -83,8 +80,8 @@ class SubmissionService:
         Returns:
             list[ScoredTest]: a list of objects representing the scored tests
         """
-        submission_zip = self.package_submission(team_name, question_num, False)
-        test_results = self.send_to_judge0(submission_zip)
+        submission_zip = SubmissionService.package_submission(team_name, question_num, False)
+        test_results = SubmissionService.send_to_judge0(submission_zip)
         # Tally up scores
         scored_tests = []
         for test in test_results:
@@ -96,7 +93,7 @@ class SubmissionService:
         return scored_tests
 
 
-    def send_to_judge0(self, submission_zip: bytes):
+    def send_to_judge0(submission_zip: bytes):
         """Sends the submission zip to judge0
         Args:
             submission_zip: the zip file containing all code to be executed in the judge0 environment
@@ -122,7 +119,7 @@ class SubmissionService:
         return test_results["tests"]
 
     def package_submission(
-        self, team_name: str, question_number: int, demo=False
+        team_name: str, question_number: int, demo=False
     ) -> bytes:
         """Packages submission files into a string of a .zip contents.
 
