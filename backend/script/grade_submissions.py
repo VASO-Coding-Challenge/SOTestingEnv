@@ -27,9 +27,15 @@ def main():
                 for test in sub_svc.grade_submission(q_num, team.name)
             ]
             test_list.extend(dfs)
-    
+
     test_table = pl.concat(test_list)
     test_table.write_csv(DEFAULT_BY_TEST_FILE)
+
+    # Calculate the Total File
+    total_table = test_table.group_by("Team Number").agg(
+        pl.col("Score").sum(), pl.col("Max Score").sum()
+    )
+    total_table.write_csv(DEFAULT_TOTAL_FILE)
 
 
 def create_test_df(team_name: str, test: ScoredTest) -> pl.DataFrame:

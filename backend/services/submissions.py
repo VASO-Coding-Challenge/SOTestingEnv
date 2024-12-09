@@ -112,8 +112,6 @@ class SubmissionService:
                         question_num=question_num,
                     )
                 )
-                if question_num not in self._max_points.keys():
-                    self._max_points[question_num] = test["max_score"]
 
             elif "score" in test.keys() and "max_score" in test.keys():
                 scored_tests.append(
@@ -125,8 +123,6 @@ class SubmissionService:
                         question_num=question_num,
                     )
                 )
-                if question_num not in self._max_points.keys():
-                    self._max_points[question_num] = test["max_score"]
 
             else:
                 # Syntax error of some sorts
