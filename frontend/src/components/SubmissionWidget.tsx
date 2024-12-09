@@ -46,11 +46,11 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
-  }, [code, question.num]);
+  }, [code]);
 
   useEffect(() => {
     sessionStorage.setItem(`output_${question.num}`, submissionResponse);
-  }, [submissionResponse, question.num]);
+  }, [submissionResponse]);
 
   useEffect(() => {
     if (question){
