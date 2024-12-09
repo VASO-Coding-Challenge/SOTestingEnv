@@ -180,8 +180,7 @@ class TeamService:
 
     def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
-        if isinstance(team, TeamData):
-            team = self.get_team(team.name)
+        team = self.get_team(team.name)
         self._session.delete(team)
         self._session.commit()
         return True
@@ -214,7 +213,9 @@ class TeamService:
             ResourceNotFoundException: If member_id or team_id does not exist
             ResourceNotAllowedException: If team_id does not match the team of the member
         """
+        print("Hey")
         member = self._session.get(TeamMember, member_id)
+        print("Hey")
         if member == None:
             raise ResourceNotFoundException(f"Member of id={member_id} not found!")
 

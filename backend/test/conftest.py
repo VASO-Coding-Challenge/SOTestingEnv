@@ -6,7 +6,9 @@ import os
 from sqlmodel import create_engine, Session, SQLModel
 
 SQLITE_DATABASE_NAME = "test_database.db"
-SQLITE_DATABASE_URL = f"sqlite:///backend/test/{SQLITE_DATABASE_NAME}"
+SQLITE_DATABASE_URL = (
+    f"sqlite:////workspaces/SOTestingEnv/backend/test/{SQLITE_DATABASE_NAME}"
+)
 
 __authors__ = ["Andrew Lockard"]
 
