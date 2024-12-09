@@ -14,12 +14,13 @@ const QuestionPage = () => {
   const [globalDocs, setGlobalDocs] = useState<Document[]>([]);
   const navigate = useNavigate()
 
-  const handleUnauthorized = (status: number) => {
-    localStorage.removeItem("token");
-    navigate(status === 401 ? "/login" : "/thank-you");
-  };
 
   useEffect(() => {
+    const handleUnauthorized = (status: number) => {
+      localStorage.removeItem("token");
+      navigate(status === 401 ? "/login" : "/thank-you");
+    };
+    
     fetch("/api/questions", {
       method: "GET",
       headers: {
@@ -28,9 +29,9 @@ const QuestionPage = () => {
       },
     })
       .then((response) => {
-        if (response.status === 401 || response.status == 403){
+        if (response.status === 401 || response.status === 403) {
           handleUnauthorized(response.status);
-          return;
+          return null;
         }
         if (!response.ok) {
           throw new Error(`HTTP Error with Status Code: ${response.status}`);
@@ -38,15 +39,19 @@ const QuestionPage = () => {
         return response.json();
       })
       .then((responseData: QuestionsPublic) => {
-        setQuestions(responseData.questions);
-        setGlobalDocs(responseData.global_docs);
-        setSelectedQuestion(responseData.questions[0]);
+        if (responseData && responseData.questions) {
+          setQuestions(responseData.questions);
+          setGlobalDocs(responseData.global_docs);
+          setSelectedQuestion(responseData.questions[0]);
+        } else {
+          console.warn("No Questions Found.");
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, []);
-
+  }, [navigate]);
+  
   // State stores the selected question.
   const handleQuestionClick = (questionNum: number) => {
     const question = questions?.find((q) => q.num - 1 === questionNum) || null;

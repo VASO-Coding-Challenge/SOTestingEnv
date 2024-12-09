@@ -13,7 +13,7 @@ export const LogOut = () => {
     <Button
       onClick={handle_log_out}
       variant="contained"
-      color="warning"
+      color="secondary"
     >
       Log Out
     </Button>

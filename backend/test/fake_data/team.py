@@ -14,7 +14,7 @@ team1 = Team(
     name="B1",
     password="a-b-c",
     start_time=datetime.now() - timedelta(minutes=30),
-    end_time=datetime.now() + timedelta(minutes=30),
+    end_time=datetime.now() + timedelta(minutes=1),
 )
 team2 = Team(
     id=2,
