@@ -14,6 +14,7 @@ export interface Question {
    */
   num: number;
   writeup: string;
+  starter_code: string;
   docs: Document[]; // List of question-specific documents
 }
 

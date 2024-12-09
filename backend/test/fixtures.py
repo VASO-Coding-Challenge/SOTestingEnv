@@ -1,6 +1,7 @@
 """Pytest file containing all service fixtures for easy import into pytest functions"""
 
 import pytest
+from unittest.mock import patch
 from ..services import (
     AuthService,
     PasswordService,
@@ -8,6 +9,7 @@ from ..services import (
     SubmissionService,
     TeamService,
 )
+
 from sqlmodel import Session
 
 __authors__ = ["Andrew Lockard"]
@@ -19,8 +21,8 @@ def team_svc(session: Session):
 
 
 @pytest.fixture()
-def auth_svc(session: Session):
-    return AuthService(session)
+def auth_svc(session: Session, team_svc):
+    return AuthService(session, team_svc)
 
 
 @pytest.fixture()

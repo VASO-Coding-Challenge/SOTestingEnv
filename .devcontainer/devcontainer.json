@@ -36,6 +36,7 @@
                 "python.analysis.extraPaths": [
                     "/backend/"
                 ],
+                "python.testing.pytestArgs": ["--ignore=es_files", "."],
                 "python.testing.pytestEnabled": true,
                 "python.testing.pytestArgs": [
                     "--ignore=es_files",
