@@ -18,7 +18,12 @@ submissions_dir = "es_files/submissions"
 class SubmissionService:
     """Service that deals with Submission CRUD operations"""
 
-    def submit(team_name: str, submission: Submission) -> None:
+    def __init__(self):
+        self._max_points: dict[int, int] = (
+            {}
+        )  # Maps question numbers to their max amount of points
+
+    def submit(self, team_name: str, submission: Submission) -> None:
         """Submit a file to the submission folder... Only supports Python files"""
         # sys.stdout.write(f"Debug: Team name is {team_name}")
         question_dir = f"q{submission.question_num}"
@@ -36,14 +41,12 @@ class SubmissionService:
         with open(os.path.join(submissions_dir, question_dir, file), "w") as f:
             f.write(submission.file_contents)
 
-    def submit_and_run(team: Team, submission: Submission) -> ConsoleLog:
+    def submit_and_run(self, team: Team, submission: Submission) -> ConsoleLog:
         """Submit a file to the submission folder, runs it and returns the console logs"""
-        SubmissionService.submit(team.name, submission)
-        return SubmissionService.run_submission(submission.question_num, team.name)
+        self.submit(team.name, submission)
+        return self.run_submission(submission.question_num, team.name)
 
-    def run_submission(
-        question_num: int, team_name: str 
-    ) -> ConsoleLog:
+    def run_submission(self, question_num: int, team_name: str) -> ConsoleLog:
         """Run a submission on an Autograder and return the console logs
         Args:
             question_num (int): The question number
@@ -51,10 +54,12 @@ class SubmissionService:
         Returns:
             ConsoleLog: The console log of the submission
         """
-        submission_zip = SubmissionService.package_submission(team_name, question_num, True)
-        test_results = SubmissionService.send_to_judge0(submission_zip)
+        submission_zip = self.package_submission(team_name, question_num, True)
+        test_results = self.send_to_judge0(submission_zip)
         print(test_results)
-        out_str = "Note: These tests may or may not be used in final score calculation.\n"
+        out_str = (
+            "Note: These tests may or may not be used in final score calculation.\n"
+        )
         for test in test_results:
             if test["status"] == "failed":
                 if test["output"][-16:] == "invalid syntax\n\n":
@@ -62,16 +67,15 @@ class SubmissionService:
                     output_lines: list[str] = test["output"].splitlines()
                     lines_to_inlcude = [1, 8, 9, 10, 11]
                     out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
-                else:   
+                else:
                     # Runtime errors and test failures look good already
                     out_str += f"{test['name'].split(" ")[0]} {test['output']}"
             else:
                 out_str += f"{test['name'].split(" ")[0]} passed!\n"
 
         return ConsoleLog(console_log=out_str[:-1])
-            
 
-    def grade_submission(question_num: int, team_name: str) -> list[ScoredTest]:
+    def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
         """Grades a students submission against test questions
         Args:
             question_num (int): the question number that we are trying to grade
@@ -80,20 +84,83 @@ class SubmissionService:
         Returns:
             list[ScoredTest]: a list of objects representing the scored tests
         """
-        submission_zip = SubmissionService.package_submission(team_name, question_num, False)
-        test_results = SubmissionService.send_to_judge0(submission_zip)
+
+        try:
+            submission_zip = self.package_submission(team_name, question_num, False)
+            test_results = self.send_to_judge0(submission_zip)
+        except ResourceNotFoundException as e:
+            return [
+                ScoredTest(
+                    console_log="Failed to Run Grader: " + str(e),
+                    test_name=f"Question {question_num} Tests",
+                    question_num=question_num,
+                    score=0.0,
+                    max_score=self.get_max_points(question_num),
+                )
+            ]
+
         # Tally up scores
         scored_tests = []
         for test in test_results:
             if test["status"] == "passed":
-                scored_tests.append(ScoredTest(console_log="Passed", test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
+                scored_tests.append(
+                    ScoredTest(
+                        console_log="Passed",
+                        test_name=test["name"],
+                        score=float(test["score"]),
+                        max_score=float(test["max_score"]),
+                        question_num=question_num,
+                    )
+                )
+                if question_num not in self._max_points.keys():
+                    self._max_points[question_num] = test["max_score"]
+
+            elif "score" in test.keys() and "max_score" in test.keys():
+                scored_tests.append(
+                    ScoredTest(
+                        console_log=test["output"],
+                        test_name=test["name"],
+                        score=float(test["score"]),
+                        max_score=float(test["max_score"]),
+                        question_num=question_num,
+                    )
+                )
+                if question_num not in self._max_points.keys():
+                    self._max_points[question_num] = test["max_score"]
+
             else:
-                scored_tests.append(ScoredTest(console_log=test["output"], test_name=test["name"], score=int(test["score"]), max_score=int(test["max_score"])))
+                # Syntax error of some sorts
+                scored_tests.append(
+                    ScoredTest(
+                        console_log=test["output"],
+                        test_name=test["name"],
+                        score=0,
+                        max_score=self.get_max_points(question_num),
+                        question_num=question_num,
+                    )
+                )
 
         return scored_tests
 
+    def get_max_points(self, question_num: int) -> float:
+        """Gets the max amount of points for a question by scanning through the test_cases.py file"""
+        try:
+            return self._max_points[question_num]
+        except KeyError:
+            question_test_file = os.path.join(
+                "es_files", "questions", f"q{question_num}", "test_cases.py"
+            )
+            total_weight = 0.0
+            with open(question_test_file, "r") as f:
+                for line in f:
+                    if "@weight(" in line:
+                        start = line.index("(") + 1
+                        end = line.index(")")
+                        total_weight += float(line[start:end].strip())
+            self._max_points[question_num] = total_weight
+            return total_weight
 
-    def send_to_judge0(submission_zip: bytes):
+    def send_to_judge0(self, submission_zip: bytes):
         """Sends the submission zip to judge0
         Args:
             submission_zip: the zip file containing all code to be executed in the judge0 environment
@@ -119,7 +186,7 @@ class SubmissionService:
         return test_results["tests"]
 
     def package_submission(
-        team_name: str, question_number: int, demo=False
+        self, team_name: str, question_number: int, demo=False
     ) -> bytes:
         """Packages submission files into a string of a .zip contents.
 

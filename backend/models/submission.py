@@ -22,5 +22,6 @@ class ScoredTest(ConsoleLog):
     """Model to hold a scored test"""
 
     test_name: str
-    socre: int
-    max_score: int
+    question_num: int
+    score: float
+    max_score: float

@@ -20,6 +20,7 @@ api = APIRouter(prefix="/api/submissions")
 def submit_and_run(
     submission: Submission,
     team: Team = Depends(active_test),
+    submission_svc: SubmissionService = Depends(),
 ) -> ConsoleLog:
     """Store and sample grade a submission."""
-    return SubmissionService.submit_and_run(team, submission)
+    return submission_svc.submit_and_run(team, submission)
