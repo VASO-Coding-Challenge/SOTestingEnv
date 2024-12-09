@@ -15,11 +15,8 @@ export const CountdownTimer = ({
   useEffect(() => {
     const timerInterval = setInterval(() => {
       setTimeLeft((prevTime) => {
-        if (prevTime === 0) {
+        if (prevTime <= 0) {
           clearInterval(timerInterval);
-          if (end_fn !== null) {
-            end_fn();
-          }
           return 0;
         } else {
           return prevTime - 1;
@@ -30,6 +27,18 @@ export const CountdownTimer = ({
     // Make sure to delete the interval when the component unmounts
     return () => clearInterval(timerInterval);
   }, [end_fn]);
+
+  /* 
+  Defer `end_fn` to the next tick of the event loop to 
+  avoid BrowserRouter rendering issues in child components.
+  */
+  useEffect(() => {
+    if (timeLeft === 0 && end_fn !== null) {
+      setTimeout(() => {
+        end_fn();
+      }, 0);
+    }
+  }, [timeLeft, end_fn]);
 
   // Get hours, minutes, and seconds
   const hours = Math.floor(timeLeft / 3600);

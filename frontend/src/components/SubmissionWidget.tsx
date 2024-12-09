@@ -16,13 +16,16 @@ import {
   Divider
 } from "@mui/material";
 import { SubmissionWidgetProps } from "../models/submission";
-import { LogOut } from "./LogOutButton";
 import UploadIcon from "@mui/icons-material/Upload";
 import RestoreIcon from '@mui/icons-material/Restore';
 import DownloadIcon from '@mui/icons-material/Download';
 import Tooltip from "@mui/material/Tooltip";
 import { Editor } from "@monaco-editor/react";
 import { Link } from "react-router-dom";
+
+type SubmissionResponse = {
+  console_log: string;
+};
 
 const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
@@ -43,11 +46,11 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
-  }, [code]);
+  }, [code, question.num]);
 
   useEffect(() => {
     sessionStorage.setItem(`output_${question.num}`, submissionResponse);
-  }, [submissionResponse]);
+  }, [submissionResponse, question.num]);
 
   useEffect(() => {
     if (question){
@@ -125,7 +128,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         }
         return response.json();
       })
-      .then((responseData: string) => {
+      .then((responseData: SubmissionResponse) => {
         setSubmissionResponse(responseData.console_log);
       })
       .catch((error: Error) => {
@@ -168,7 +171,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onChange={(event, newValue) => handleTabSwitch(newValue)}
+        onChange={(_event, newValue) => handleTabSwitch(newValue)}
         variant="fullWidth"
         indicatorColor="secondary"
         textColor="secondary"
@@ -346,9 +349,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   Submit
               </Button>
             </Box>
-
-            {/* Logout Component */}
-              <LogOut />
           </Box>
         </Box>
       )}
@@ -365,7 +365,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         >
           <Tabs
             value={docsTab}
-            onChange={(event, newValue) => handleDocsTabSwitch(newValue)}
+            onChange={(_event, newValue) => handleDocsTabSwitch(newValue)}
             variant="fullWidth"
             textColor="secondary"
             indicatorColor="secondary"
