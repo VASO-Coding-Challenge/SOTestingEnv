@@ -4,14 +4,16 @@ from datetime import datetime
 from backend.models import Team, TeamMember
 import polars as pl
 
+from backend.models.team import TeamData
 from backend.services.exceptions import (
     InvalidCredentialsException,
+    ResourceNotAllowedException,
     ResourceNotFoundException,
 )
 
 import pytest
 from backend.test.fixtures import team_svc
-from backend.test.fake_data.team import fake_team_fixture, team1, team2, team3
+from backend.test.fake_data.team import fake_team_fixture
 from backend.test.fake_data.team_members import fake_team_members_fixture
 
 # TODO: Test table reading and exporting functions
@@ -22,8 +24,8 @@ __authors__ = ["Andrew Lockard"]
 def test_get_team_basic(team_svc, fake_team_fixture):
     """Test the getting of an ordinary Team in the database"""
     fake_team_fixture()
-    assert team_svc.get_team(1).name == team1.name
-    assert team_svc.get_team("B2").id == team2.id
+    assert team_svc.get_team(1).name == "B1"
+    assert team_svc.get_team("B2").id == 2
 
 
 def test_get_team_not_exist(team_svc, fake_team_fixture):
@@ -62,6 +64,7 @@ def test_create_team_basic(team_svc, fake_team_fixture):
     )
     team_svc.create_team(new_team)
     assert team_svc.get_team("C4").name == new_team.name
+    assert team_svc.get_team(4).id == new_team.id
 
 
 def test_df_to_table_basic(team_svc, fake_team_fixture):
@@ -177,3 +180,94 @@ def test_delete_team_deletes_team_members(
     fake_team_fixture()
     team_svc.delete_team(team_svc.get_team(1))
     assert session.get(TeamMember, 1) is None
+
+
+def test_df_to_team_val_error(team_svc, fake_team_fixture):
+    """Test that a value error is raised when a dataframe is not formatted correctly"""
+    fake_team_fixture()
+    new_team = pl.DataFrame(
+        {
+            "Team Number": ["C4"],
+            "Start Time": [datetime.now().strftime("%m/%d/%Y %H:%M")],
+            "End Time": [datetime.now().strftime("%m/%d/%Y %H:%M")],
+            "Password": [4],
+        }
+    )
+    with pytest.raises(ValueError):
+        team_svc.df_to_teams(new_team)
+
+
+def test_df_to_team_type_error(team_svc, fake_team_fixture):
+    """Test that a type error is raised when a dataframe is not formatted correctly"""
+    fake_team_fixture()
+    new_team = pl.DataFrame(
+        {
+            "Team Number": ["C4"],
+            "Start Time": [datetime.now().strftime("%m/%d/%Y %H:%M")],
+            "End Time": [datetime.now()],
+            "Password": [4],
+        }
+    )
+    with pytest.raises(TypeError):
+        team_svc.df_to_teams(new_team)
+
+
+def test_teams_to_df_basic(team_svc, fake_team_fixture):
+    """Test that a list of teams can be converted to a DataFrame"""
+    fake_team_fixture()
+    teams = team_svc.get_all_teams()
+    df = team_svc.teams_to_df(teams)
+    assert len(df) == 3
+    assert "Team Number" in df.columns
+    assert "Password" in df.columns
+    assert "Start Time" in df.columns
+    assert "End Time" in df.columns
+
+
+def test_create_team_team_data(team_svc, fake_team_fixture):
+    """Test creating a team from TeamData"""
+    fake_team_fixture()
+    team_data = TeamData(
+        name="C4",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="password",
+    )
+    team_svc.create_team(team_data)
+    assert team_svc.get_team("C4").name == team_data.name
+
+
+def test_team_member_not_found_deleting(team_svc, fake_team_fixture):
+    """Test that a team member is not found if the team does not exist"""
+    fake_team_fixture()
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.delete_team_member(100, team_svc.get_team(1))
+
+
+def test_create_team_team_data(team_svc, fake_team_fixture):
+    """Test creating a team from TeamData"""
+    fake_team_fixture()
+    team_data = TeamData(
+        name="C4",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="password",
+    )
+    team_svc.create_team(team_data)
+    assert team_svc.get_team("C4").name == team_data.name
+
+
+def test_team_member_not_found_deleting(team_svc, fake_team_fixture):
+    """Test that a team member is not found if the team does not exist"""
+    fake_team_fixture()
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.delete_team_member(100, team_svc.get_team(1))
+
+
+def test_team_member_not_allowed_deleting(team_svc, fake_team_fixture):
+    """Test that a team member is not found if the team does not exist"""
+    fake_team_fixture()
+    with pytest.raises(ResourceNotAllowedException):
+        team_svc.delete_team_member(
+            team_svc.get_team("B2").members[0].id, team_svc.get_team("B1")
+        )

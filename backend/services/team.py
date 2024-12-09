@@ -213,7 +213,9 @@ class TeamService:
             ResourceNotFoundException: If member_id or team_id does not exist
             ResourceNotAllowedException: If team_id does not match the team of the member
         """
+        print("Hey")
         member = self._session.get(TeamMember, member_id)
+        print("Hey")
         if member == None:
             raise ResourceNotFoundException(f"Member of id={member_id} not found!")
 

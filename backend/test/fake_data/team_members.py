@@ -6,27 +6,22 @@ from ...db import engine
 import pytest
 
 from ...models.team_members import TeamMember
-from .team import team1, team2, fake_team_fixture
+from .team import fake_team_fixture
 
 __authors__ = ["Andrew Lockard"]
-
-member1 = TeamMember(
-    first_name="Andrew", last_name="Lockard", id=None, team_id=team1.id
-)
-member2 = TeamMember(
-    first_name="Mustafa", last_name="Aljumayli", id=None, team_id=team2.id
-)
-member3 = TeamMember(first_name="Matthew", last_name="Futch", id=None, team_id=team1.id)
-member4 = TeamMember(first_name="Nick", last_name="Almy", id=None, team_id=team1.id)
-member5 = TeamMember(
-    first_name="Saba", last_name="Supervisor", id=None, team_id=team2.id
-)
-
-members = [member1, member2, member3, member4, member5]
 
 
 def insert_fake_team_members(session: Session):
     """Inserts the team members"""
+    member1 = TeamMember(first_name="Andrew", last_name="Lockard", id=None, team_id=1)
+    member2 = TeamMember(
+        first_name="Mustafa", last_name="Aljumayli", id=None, team_id=2
+    )
+    member3 = TeamMember(first_name="Matthew", last_name="Futch", id=None, team_id=1)
+    member4 = TeamMember(first_name="Nick", last_name="Almy", id=None, team_id=1)
+    member5 = TeamMember(first_name="Saba", last_name="Supervisor", id=None, team_id=2)
+
+    members = [member1, member2, member3, member4, member5]
     for member in members:
         session.add(member)
 
