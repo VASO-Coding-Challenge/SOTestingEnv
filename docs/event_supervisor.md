@@ -45,6 +45,38 @@ The `questions` Subdirectory holds information for the test, where it's subdirec
 | `demo_cases.py`  | This python file is for validation testing by the students.                             |
 | `starter.py`     | This python file is inserted into the text box for the students to work from.           |
 
+#### Writing `demo_cases.py` and `test_cases.py`
+
+Any functionality in the `gradescope_utils` and `unittest` libraries are supported when writing these tests, additional functionality may not be supported.
+Specifically in `test_cases.py` it is expected that point values will be assigned to tests using the `@weight(#)` decorator.
+If you include the `@weight(#)` decorator in the `demo_cases.py` file, it will be ignored during grading and when running demo tests.
+
+In both files, you will need to import `unittest`, and the function that you are grading's name from the `submission` module. This is how the students submission will be passed to Judge0.
+
+The general template for writing these files are as follows:
+```python
+"""Demo/test cases for problem #"""
+
+import unittest
+from submission import function_name
+# To use any of the gradescope utils import them from the package called "decorators"
+from decorators import weight
+
+class Test(unittest.TestCase):
+
+    @weight(2) # Only needs to be included in the test_cases.py file
+    def test_name_of_test(self):
+        self.assertEqual(function_name("input") "expected_output")
+
+    # Note that you can define multiple tests in either file
+    @weight(1)
+    def test_2(self):
+        self.assertEqual(function_name("input"), "expected_output")
+
+```
+
+If you need more information on how to write these tests, please take a look at the `example_test` directory.
+
 #### `global_docs` Subdirectoy Information
 
 The `global_docs` subdirectory holds all documentation made available regardless of question. All Markdown file in this directory will be made available for reference during test time.
@@ -60,6 +92,7 @@ Generates a template file structure for `the es_files/questions` subdirectory. I
 │ ├─ prompt.md
 │ ├─ test_cases.py
 │ ├─ demo_case.py
+│ ├─ starter.py
 ```
 
 ##### Command
@@ -132,6 +165,26 @@ python3 -m backend.script.load_teams [-f, --file=es_files/teams/teams.csv]
 | Argument | Flag         | Description                                                                                                                                    | Default                    |
 | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | `FILE`   | `-f, --FILE` | File containing updated team information. Upon completing, this file is altered to show the current state of the `team` table in the database. | `es_files/teams/teams.csv` |
+
+#### `grade_submissions`
+
+##### Description
+
+This script is the one stop shop for calculating grades for students. The following will happen for each team defined in the database and for each question defined in the `es_files/questions` directory:
+
+- The question's `test_cases.py` file will be run with that teams submission defined in `es_files/submissions`.
+- The output of each test (or the single statement that they did not submit, or a `test_cases.py` file was not configued) will be added to a row in the outputted `scored_tests.csv`
+- The total score over all tests for each team will appear in `final_scores.csv`
+
+Both of these files, `scored_tests.csv` and `final_scores.csv` are by default found in the `es_files/teams` directory.
+
+This command does not take in any arguments. Successive runs will override current files.
+
+##### Command
+
+```
+python3 -m backend.script.grade_submissions
+```
 
 #### `teams_to_csv`
 

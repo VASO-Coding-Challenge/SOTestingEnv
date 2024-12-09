@@ -17,3 +17,11 @@ class ConsoleLog(SQLModel):
     """Model for Console Logs"""
 
     console_log: str
+
+class ScoredTest(ConsoleLog):
+    """Model to hold a scored test"""
+
+    test_name: str
+    question_num: int
+    score: float
+    max_score: float
