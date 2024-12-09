@@ -81,6 +81,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 1. Run `honcho start`
 2. Open `http://localhost:4400` to view the application
 
+#### Download the HTML Python Documentation
+
+1. To download the HTML Python Documentation, visit this link:
+   https://docs.python.org/3/download.html
+
+2. Download the zip folder located at the intersection of the
+   "HTML" row and "Packed as .zip" column.
+
+3. Extract that Zip folder and drag it into the project's "frontend/public" folder.
+
+4. Rename the folder to "python_docs"
+
+You're all set to have added Python Documentation for the project.
+
 ## Development Concerns
 
 ### [Frontend Documentation](/docs/frontend.md)
