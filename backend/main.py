@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from .services.exceptions import (
     InvalidCredentialsException,
@@ -49,7 +50,7 @@ feature_apis = [team, auth, question, docs, submission]
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
 
-# TODO: Mount the static website built from the react application so the FastAPI server can serve it
+app.mount("/", StaticFiles(directory="static"), name="React_Frontend")
 
 
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create

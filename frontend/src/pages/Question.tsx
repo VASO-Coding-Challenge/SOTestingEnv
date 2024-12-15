@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SubmissionWidget from "../components/SubmissionWidget";
 import { QuestionsPublic, Question, Document } from "../models/questions";
 import LeftSideBar from "../components/LeftSideBar";

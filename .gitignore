@@ -3,6 +3,8 @@ database.db
 *.db
 .DS_Store
 judge0.conf
+static/
+*.tsbuildinfo
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
