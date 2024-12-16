@@ -87,7 +87,7 @@ Use the tools outlined in the [ES Documentation](event_supervisor.md) to create 
 Once you have finished creating your exam, you can run the server with this command:
 
 ```bash
-uvicorn backend.main:app --port=[PORT_NUMBER] --host=[HOST_NUMBER]
+uvicorn --port=[PORT_NUMBER] --host=[HOST_NUMBER] backend.main:app 
 ```
 
 Note that the port and host numbers are optional.
