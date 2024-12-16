@@ -1,5 +1,6 @@
 """Entry of the backend for the SOTesting Environment. Sets up FastAPI and exception handlers"""
 
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
@@ -11,7 +12,7 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import team, auth, question, docs, submission
+from .api import team, auth, question, docs, submission, static_files
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
@@ -49,7 +50,7 @@ feature_apis = [team, auth, question, docs, submission]
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
 
-# TODO: Mount the static website built from the react application so the FastAPI server can serve it
+app.mount("/", static_files.CustomStatic(directory=Path("./static")))
 
 
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create

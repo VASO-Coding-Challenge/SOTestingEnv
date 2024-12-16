@@ -6,6 +6,8 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 ## Get Programming
 
+> Note: These instructions are for setting up the development environment. Please see [here](/docs/deploy.md) for exam day setup.
+
 ### Download the Repo
 
 1. Install Docker Desktop, VSCode, and the DevContainer VSCode extension

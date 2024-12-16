@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 # Citation: Most of the code in this Dockerfile is from the csxl.unc.edu repo. https://github.com/unc-csxl/csxl.unc.edu
-# Big thanks to Kris Jordan who wrote the origional Devcontainer and is maintainting it with an MIT license
+# Big thanks to Kris Jordan who wrote the original Devcontainer and is maintaining it with an MIT license
 
 # Install useful system utilities
 ENV TZ=America/New_York
