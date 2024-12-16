@@ -82,6 +82,20 @@ At the end of this time, the login tokens will invalidate and the user will need
 
 Use the tools outlined in the [ES Documentation](event_supervisor.md) to create your exam in the `es_files` directory.
 
+#### Download the HTML Python Documentation
+
+1. To download the HTML Python Documentation, visit this link:
+   https://docs.python.org/3/download.html
+
+2. Download the zip folder located at the intersection of the
+   "HTML" row and "Packed as .zip" column.
+
+3. Extract that Zip folder and drag it into the project's "frontend/public" folder.
+
+4. Rename the folder to "python_docs"
+
+You've added Python Documentation into the project.
+
 ### Run the Server
 
 Once you have finished creating your exam, you can run the server with this command, while in the home (`SOTestingEnv`) directory:
