@@ -57,6 +57,18 @@ For the moment, we will continue to support running the testing envrionment out 
 2. Press `Ctrl+Shift+P` on windows (`Cmd+Shift+P` on mac) to open the command pallet and run `Dev Containers: Build and Reopen in Container` (In the future to open you can just use `Dev Containers: Reopen in Container`)
 3. Grab some water while the container builds
 
+#### Download the HTML Python Documentation
+
+1. To download the HTML Python Documentation, visit this link:
+   https://docs.python.org/3/download.html
+
+2. Download the zip folder located at the intersection of the
+   "HTML" row and "Packed as .zip" column.
+
+3. Extract that Zip folder and drag it into the project's "frontend/public" folder.
+
+4. Rename the folder to "python_docs"
+
 ### Build the Frontend
 
 1. `cd frontend`
@@ -81,20 +93,6 @@ At the end of this time, the login tokens will invalidate and the user will need
 ### Create Your Exam
 
 Use the tools outlined in the [ES Documentation](event_supervisor.md) to create your exam in the `es_files` directory.
-
-#### Download the HTML Python Documentation
-
-1. To download the HTML Python Documentation, visit this link:
-   https://docs.python.org/3/download.html
-
-2. Download the zip folder located at the intersection of the
-   "HTML" row and "Packed as .zip" column.
-
-3. Extract that Zip folder and drag it into the project's "frontend/public" folder.
-
-4. Rename the folder to "python_docs"
-
-You've added Python Documentation into the project.
 
 ### Run the Server
 
