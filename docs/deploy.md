@@ -84,7 +84,7 @@ Use the tools outlined in the [ES Documentation](event_supervisor.md) to create 
 
 ### Run the Server
 
-Once you have finished creating your exam, you can run the server with this command:
+Once you have finished creating your exam, you can run the server with this command, while in the home (`SOTestingEnv`) directory:
 
 ```bash
 uvicorn --port=[PORT_NUMBER] --host=[HOST_NUMBER] backend.main:app 
