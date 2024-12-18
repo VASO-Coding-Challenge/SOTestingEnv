@@ -27,7 +27,7 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 > Note: the following judge0 setup steps must be run every time you wish to run the development server
 
 7. Make sure your current working directory is set to `judge0` (`cd judge0`)
-8. Run `bash start.sh` to launch the judge0 server
+8. Run `./start.sh` to launch the judge0 server
 9. The first time you run this: put some pizza in the oven
 
 > When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
