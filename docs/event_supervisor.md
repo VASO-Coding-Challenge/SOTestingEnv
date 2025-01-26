@@ -54,6 +54,7 @@ If you include the `@weight(#)` decorator in the `demo_cases.py` file, it will b
 In both files, you will need to import `unittest`, and the function that you are grading's name from the `submission` module. This is how the students submission will be passed to Judge0.
 
 The general template for writing these files are as follows:
+
 ```python
 """Demo/test cases for problem #"""
 
@@ -178,7 +179,7 @@ This script is the one stop shop for calculating grades for students. The follow
 
 Both of these files, `scored_tests.csv` and `final_scores.csv` are by default found in the `es_files/teams` directory.
 
-This command does not take in any arguments. Successive runs will override current files.
+This command does not take in any arguments. Successive runs will overwrite current files.
 
 ##### Command
 
@@ -212,14 +213,14 @@ python3 -m backend.script.teams_to_csv [-f, --file=es_files/teams/teams.csv]
 
 Updates the teams table in the database to match the teams.csv file provided.
 
-This command is **NOT safe**... meaning any changes and deletions in the teams.csv will be perminant!
+This command is **NOT safe**... meaning any changes and deletions in the teams.csv will be permanent!
 
 it follows these rules:
 Where a team is identified by it's team number...
 
 1. Any team in the database but NOT in the file will be **DELETED** from the database
 2. Any team in the file but NOT in the database will be **ADDED** to the database
-3. Any team present in both will be **UPDATED** according the file's specifications
+3. Any team present in both will be **UPDATED** according to the file's specifications
 
 ##### Command
 

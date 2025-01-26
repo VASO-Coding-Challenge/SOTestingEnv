@@ -50,7 +50,7 @@ feature_apis = [team, auth, question, docs, submission]
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
 
-app.mount("/", static_files.CustomStatic(directory=Path("./static")))
+app.mount("/", static_files.CustomStatic(directory=Path("./frontend")))
 
 
 # TODO: Add Custom HTTP response exception handlers here for any custom Exceptions we create

@@ -5,5 +5,5 @@ from submission import first_five
 
 class Test(unittest.TestCase):
 
-    def test_first_five(self):
+    def test_first_five1(self):
         self.assertEqual(first_five("Hello World"), "Hello")

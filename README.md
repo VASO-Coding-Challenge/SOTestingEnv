@@ -26,11 +26,9 @@ For more information visit our [COMP523 E-Team Website here](https://tarheels.li
 
 > Note: the following judge0 setup steps must be run every time you wish to run the development server
 
-7. Make sure your current working directory is set to `judge0` (`cd judge0`)
-8. Run `bash start.sh` to launch the judge0 server
-9. The first time you run this: put some pizza in the oven
+7. Run `pushd judge0 ; ./start.sh ; popd` to launch the judge0 server. The first time you run this: put some pizza in the oven.
 
-> When you wish to exit development don't forget to stop judge0, either via `docker-compose down` inside the `judge0` directory (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
+> When you wish to exit development don't forget to stop judge0, either via `pushd judge0 ; docker-compose down ; popd` (make sure you are outside the devcontainer!) or stopping the container in Docker Desktop.
 
 **IMPORTANT NOTE FOR OS X USERS (And maybe others)**
 Depending on your docker version, the Judge0 workers may not run properly.
@@ -61,11 +59,9 @@ open ~/Library/Group\ Containers/group.com.docker/settings-store.json
 
 ### Installing Dependencies
 
-Run the following commands:
+Run these commands to install the React dependencies:
 
-1. `cd frontend`
-2. `npm install` to install React dependencies
-3. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run as many times as possible to reset the databse.
+`pushd frontend ; npm install ; popd`
 
 ### Setup Environment Variables
 
@@ -75,13 +71,16 @@ Run the following commands:
 
 ```
 SECRET_KEY=<Your Generated Secret Key>
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+ACCESS_TOKEN_EXPIRE_MINUTES=90
 ```
+
+4. `cd ..`
 
 ### Running the Development Server
 
-1. Run `honcho start`
-2. Open `http://localhost:4400` to view the application
+1. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run anytime to reset the databse.
+2. Run `honcho start`
+3. Open `http://localhost:4400` to view the application
 
 #### Download the HTML Python Documentation
 
@@ -104,4 +103,3 @@ You're all set to have added Python Documentation for the project.
 ### [Backend Documentation](/docs/backend.md)
 
 ### [Event Supervisor Documentation](/docs/event_supervisor.md)
-
