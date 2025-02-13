@@ -2,6 +2,7 @@
 
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
+from session import Session
 
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
@@ -11,8 +12,7 @@ class TeamBase(SQLModel):
     """Base model for Team table, this model should not be exported"""
 
     name: str
-    start_time: datetime
-    end_time: datetime
+    session_id: int = Field(foreign_key="session.id", ondelete="CASCADE")
 
 
 class Team(TeamBase, table=True):
