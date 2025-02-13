@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from backend.models.session import Session as SessionModel
 import pytest
 
+__authors__ = ["Ivan Wu"]
+
 
 def create_fake_sessions(db_session: Session):
     """Create fake sessions for testing purposes."""

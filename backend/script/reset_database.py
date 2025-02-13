@@ -11,7 +11,7 @@ from ..services import PasswordService
 
 from ..test.fake_data import team, word, team_members, session
 
-__authors__ = ["Andrew Lockard", "Nicholas Almy"]
+__authors__ = ["Andrew Lockard", "Nicholas Almy", "Ivan Wu"]
 
 # * Note this should only be used during development, we will need different scripts for production
 
@@ -30,4 +30,4 @@ with Session(engine) as db_session:
     team_svc = TeamService(db_session)
     team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams/teams.csv")
     team_members.insert_fake_team_members(db_session)
-    session.commit()
+    db_session.commit()
