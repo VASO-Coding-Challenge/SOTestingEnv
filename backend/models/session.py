@@ -6,9 +6,10 @@ from datetime import datetime
 __authors__ = ["Ivan Wu"]
 
 
-class Session(SQLModel):
+class Session(SQLModel, table=True):
     """Model for Sessions"""
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
+    name: str
     start_time: datetime
     end_time: datetime

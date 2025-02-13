@@ -1,9 +1,7 @@
 """Model for the Team table that stores official team information"""
 
+from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
-from datetime import datetime
-from session import Session
-
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
 
@@ -12,7 +10,9 @@ class TeamBase(SQLModel):
     """Base model for Team table, this model should not be exported"""
 
     name: str
-    session_id: int = Field(foreign_key="session.id", ondelete="CASCADE")
+    session_id: Optional[int] = Field(
+        default=None, foreign_key="session.id", ondelete="CASCADE"
+    )
 
 
 class Team(TeamBase, table=True):
