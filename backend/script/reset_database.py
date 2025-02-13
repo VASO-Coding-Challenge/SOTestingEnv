@@ -9,7 +9,7 @@ from ..services.team import TeamService
 
 from ..services import PasswordService
 
-from ..test.fake_data import team, word, team_members
+from ..test.fake_data import team, word, team_members, session
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy"]
 
@@ -20,13 +20,14 @@ SQLModel.metadata.drop_all(engine)
 
 SQLModel.metadata.create_all(engine)
 
-with Session(engine) as session:
+with Session(engine) as db_session:
     # Add fake data scripts to have them be inserted on database reset
-    pwd_svc = PasswordService(session)
+    pwd_svc = PasswordService(db_session)
     pwd_svc.reset_word_list()
-    word.create_words(session)
-    team.create_fake_teams(session)
-    team_svc = TeamService(session)
+    word.create_words(db_session)
+    session.create_fake_sessions(db_session)
+    team.create_fake_teams(db_session)
+    team_svc = TeamService(db_session)
     team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams/teams.csv")
-    team_members.insert_fake_team_members(session)
+    team_members.insert_fake_team_members(db_session)
     session.commit()
