@@ -105,8 +105,7 @@ class AuthService:
 
     def authenticate_team_time(self, team: Team) -> None:
         """Authenticates a Teams permissions based on the time."""
-        # TODO:
-        if team.start_time > datetime.now():
+        if team.session.start_time > datetime.now():
             raise ResourceNotAllowedException("Your testing time is not active yet.")
-        elif team.end_time < datetime.now():
+        elif team.session.end_time < datetime.now():
             raise ResourceNotAllowedException("You have run out of time.")
