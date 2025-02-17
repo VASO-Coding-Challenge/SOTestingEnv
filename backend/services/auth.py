@@ -2,6 +2,8 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from sqlmodel import Session
+from sqlalchemy.orm import joinedload
+from sqlmodel import select
 from ..db import db_session
 
 from ..models.auth import Token, TokenData
@@ -87,7 +89,12 @@ class AuthService:
         """
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            team = self._session.get(Team, data["id"])
+            statement = (
+                select(Team)
+                .options(joinedload(Team.session))
+                .where(Team.id == data["id"])
+            )
+            team = self._session.exec(statement).first()
             if team == None:
                 raise ResourceNotFoundException("Team assocated with login not found.")
             return team
@@ -98,6 +105,7 @@ class AuthService:
 
     def authenticate_team_time(self, team: Team) -> None:
         """Authenticates a Teams permissions based on the time."""
+        # TODO:
         if team.start_time > datetime.now():
             raise ResourceNotAllowedException("Your testing time is not active yet.")
         elif team.end_time < datetime.now():

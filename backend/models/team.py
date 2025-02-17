@@ -2,8 +2,9 @@
 
 from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
+from .session import Session
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
 
 
 class TeamBase(SQLModel):
@@ -23,6 +24,7 @@ class Team(TeamBase, table=True):
     members: list["TeamMember"] = Relationship(
         cascade_delete=True, back_populates="team"
     )
+    session: Optional[Session] = Relationship()
 
 
 class TeamData(TeamBase):
@@ -35,3 +37,4 @@ class TeamPublic(TeamBase):
     """Model to define the API response shape of the Team model"""
 
     id: int
+    session: Optional[Session]
