@@ -78,8 +78,8 @@ export default function LeftSideBar({ num, onTabClick }: numberOfTabsProps) {
       });
       if (resp.ok) {
         const team = await resp.json();
-        setStartTime(new Date(team.start_time));
-        setEndTime(new Date(team.end_time));
+        setStartTime(new Date(team.session.start_time));
+        setEndTime(new Date(team.session.end_time));
       } else {
         console.error("Failed to fetch team data");
       }
@@ -100,32 +100,32 @@ export default function LeftSideBar({ num, onTabClick }: numberOfTabsProps) {
   return (
     <SidebarContainer>
       <TimerContainer>
-      {startTime && endTime ? (
+        {startTime && endTime ? (
           <CountdownTimer end_time={endTime} end_fn={handleTimerEnd} />
         ) : (
           <p>Loading Timer...</p>
         )}
       </TimerContainer>
       <TabsContainer>
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        orientation="vertical"
-        indicatorColor="secondary"
-      >
-        {Array.from({ length: num }, (_, index) => (
-          <StyledTab
-            key={index}
-            label={`Problem ${index + 1}`}
-            icon={<StarsIcon />}
-            iconPosition="top"
-          />
-        ))}
-      </Tabs>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          orientation="vertical"
+          indicatorColor="secondary"
+        >
+          {Array.from({ length: num }, (_, index) => (
+            <StyledTab
+              key={index}
+              label={`Problem ${index + 1}`}
+              icon={<StarsIcon />}
+              iconPosition="top"
+            />
+          ))}
+        </Tabs>
       </TabsContainer>
       {/* Logout Button */}
       <LogoutContainer>
-          <LogOut />
+        <LogOut />
       </LogoutContainer>
     </SidebarContainer>
   );
