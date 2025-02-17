@@ -7,7 +7,7 @@ from backend.models.team import Team
 from backend.services.passwords import PasswordService
 from backend.db import engine
 
-__authors__ = ["Mustafa Aljumayli", "Nicholas Almy", "Andrew Lockard"]
+__authors__ = ["Mustafa Aljumayli", "Nicholas Almy", "Andrew Lockard", "Ivan Wu"]
 
 
 def create_fake_teams(session: Session):
@@ -17,30 +17,26 @@ def create_fake_teams(session: Session):
         id=1,
         name="B1",
         password="a-b-c",
-        start_time=datetime.now() - timedelta(minutes=30),
-        end_time=datetime.now() + timedelta(minutes=30),
+        session_id=1,
     )
     team2 = Team(
         id=2,
         name="B2",
         password="a-b-c",
-        start_time=datetime.now() + timedelta(minutes=2),
-        end_time=datetime.now() + timedelta(hours=1, minutes=2),
+        session_id=2,
     )
     team3 = Team(
         id=3,
         name="B3",
         password="a-b-c",
-        start_time=datetime.now() + timedelta(hours=1),
-        end_time=datetime.now() + timedelta(hours=2),
     )
     session.add_all([team1, team2, team3])
 
 
 @pytest.fixture
-def fake_team_fixture(session: Session):
+def fake_team_fixture(db_session: Session):
     def load_fixture():
-        create_fake_teams(session)
-        session.commit()
+        create_fake_teams(db_session)
+        db_session.commit()
 
     return load_fixture

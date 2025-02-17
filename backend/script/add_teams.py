@@ -36,6 +36,7 @@ def add_teams():
         # Create new teams
         for i in range(1, int(args.number) + 1):
             team = TeamData(
+                # TODO:
                 name=f"{args.prefix}{last_team + i}",
                 password=pwd_svc.generate_password(),
                 start_time=start_time,
