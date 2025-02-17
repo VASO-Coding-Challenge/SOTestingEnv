@@ -12,23 +12,34 @@ from ..models.team import Team
 from ..config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 
 from .team import TeamService
+from .es import ESService
 from .exceptions import (
     InvalidCredentialsException,
     ResourceNotFoundException,
     ResourceNotAllowedException,
 )
 
-__authors__ = ["Mustafa Aljumayli", "Andrew Lockard", "Nicholas Almy"]
+__authors__ = [
+    "Mustafa Aljumayli",
+    "Andrew Lockard",
+    "Nicholas Almy",
+    "Nicholas Boyer",
+    "Ivan Wu",
+]
 
 
 class AuthService:
     """Service that handles authentication and JWT token generation."""
 
     def __init__(
-        self, session: Session = Depends(db_session), team_svc: TeamService = Depends()
+        self,
+        session: Session = Depends(db_session),
+        team_svc: TeamService = Depends(),
+        es_svc: ESService = Depends(),
     ):
         self._session = session
         self._team_svc = team_svc
+        self._es_svc = es_svc
 
     def authenticate_team(self, name: str, password: str) -> Token:
         """
@@ -47,6 +58,33 @@ class AuthService:
         token_data = TokenData(
             id=team.id,
             name=team.name,
+            exp=(
+                datetime.now(tz=timezone.utc)
+                + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
+        )
+        print(token_data.model_dump())
+
+        access_token = jwt.encode(
+            token_data.model_dump(), SECRET_KEY, algorithm="HS256"
+        )
+
+        return Token(access_token=access_token, token_type="bearer")
+
+    def authenticate_es(self, name: str, password: str) -> Token:
+        """
+        Authenticate the event supervisor by checking if the es exists with the given credentials.
+        If valid, encode the JWT with token data and return that JWT token.
+        """
+        try:
+            es = self._es_svc.get_es_with_credentials(name, password)
+        except InvalidCredentialsException as e:
+            raise e
+
+        # Create TokenData to be encoded
+        token_data = TokenData(
+            id=1,
+            name=es.name,
             exp=(
                 datetime.now(tz=timezone.utc)
                 + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -25,3 +25,4 @@ class LoginData(SQLModel, table=False):
 
     name: str
     password: str
+    is_team: bool = Field(default=True)
