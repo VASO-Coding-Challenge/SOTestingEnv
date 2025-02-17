@@ -63,10 +63,10 @@ const LoginPage = () => {
       <div className="flex flex-col items-center pb-8 mt-6 rounded-[25px] bg-[#e8def8] w-full max-w-[600px]">
         <br />
         <div className="flex flex-col text-[25px]">
-          Team Number
+          Team Number/Event Supervisor Username
           <input
             value={number}
-            placeholder="Team Number"
+            placeholder="Team Number/Event Supervisor Username"
             onChange={(e) => setNumber(e.target.value)}
             className="h-[50px] w-96 max-w-[500px] text-lg rounded-[8px] border bg-white border-gray-300 pl-2 mt-2"
             required
