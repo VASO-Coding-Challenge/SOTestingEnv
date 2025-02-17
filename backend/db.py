@@ -2,10 +2,11 @@
 
 from sqlmodel import create_engine, Session
 
-__authors__ = ["Andrew Lockard"]
+__authors__ = ["Andrew Lockard, Ivan Wu"]
 
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///backend/{sqlite_file_name}"
+
 
 # TODO: Create script to turn off echo when NOT in development mode
 engine = create_engine(sqlite_url, echo=True)

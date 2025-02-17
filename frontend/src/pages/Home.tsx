@@ -15,6 +15,12 @@ enum Display {
 interface Team {
   id: number;
   name: string;
+  session: Session;
+}
+
+interface Session {
+  id: number;
+  name: string;
   start_time: Date;
   end_time: Date;
 }
@@ -43,12 +49,13 @@ const Home = () => {
           nav("/login");
         } else {
           const team = (await resp.json()) as Team;
-          team.start_time = new Date(team.start_time);
-          team.end_time = new Date(team.end_time);
+          // Convert session times to Date objects
+          team.session.start_time = new Date(team.session.start_time);
+          team.session.end_time = new Date(team.session.end_time);
           setTeam(team);
-          if (team.start_time.getTime() > Date.now()) {
+          if (team.session.start_time.getTime() > Date.now()) {
             setDisplay(Display.COUNTDOWN);
-          } else if (team.end_time.getTime() > Date.now()) {
+          } else if (team.session.end_time.getTime() > Date.now()) {
             setDisplay(Display.STARTED);
           } else {
             setDisplay(Display.ENDED);
@@ -75,7 +82,10 @@ const Home = () => {
       <>
         <h1 className="text-[32px]">Your Competition Starts In:</h1>
         <div className="font-sans text-[64px] font-bold pb-10">
-          <CountdownTimer end_time={team!.start_time} end_fn={timer_end} />{" "}
+          <CountdownTimer
+            end_time={team!.session.start_time}
+            end_fn={timer_end}
+          />{" "}
         </div>
       </>
     );

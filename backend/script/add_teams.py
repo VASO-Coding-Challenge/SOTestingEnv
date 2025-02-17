@@ -13,6 +13,7 @@ import argparse
 DEFAULT_FILE = "es_files/teams/teams.csv"
 
 
+# TODO: Update to use new Team and Session model when implementing functionality to manage teams
 def add_teams():
     args = parse_cli()
     if not validate_args(args):

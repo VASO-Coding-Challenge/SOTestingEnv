@@ -15,7 +15,7 @@ from .exceptions import (
 
 from ..models import Team, TeamData, TeamMember, TeamMemberCreate
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -77,8 +77,7 @@ class TeamService:
             {
                 "Team Number": [team.name],
                 "Password": [team.password],
-                "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M")],
-                "End Time": [team.end_time.strftime("%m/%d/%Y %H:%M")],
+                "Session ID": [team.session_id],
             }
         )
         return team_df
