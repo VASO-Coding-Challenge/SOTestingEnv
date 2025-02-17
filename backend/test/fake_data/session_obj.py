@@ -1,6 +1,6 @@
 from sqlmodel import Session
 from datetime import datetime, timedelta
-from backend.models.session import Session as SessionModel
+from backend.models.session_obj import Session as SessionModel
 import pytest
 
 __authors__ = ["Ivan Wu"]

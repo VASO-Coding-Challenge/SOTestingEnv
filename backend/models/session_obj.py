@@ -6,7 +6,7 @@ from datetime import datetime
 __authors__ = ["Ivan Wu"]
 
 
-class Session(SQLModel, table=True):
+class Session_Obj(SQLModel, table=True):
     """Model for Sessions"""
 
     id: int = Field(primary_key=True)

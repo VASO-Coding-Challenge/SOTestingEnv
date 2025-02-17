@@ -2,7 +2,6 @@
 
 from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
-from .session import Session
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
 
