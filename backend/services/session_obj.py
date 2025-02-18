@@ -55,12 +55,12 @@ class Session_ObjService:
         else:
             raise ResourceNotFoundException("Session", session_obj.name)
 
-    def create_session_obj(self, team: Team | TeamData) -> Team:
-        """Create a new team in the database.
+    def create_session_obj(self, session_obj: Session_Obj | TeamData) -> Session_Obj:
+        """Create a new session object in the database.
         Args:
-            team (Team): Team object to create
+            session_obj (Session_Obj): Session object to create
         Returns:
-            Team: Created Team object
+            Team: Created Session_Obj object
         """
         if isinstance(team, TeamData):
             team = Team(
@@ -73,43 +73,43 @@ class Session_ObjService:
         self._session.commit()
         return team
 
-    def get_session_obj(self, identifier) -> Team:
-        """Gets the team by id (int) or name (str)"""
+    def get_session_obj(self, identifier) -> Session_Obj:
+        """Gets the session_obj by id (int) or name (str)"""
         # TODO: Improve documentation
         if isinstance(identifier, int):
-            team = self._session.get(Team, identifier)
+            session_obj = self._session.get(Session_Obj, identifier)
             if team is None:
                 raise ResourceNotFoundException(
-                    f"Team with id={identifier} was not found"
+                    f"Session_Obj with id={identifier} was not found"
                 )
         elif isinstance(identifier, str):
             team = self._session.exec(
-                select(Team).where(Team.name == identifier)
+                select(Session_Obj).where(Session_Obj.name == identifier)
             ).first()
-            if not team:
+            if not session_obj:
                 raise ResourceNotFoundException(
-                    f"Team with name={identifier} was not found"
+                    f"Session_Obj with name={identifier} was not found"
                 )
         else:
             raise ValueError("Identifier must be an int (id) or a str (name)")
-        return team
+        return session_obj
 
-    def get_all_teams(self) -> List[Team]:
-        """Gets a list of all the teams"""
-        teams = self._session.exec(select(Team)).all()
-        return teams
+    def get_all_session_objs(self) -> List[Session_Obj]:
+        """Gets a list of all the sessions"""
+        session_objs = self._session.exec(select(Session_Obj)).all()
+        return session_objs
 
-    def delete_all_session_obj(self):
+    def delete_all_session_objs(self):
         """Deletes all teams"""
-        self._session.exec(delete(Team))
-        self._session.exec(delete(TeamMember))
+        self._session.exec(delete(Session_Obj))
+        # self._session.exec(delete(TeamMember)) # must remove all the teams associated with the session. set to null?
         self._session.commit()
         return True
 
-    def delete_session_obj(self, team: TeamData | Team) -> bool:
+    def delete_session_obj(self, session_obj: TeamData | Team) -> bool:
         """Deletes a team"""
-        team = self.get_team(team.name)
-        self._session.delete(team)
+        session_obj = self.get_session_obj(session_obj.name)
+        self._session.delete(session_obj)
         self._session.commit()
         return True
 

@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter, Depends
 
-from backend.models.session import Session_Obj
+from backend.models.session_obj import Session_Obj
+from backend.services.session_obj import Session_ObjService
 from ..models import QuestionsPublic, Team
 from ..services.questions import QuestionService
 from .auth import active_test
@@ -19,36 +20,57 @@ api = APIRouter(prefix="/api/sessions")
 
 
 @api.get("", response_model=Session_Obj, tags=["Sessions"])
-def get_all_sessions(
-    team: Team = Depends(active_test),
-    question_svc: QuestionService = Depends(),
+def get_session(
+    session_obj: Session_Obj = Depends(active_test),
+    session_svc: Session_ObjService = Depends(),
 ):
-    """Get all the questions for the competition"""
-    return question_svc.get_questions()
+    """Get a specific session"""
+    return session_svc.get_session_obj
+
+
+@api.get("", response_model=Session_Obj, tags=["Sessions"])
+def get_all_sessions(
+    session_obj: Session_Obj = Depends(active_test),
+    session_svc: Session_ObjService = Depends(),
+):
+    """Get all sessions"""
+    return session_svc.get_all_session_objs()
 
 
 @api.post("", response_model=Session_Obj, tags=["Sessions"])
-def add_session(
+def create_session(
     team: Team = Depends(active_test),
-    question_svc: QuestionService = Depends(),
+    question_svc: Session_ObjService = Depends(),
 ):
-    """Get all the questions for the competition"""
-    return question_svc.get_questions()
+    """Creates a new session"""
+    return question_svc.create_session_obj
 
 
-@api.put("", response_model=Session_Obj, tags=["Sessions"])
-def edit_session(
+@api.put("/sessions/{session_id}", response_model=Session_Obj, tags=["Sessions"])
+def update_session(
     team: Team = Depends(active_test),
-    question_svc: QuestionService = Depends(),
+    question_svc: Session_ObjService = Depends(),
 ):
-    """Get all the questions for the competition"""
-    return question_svc.get_questions()
+    """Updates a specific session"""
+    return question_svc.update_session_obj
 
 
-@api.delete("", response_model=Session_Obj, tags=["Sessions"])
+@api.delete("/sessions/{session_id}", response_model=None, tags=["Sessions"])
 def delete_session(
     team: Team = Depends(active_test),
-    question_svc: QuestionService = Depends(),
+    session_svc: Session_ObjService = Depends(),
+    # session_id: int,
+    # team: Team = Depends(authed_team),
+    # team_svc: TeamService = Depends()
 ):
-    """Get all the questions for the competition"""
-    return question_svc.get_questions()
+    """Delete a specific session"""
+    return session_svc.delete_session_obj
+
+
+@api.delete("/sessions", response_model=None, tags=["Sessions"])
+def delete_session(
+    team: Team = Depends(active_test),
+    session_svc: Session_ObjService = Depends(),
+):
+    """Deletes all sessions"""
+    return session_svc.delete_all_session_objs
