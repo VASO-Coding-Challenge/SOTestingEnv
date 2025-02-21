@@ -1,7 +1,10 @@
 """Model for the Team table that stores official team information"""
 
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, Session
+
+from backend.models.session_obj import Session_Obj
+from backend.models.team_members import TeamMember
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
 
@@ -23,7 +26,8 @@ class Team(TeamBase, table=True):
     members: list["TeamMember"] = Relationship(
         cascade_delete=True, back_populates="team"
     )
-    session: Optional[Session] = Relationship()
+    session_id: Optional[int] = Field(default=None, foreign_key="session_obj.id")
+    session: Optional["Session_Obj"] = Relationship(back_populates="teams")
 
 
 class TeamData(TeamBase):
@@ -36,4 +40,4 @@ class TeamPublic(TeamBase):
     """Model to define the API response shape of the Team model"""
 
     id: int
-    session: Optional[Session]
+    session: Optional["Session_Obj"]  # necessary?
