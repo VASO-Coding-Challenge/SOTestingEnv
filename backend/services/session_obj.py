@@ -1,15 +1,23 @@
 """Service to handle the Session Objects feature"""
 
-from typing import List, Optional
-from ..models.session_obj import Session_Obj
-from ..services import team
-from .team import Team
-from ..db import db_session
-from fastapi import Depends
-from sqlmodel import Session, select, and_, delete
+# from typing import List, Optional
+# from ..models.session_obj import Session_Obj
+# from ..services import team
+# from .team import Team
+# from ..db import db_session
+# from fastapi import Depends
+# from sqlmodel import Session, select, and_, delete
 
-import polars as pl
-import datetime as dt
+# import polars as pl
+# import datetime as dt
+
+from typing import List, Optional, TYPE_CHECKING
+from sqlmodel import Session, select, delete
+from ..models.session_obj import Session_Obj
+from ..db import db_session
+
+if TYPE_CHECKING:
+    from backend.models.team import Team
 
 from .exceptions import (
     ResourceNotFoundException,
@@ -38,7 +46,7 @@ class Session_ObjService:
 
     def create_session_obj(self, session_obj: Session_Obj) -> Session_Obj:
         """Create a new session object in the database.
-        
+
         Args:
             session_obj (Session_Obj): Session object to create
         Returns:
@@ -46,7 +54,9 @@ class Session_ObjService:
         """
         self._session.add(session_obj)
         self._session.commit()
-        self._session.refresh(session_obj)  # Refresh to get any database-generated values
+        self._session.refresh(
+            session_obj
+        )  # Refresh to get any database-generated values
         return session_obj
 
     def update_session_obj(
@@ -92,21 +102,21 @@ class Session_ObjService:
         self._session.exec(delete(Session_Obj))
         self._session.commit()
         return True
-    
+
     def add_team_to_session(self, session_id: int, team_id: int) -> Session_Obj:
         """Add a team to this session."""
         session = self.get_session_obj(session_id)
         team = self._session.get(Team, team_id)
-        
+
         if not team:
             raise ResourceNotFoundException("Team", team_id)
-        
+
         # If team is already in another session, raise error
         if team.session_id and team.session_id != session_id:
             raise ResourceNotAllowedException(
                 f"Team {team_id} is already assigned to session {team.session_id}"
             )
-            
+
         team.session_id = session_id
         self._session.add(team)
         self._session.commit()
@@ -116,22 +126,21 @@ class Session_ObjService:
         """Remove a team from this session."""
         session = self.get_session_obj(session_id)
         team = self._session.get(Team, team_id)
-        
+
         if not team:
             raise ResourceNotFoundException("Team", team_id)
-        
+
         if team.session_id != session_id:
             raise ResourceNotAllowedException(
                 f"Team {team_id} is not in session {session_id}"
             )
-            
+
         team.session_id = None
         self._session.add(team)
         self._session.commit()
         return session
-        
 
-    def get_session_teams(self, session_id: int) -> List[Team]:
+    def get_session_teams(self, session_id: int) -> List["Team"]:
         """Get all teams in this session."""
         session = self.get_session_obj(session_id)
         return session.teams  # SQLModel handles this through the relationship

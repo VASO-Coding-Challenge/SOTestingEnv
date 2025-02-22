@@ -6,9 +6,7 @@ from sqlmodel import SQLModel, Session
 from ..models import *
 from ..db import engine
 from ..services.team import TeamService
-
 from ..services import PasswordService
-
 from ..test.fake_data import session_obj, team, word, team_members
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy", "Ivan Wu"]

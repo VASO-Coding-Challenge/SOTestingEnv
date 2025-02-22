@@ -1,9 +1,9 @@
 from sqlmodel import Session
 from datetime import datetime, timedelta
-from backend.models.session_obj import Session as SessionModel
+from backend.models.session_obj import Session_Obj as SessionModel
 import pytest
 
-__authors__ = ["Ivan Wu"]
+__authors__ = ["Ivan Wu", "Michelle Nguyen"]
 
 
 def create_fake_sessions(db_session: Session):

@@ -1,10 +1,11 @@
 """Model for the Session_Obj table that stores official Session_Obj information"""
 
-
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
-from models.team import Team  # import team model for association table
+
+if TYPE_CHECKING:
+    from .team import Team  # delay the import to avoid circular issues
 
 __authors__ = ["Ivan Wu", "Michelle Nguyen", "Tsering Lama"]
 
@@ -19,16 +20,3 @@ class Session_Obj(SQLModel, table=True):
 
     # One-to-Many relationship with teams
     teams: List["Team"] = Relationship(back_populates="session")
-
-
-class Team(TeamBase, table=True):
-    """Table Model for a Team"""
-
-    id: int = Field(default=None, primary_key=True)
-    password: str
-
-    # foreign Key linking a team to a session (each team has one session)
-    session_id: Optional[int] = Field(default=None, foreign_key="session_obj.id")
-
-    # relationship back to Session
-    session: Optional["Session_Obj"] = Relationship(back_populates="teams")
