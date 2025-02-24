@@ -18,7 +18,6 @@ class SessionBase(SQLModel):
 class Session_Obj(SessionBase, table=True):
     """Database Model for Sessions"""
 
-    __tablename__ = "session_obj"
     id: int = Field(default=None, primary_key=True)
 
     # 1-to-m relationship with teams
