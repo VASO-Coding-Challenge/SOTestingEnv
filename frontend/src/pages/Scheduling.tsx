@@ -7,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { jwtDecode } from "jwt-decode";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 
 const LayoutContainer = styled("div")({
@@ -18,7 +20,43 @@ const LayoutContainer = styled("div")({
   overflow: "hidden",
 });
 
+interface DecodedToken {
+  is_admin: boolean;
+}
+
 export default function Scheduling() {
+  const navigate = useNavigate();
+
+  const getUserRole = (token: string): boolean => {
+    try {
+      const decoded = jwtDecode<DecodedToken>(token); // Explicitly type the decoded token
+      return decoded.is_admin;
+    } catch (error) {
+      console.error("Invalid token:", error);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found");
+      navigate("/login"); // Fix: Ensure navigate is defined
+      return;
+    }
+
+    console.log("Token found:", token);
+
+    const isAdmin = getUserRole(token);
+
+    if (!isAdmin) {
+      console.error("User is not an admin");
+      localStorage.removeItem("token");
+      navigate("/login"); // Fix: Ensure navigate is defined
+    }
+  }, [navigate]);
+
   return (
     <LayoutContainer>
       {/* Sidebar */}

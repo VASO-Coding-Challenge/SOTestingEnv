@@ -35,7 +35,11 @@ const LoginPage = () => {
       .then((responseData: TokenJSON) => {
         console.log("Success :", responseData.access_token);
         localStorage.setItem("token", responseData.access_token);
-        navigate("/");
+        if (isTeam) {
+          navigate("/");
+        } else {
+          navigate("/scheduling");
+        }
       })
       .catch((error: Error) => {
         console.error("Error :", error.message);
