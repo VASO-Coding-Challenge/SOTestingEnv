@@ -2,25 +2,23 @@ import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import StarsIcon from "@mui/icons-material/Stars";
-import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/system";
 import { LogOut } from "./LogOutButton";
-import { CountdownTimer } from "./timer";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { label: "Scheduling", path: "/scheduling" },
-  { label: "Questions", path: "/questions-manager" },
+  { label: "Questions", path: "/question-manager" },
   { label: "Teams", path: "/team-manager" },
 ];
 
 const SidebarContainer = styled(Box)({
-  display: "flex",
   width: "180px",
-  maxWidth: "180px",
-  padding: "0px 0px",
+  flexShrink: 0,
+  padding: "0px",
   borderRight: "1px solid #ccc",
+  display: "flex",
   flexDirection: "column",
   height: "100vh",
 });
@@ -50,13 +48,25 @@ const LogoutContainer = styled(Box)({
 });
 
 export default function ESNavBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentTabIndex = tabs.findIndex(
+    (tab) => tab.path === location.pathname
+  );
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    navigate(tabs[newValue].path);
+  };
+
   return (
     <SidebarContainer>
       <div>Image</div>
 
       <TabsContainer>
         <Tabs
-          value={0}
+          value={currentTabIndex !== -1 ? currentTabIndex : 0}
+          onChange={handleChange}
           variant="fullWidth"
           orientation="vertical"
           indicatorColor="secondary"
