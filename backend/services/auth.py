@@ -62,6 +62,7 @@ class AuthService:
                 datetime.now(tz=timezone.utc)
                 + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             ),
+            is_admin=False,
         )
         print(token_data.model_dump())
 
@@ -89,6 +90,7 @@ class AuthService:
                 datetime.now(tz=timezone.utc)
                 + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             ),
+            is_admin=True,
         )
         print(token_data.model_dump())
 
