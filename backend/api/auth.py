@@ -51,10 +51,19 @@ async def authenticate(
     team_service: TeamService = Depends(),
 ) -> Token:
     """Returns a JWT Token for an authorized user."""
-    token = auth_service.authenticate_team(
-        name=login_data.name,
-        password=login_data.password,
-    )
+    print(login_data)
+    if login_data.is_team:
+        token = auth_service.authenticate_team(
+            name=login_data.name,
+            password=login_data.password,
+        )
+    else:
+        token = auth_service.authenticate_es(
+            name=login_data.name,
+            password=login_data.password,
+        )
+
+    print("TOKEN", token)
 
     return token
 

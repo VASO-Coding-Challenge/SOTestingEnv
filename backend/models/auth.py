@@ -18,6 +18,7 @@ class TokenData(SQLModel, table=False):
     id: int
     name: str
     exp: datetime
+    is_admin: bool = Field(default=False)
 
 
 class LoginData(SQLModel, table=False):
@@ -25,3 +26,4 @@ class LoginData(SQLModel, table=False):
 
     name: str
     password: str
+    is_team: bool = Field(default=True)
