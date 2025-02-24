@@ -48,7 +48,7 @@ class TeamService:
                     team_df["Start Time"], "%m/%d/%Y %H:%M"
                 ),
                 end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
-                session_id=team_df.get("Session ID")    # necessary?
+                session_id=team_df.get("Session ID"),  # necessary?
             )
         except ValueError:
             raise ValueError(f"ValueError while processing {team_df}")
@@ -134,7 +134,7 @@ class TeamService:
                 password=team.password,
                 start_time=team.start_time,
                 end_time=team.end_time,
-                session_id = team.session_id    # necessary?
+                session_id=team.session_id,  # necessary?
             )
         self._session.add(team)
         self._session.commit()
@@ -232,7 +232,7 @@ class TeamService:
 
     def get_team_session(self, team_id: int) -> Session_Obj | None:
         """Get the session a team belongs to.
-        
+
         Args:
             team_id (int): ID of the team
         Returns:
@@ -244,4 +244,3 @@ class TeamService:
         if not team:
             raise ResourceNotFoundException("Team", team_id)
         return team.session
-

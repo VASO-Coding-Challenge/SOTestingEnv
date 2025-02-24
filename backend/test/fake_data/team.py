@@ -7,7 +7,13 @@ from backend.models.team import Team
 from backend.services.passwords import PasswordService
 from backend.db import engine
 
-__authors__ = ["Mustafa Aljumayli", "Nicholas Almy", "Andrew Lockard", "Ivan Wu"]
+__authors__ = [
+    "Mustafa Aljumayli",
+    "Nicholas Almy",
+    "Andrew Lockard",
+    "Ivan Wu",
+    "Michelle Nguyen",
+]
 
 
 def create_fake_teams(session: Session):
@@ -29,6 +35,7 @@ def create_fake_teams(session: Session):
         id=3,
         name="B3",
         password="a-b-c",
+        session_id=None,
     )
     session.add_all([team1, team2, team3])
 

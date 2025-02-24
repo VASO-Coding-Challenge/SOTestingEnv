@@ -12,4 +12,4 @@ from .team_members import TeamMember, TeamMemberCreate, TeamMemberPublic
 from .word import Word
 from .question import Document, Question, QuestionsPublic
 from .submission import Submission, ConsoleLog, ScoredTest
-from .session_obj import Session_Obj
+from .session_obj import Session_Obj, SessionPublic

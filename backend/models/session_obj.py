@@ -1,22 +1,32 @@
 """Model for the Session_Obj table that stores official Session_Obj information"""
 
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List
 from datetime import datetime
-
-if TYPE_CHECKING:
-    from .team import Team  # delay the import to avoid circular issues
 
 __authors__ = ["Ivan Wu", "Michelle Nguyen", "Tsering Lama"]
 
 
-class Session_Obj(SQLModel, table=True):
-    """Model for Sessions"""
+class SessionBase(SQLModel):
+    """Base model for Sessions, shared attributes"""
 
-    id: int = Field(default=None, primary_key=True)
     name: str
     start_time: datetime
     end_time: datetime
 
-    # One-to-Many relationship with teams
+
+class Session_Obj(SessionBase, table=True):
+    """Database Model for Sessions"""
+
+    __tablename__ = "session_obj"
+    id: int = Field(default=None, primary_key=True)
+
+    # 1-to-m relationship with teams
     teams: List["Team"] = Relationship(back_populates="session")
+
+
+class SessionPublic(SessionBase):
+    """Public API response model for a session"""
+
+    id: int
+    teams: list[int]
