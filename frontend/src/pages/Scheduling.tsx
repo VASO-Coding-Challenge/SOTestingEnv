@@ -13,6 +13,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 
+// Fake Data for testing purposes
+import { session_data, session_teams } from "../data/session";
+
 const LayoutContainer = styled("div")({
   display: "flex",
   height: "100vh",
@@ -25,11 +28,14 @@ interface DecodedToken {
 }
 
 export default function Scheduling() {
+  const [sessions, setSessions] = useState(session_data);
+  const [teams, setTeams] = useState(session_teams);
+
   const navigate = useNavigate();
 
   const getUserRole = (token: string): boolean => {
     try {
-      const decoded = jwtDecode<DecodedToken>(token); // Explicitly type the decoded token
+      const decoded = jwtDecode<DecodedToken>(token);
       return decoded.is_admin;
     } catch (error) {
       console.error("Invalid token:", error);
@@ -42,7 +48,7 @@ export default function Scheduling() {
 
     if (!token) {
       console.error("No token found");
-      navigate("/login"); // Fix: Ensure navigate is defined
+      navigate("/login");
       return;
     }
 
@@ -53,9 +59,14 @@ export default function Scheduling() {
     if (!isAdmin) {
       console.error("User is not an admin");
       localStorage.removeItem("token");
-      navigate("/login"); // Fix: Ensure navigate is defined
+      navigate("/login");
     }
   }, [navigate]);
+
+  const handleGetSessions = () => {
+    // Fetch the session data
+    console.log("Fetching session data");
+  };
 
   return (
     <LayoutContainer>
@@ -68,7 +79,24 @@ export default function Scheduling() {
         <Card className="flex-1">
           <CardHeader>
             <CardTitle>Sessions</CardTitle>
+            <CardDescription>View and manage all sessions</CardDescription>
           </CardHeader>
+          {/* Sessions */}
+          {sessions.map((session) => (
+            <Card key={session.id}>
+              <CardHeader>
+                <CardTitle>{session.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  {session.start_time} - {session.end_time}
+                </CardDescription>
+                <CardFooter>
+                  <button>View Teams</button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+          ))}
         </Card>
 
         {/* Create Session */}
