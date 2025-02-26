@@ -4,6 +4,9 @@ import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
+import GetTeamSubmissions from "../components/GetTeamSubmissions";
+import { PencilLine, Trash2 } from "lucide-react";
+
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -12,11 +15,12 @@ const LayoutContainer = styled("div")({
   overflow: "hidden",
 });
 const Title = styled("h6")({
-  textAlign: "center",
-  margin: "20px 0",
+  textAlign: "left",
+  margin: "20px",
+  paddingLeft: "300 px",
   fontSize: "50px",
   display: "block", // Ensures it takes full width
-  width: "100%",    // Forces it to occupy a full line
+  width: "80%",    // Forces it to occupy a full line
 });
 const TitleContainer = styled("div")({
   width: "100%",
@@ -37,23 +41,7 @@ const TeamList = styled("div")({
   marginTop: "20px",
 });
 
-const TeamItem = styled("div")({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "10px",
-  borderBottom: "1px solid #ccc",
-});
 
-const TeamInfo = styled("div")({
-  display: "flex",
-  flexDirection: "column",
-});
-
-const TeamActions = styled("div")({
-  display: "flex",
-  gap: "10px",
-});
 
 const Button = styled("button")({
   padding: "5px 10px",
@@ -125,6 +113,15 @@ export default function TeamManager() {
     // Handle delete team
     console.log("Delete team:", teamId);
   };
+  const handleCreate = () => {
+    // Handle delete team
+    console.log("Create team:");
+  };
+  const handleDownload = () => {
+    // Handle delete team
+    console.log("Create team:");
+  };
+
 
   return (
     <LayoutContainer>
@@ -134,20 +131,42 @@ export default function TeamManager() {
       <Hr />
     
       <TeamList>
-        {teams.map((team) => (
-          <TeamItem key={team.id}>
-            <TeamInfo>
-              <p>Name: {team.name}</p>
-              <p>Password: {team.password}</p>
-              <p>Members: {team.members.join(", ")}</p>
-            </TeamInfo>
-            <TeamActions>
-              <Button onClick={() => handleEdit(team.id)}>Edit</Button>
-              <Button onClick={() => handleDelete(team.id)}>Delete</Button>
-            </TeamActions>
-          </TeamItem>
+      <div className="grid grid-cols-5 gap-0 mb-4 p-6 border border-gray-300 rounded-md">
+        {/* Header Row */}
+        <div className="font-bold bg-purple-600 pr-20 mb-4">Team Number</div>
+        <div className="font-bold bg-purple-600 pr-20 mb-4">Name</div>
+        <div className="font-bold bg-purple-600 pr-20 mb-4">Password</div>
+        <div className="font-bold bg-purple-600 pr-20 mb-4">Members</div>
+        <div className="font-bold bg-purple-600 pr-20 mb-4">Actions</div>
+
+        {/* Team Rows */}
+        {teams.map((team, index) => (
+          <>
+            <div className="mb-2">{index + 1}</div>
+            <div className="mb-2">{team.name}</div>
+            <div className="mb-2">{team.password}</div>
+            <div className="mb-2">{team.members.join(", ")}</div>
+            <div className="flex gap-2 mb-2">
+              <Button size="sm"  variant="ghost" onClick={() => handleEdit(team.id)}>
+                <PencilLine className="w-4 h-4" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => handleDelete(team.id)}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </>
         ))}
+      </div>
       </TeamList>
+      <div className="flex gap-10 m=10">
+      <Button className="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300" onClick={() => handleCreate()}>
+        Create
+      </Button>
+      <Button className="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300" onClick={() => handleDownload()}>
+        Download Scores
+      </Button>
+      </div>
+      <GetTeamSubmissions />
       </TitleContainer>
 
     </LayoutContainer>
