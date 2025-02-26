@@ -14,6 +14,7 @@ class SessionBase(SQLModel):
     name: str
     start_time: datetime
     end_time: datetime
+    # team_ids: Optional[List[int]] = None
 
 
 class Session_Obj(SessionBase, table=True):

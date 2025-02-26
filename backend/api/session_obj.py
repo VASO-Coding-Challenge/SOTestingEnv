@@ -1,5 +1,6 @@
 """API Routes for managing session objects"""
 
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from backend.db import db_session as get_session
@@ -67,3 +68,19 @@ def delete_all_sessions(session_svc: Session_ObjService = Depends()):
     """Delete all sessions but keep the teams intact"""
     session_svc.delete_all_session_objs()
     return {"message": "All sessions deleted successfully"}
+
+
+@api.post("/{session_id}/teams", response_model=SessionPublic, tags=["Sessions"])
+def add_teams_to_session(
+    session_id: int, team_ids: List[int], session_svc: Session_ObjService = Depends()
+) -> SessionPublic:
+    """Add teams to an existing session"""
+    return session_svc.add_teams_to_session(session_id, team_ids)
+
+
+@api.delete("/{session_id}/teams", response_model=SessionPublic, tags=["Sessions"])
+def remove_teams_from_session(
+    session_id: int, team_ids: List[int], session_svc: Session_ObjService = Depends()
+) -> SessionPublic:
+    """Remove teams from an existing session"""
+    return session_svc.remove_teams_from_session(session_id, team_ids)

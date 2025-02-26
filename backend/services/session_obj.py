@@ -7,7 +7,7 @@ from ..models import Team, SessionPublic, Session_Obj
 from ..db import db_session
 from fastapi import Depends
 
-from .exceptions import ResourceNotFoundException
+from .exceptions import ResourceNotAllowedException, ResourceNotFoundException
 
 __authors__ = ["Michelle Nguyen", "Tsering Lama"]
 
@@ -70,12 +70,38 @@ class Session_ObjService:
         self._session.commit()
         self._session.refresh(new_session)
 
-        if session_data.teams:
+        if session_data.team_ids:
+            # Get teams to be assigned
             teams = self._session.exec(
-                select(Team).where(Team.id.in_(session_data.teams))
+                select(Team).where(Team.id.in_(session_data.team_ids))
             ).all()
+
+            # Check if all teams exist
+            if len(teams) != len(session_data.team_ids):
+                found_ids = [team.id for team in teams]
+                missing_ids = [
+                    id for id in session_data.team_ids if id not in found_ids
+                ]
+                self._session.delete(new_session)
+                self._session.commit()
+                raise ResourceNotFoundException("Team(s)", missing_ids)
+
+            # Check if any teams are already assigned to another session
+            already_assigned = []
             for team in teams:
-                team.session_id = new_session.id  # Assign session ID to teams
+                if team.session_id is not None:
+                    already_assigned.append(team.id)
+
+            if already_assigned:
+                self._session.delete(new_session)
+                self._session.commit()
+                raise ResourceNotAllowedException(
+                    f"Team(s) with IDs {already_assigned} are already assigned to another session (CREATE)"
+                )
+
+            # Assign teams to the new session
+            for team in teams:
+                team.session_id = new_session.id
             self._session.commit()
 
         return SessionPublic(
@@ -83,7 +109,7 @@ class Session_ObjService:
             name=new_session.name,
             start_time=new_session.start_time,
             end_time=new_session.end_time,
-            teams=[team.id for team in new_session.teams],  # Return assigned team IDs
+            teams=[team.id for team in new_session.teams],
         )
 
     def update_session_obj(
@@ -110,16 +136,43 @@ class Session_ObjService:
             else session_data.end_time
         )
 
-        # Remove previous team assignments
-        for team in session_obj.teams:
-            team.session_id = None
-
-        if session_data.teams:
-            teams = self._session.exec(
-                select(Team).where(Team.id.in_(session_data.teams))
+        # Handle team assignments if provided
+        if hasattr(session_data, "team_ids"):
+            # Unassign current teams
+            current_teams = self._session.exec(
+                select(Team).where(Team.session_id == session_id)
             ).all()
-            for team in teams:
-                team.session_id = session_id  # Assign session ID to new teams
+            for team in current_teams:
+                team.session_id = None
+
+            if session_data.team_ids:
+                # Get teams to be assigned
+                teams = self._session.exec(
+                    select(Team).where(Team.id.in_(session_data.team_ids))
+                ).all()
+
+                # Check if all teams exist
+                if len(teams) != len(session_data.team_ids):
+                    found_ids = [team.id for team in teams]
+                    missing_ids = [
+                        id for id in session_data.team_ids if id not in found_ids
+                    ]
+                    raise ResourceNotFoundException("Team(s)", missing_ids)
+
+                # Check if any teams are already assigned to another session
+                already_assigned = []
+                for team in teams:
+                    if team.session_id is not None and team.session_id != session_id:
+                        already_assigned.append(team.id)
+
+                if already_assigned:
+                    raise ResourceNotAllowedException(
+                        f"Team(s) with IDs {already_assigned} are already assigned to another session (UPDATE)"
+                    )
+
+                # Assign teams to the session
+                for team in teams:
+                    team.session_id = session_id
 
         self._session.commit()
         self._session.refresh(session_obj)
@@ -129,7 +182,7 @@ class Session_ObjService:
             name=session_obj.name,
             start_time=session_obj.start_time,
             end_time=session_obj.end_time,
-            teams=[team.id for team in session_obj.teams],  # Return assigned team IDs
+            teams=[team.id for team in session_obj.teams],
         )
 
     def delete_session_obj(self, session_id: int) -> bool:
@@ -158,3 +211,107 @@ class Session_ObjService:
         # Delete all sessions
         self._session.exec(delete(Session_Obj))
         self._session.commit()
+
+    def add_teams_to_session(
+        self, session_id: int, team_ids: List[int]
+    ) -> SessionPublic:
+        """Add teams to an existing session if they exist and are not assigned elsewhere."""
+
+        # Check if session exists
+        session_obj = self._session.exec(
+            select(Session_Obj).where(Session_Obj.id == session_id)
+        ).first()
+
+        if not session_obj:
+            raise ResourceNotFoundException("Session", session_id)
+
+        # Get teams to be added
+        teams = self._session.exec(select(Team).where(Team.id.in_(team_ids))).all()
+
+        # Check if all provided team IDs exist
+        found_ids = {team.id for team in teams}
+        missing_ids = [tid for tid in team_ids if tid not in found_ids]
+        if missing_ids:
+            raise ResourceNotFoundException("Team(s)", missing_ids)
+
+        # Identify teams already assigned to another session
+        already_assigned = [
+            team.id
+            for team in teams
+            if team.session_id and team.session_id != session_id
+        ]
+
+        if already_assigned:
+            raise ResourceNotAllowedException(
+                f"Team(s) with IDs {already_assigned} are already assigned to another session."
+            )
+
+        # Identify teams that are already in the session
+        existing_teams = {team.id for team in session_obj.teams}
+        duplicate_teams = [tid for tid in team_ids if tid in existing_teams]
+
+        if duplicate_teams:
+            raise ResourceNotAllowedException(
+                f"Team(s) with IDs {duplicate_teams} are already in this session."
+            )
+
+        # Add teams to session
+        for team in teams:
+            if team.session_id is None:  # Only update unassigned teams
+                team.session_id = session_id
+
+        self._session.commit()
+        self._session.refresh(session_obj)
+
+        return SessionPublic(
+            id=session_obj.id,
+            name=session_obj.name,
+            start_time=session_obj.start_time,
+            end_time=session_obj.end_time,
+            teams=[team.id for team in session_obj.teams],
+        )
+
+    def remove_teams_from_session(
+        self, session_id: int, team_ids: List[int] | None
+    ) -> SessionPublic:
+        """Remove teams from an existing session if they exist in that session."""
+
+        # Check if session exists
+        session_obj = self._session.exec(
+            select(Session_Obj).where(Session_Obj.id == session_id)
+        ).first()
+
+        if not session_obj:
+            raise ResourceNotFoundException("Session", session_id)
+
+        # Get teams to be removed
+        teams = self._session.exec(select(Team).where(Team.id.in_(team_ids))).all()
+
+        # Check if all provided team IDs exist
+        found_ids = {team.id for team in teams}
+        missing_ids = [tid for tid in team_ids if tid not in found_ids]
+        if missing_ids:
+            raise ResourceNotFoundException("Team(s)", missing_ids)
+
+        # Ensure all teams belong to the session before removal
+        not_in_session = [team.id for team in teams if team.session_id != session_id]
+
+        if not_in_session:
+            raise ResourceNotAllowedException(
+                f"Team(s) with IDs {not_in_session} are not in this session."
+            )
+
+        # Remove teams from session (set session_id to None)
+        for team in teams:
+            team.session_id = None
+
+        self._session.commit()
+        self._session.refresh(session_obj)
+
+        return SessionPublic(
+            id=session_obj.id,
+            name=session_obj.name,
+            start_time=session_obj.start_time,
+            end_time=session_obj.end_time,
+            teams=[team.id for team in session_obj.teams],  # Updated team list
+        )
