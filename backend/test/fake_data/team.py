@@ -43,7 +43,13 @@ def create_fake_teams(session: Session):
         password="a-b-c",
         session_id=1,
     )
-    session.add_all([team1, team2, team3, team4])
+    team5 = Team(
+        id=5,
+        name="B5",
+        password="a-b-c",
+        session_id=None,
+    )
+    session.add_all([team1, team2, team3, team4, team5])
 
 
 @pytest.fixture
