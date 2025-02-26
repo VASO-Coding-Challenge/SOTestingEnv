@@ -4,12 +4,14 @@ const session_data = [
     name: "Session 1",
     start_time: "2025-02-24 16:42:58.164689",
     end_time: "2025-02-24 18:42:58.164697",
+    teams: [1, 2],
   },
   {
     id: 2,
     name: "Session 2",
     start_time: "2025-02-24 19:42:58.164722",
     end_time: "2025-02-24 21:42:58.164723",
+    teams: [3],
   },
 ];
 

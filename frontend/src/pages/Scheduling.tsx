@@ -1,4 +1,4 @@
-import { emphasize, styled } from "@mui/system";
+import { styled } from "@mui/system";
 import {
   Card,
   CardContent,
@@ -18,13 +18,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PencilLine, Trash2, Plus } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 
 import { jwtDecode } from "jwt-decode";
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import ESNavBar from "../components/ESNavBar";
+import EditSessionWidget from "@/components/EditSessionWidget";
 
 // Fake Data for testing purposes
 import { session_data, session_teams } from "../data/session";
@@ -40,9 +42,20 @@ interface DecodedToken {
   is_admin: boolean;
 }
 
+interface Session {
+  id: number;
+  name: string;
+  start_time: string;
+  end_time: string;
+  teams: number[];
+}
+
 export default function Scheduling() {
   const [sessions, setSessions] = useState(session_data);
   const [teams, setTeams] = useState(session_teams);
+  const [unassignedTeams, setUnassignedTeams] = useState([]);
+  const [selectedTeams, setSelectedTeams] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -81,6 +94,32 @@ export default function Scheduling() {
     console.log("Fetching session data");
   };
 
+  const handleCreateSession = () => {
+    // Create a new session
+    console.log("Creating a new session");
+  };
+
+  const handleEditSession = () => {
+    // Edit a session
+    console.log("Editing a session");
+  };
+
+  const handleDeleteSession = () => {
+    // Delete a session
+    console.log("Deleting a session");
+  };
+
+  const handleGetTeamForSession = () => {
+    // Fetch the team data for a session
+    // TODO: Decide if this should be done in backend
+    console.log("Fetching team data for a session");
+  };
+
+  const handleSubmit = () => {
+    // Submit the created session data
+    console.log("Submitting session data");
+  };
+
   // May not be necessary depending on backend implementation
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -108,11 +147,11 @@ export default function Scheduling() {
 
       {/* Main Content */}
       {/* TODO: overflow/scroll */}
-      <main className="flex-1 flex flex-row gap-4 m-4">
+      <main className="flex-1 flex flex-row gap-4 p-4 overflow-x-auto">
         {/* Session List */}
-        <Card className="flex-1">
+        <Card className="max-w-md w-full h-fit">
           <CardHeader>
-            <CardTitle>Sessions</CardTitle>
+            <CardTitle className="text-xl font-bold">Sessions</CardTitle>
             <CardDescription>View and manage all sessions</CardDescription>
           </CardHeader>
           {/* Sessions */}
@@ -121,15 +160,27 @@ export default function Scheduling() {
               <CardHeader className="flex flex-row justify-between items-center">
                 <CardTitle>{session.name}</CardTitle>
                 <div className="flex flex-row gap-2">
-                  <PencilLine />
+                  <EditSessionWidget
+                    session={session}
+                    teams={teams}
+                    onSave={(updatedSession) => {
+                      handleEditSession(updatedSession);
+                    }}
+                  />
                   <Trash2 color="#FE7A7A" />
                 </div>
               </CardHeader>
               <CardContent>
                 <div>{formatDate(session.start_time)}</div>
                 <br />
-                <div>Start: {formatTime(session.start_time)}</div>
-                <div>End: {formatTime(session.end_time)}</div>
+                <div>
+                  <strong>Start: </strong>
+                  {formatTime(session.start_time)}
+                </div>
+                <div>
+                  <strong>End: </strong>
+                  {formatTime(session.end_time)}
+                </div>
               </CardContent>
               <CardContent>
                 <CardTitle>Teams</CardTitle>
@@ -150,9 +201,9 @@ export default function Scheduling() {
         </Card>
 
         {/* Create Session */}
-        <Card className="flex-1">
+        <Card className="max-w-lg w-full h-fit">
           <CardHeader>
-            <CardTitle>Create Session</CardTitle>
+            <CardTitle className="text-xl font-bold">Create Session</CardTitle>
             <Separator />
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
