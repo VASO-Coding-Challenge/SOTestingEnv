@@ -6,6 +6,7 @@ import pytest
 from backend.models.team import Team
 from backend.services.passwords import PasswordService
 from backend.db import engine
+from .session_obj import fake_session_fixture
 
 __authors__ = [
     "Mustafa Aljumayli",
@@ -53,9 +54,9 @@ def create_fake_teams(session: Session):
 
 
 @pytest.fixture
-def fake_team_fixture(db_session: Session):
+def fake_team_fixture(fake_session_fixture, session: Session):
     def load_fixture():
-        create_fake_teams(db_session)
-        db_session.commit()
+        create_fake_teams(session)
+        session.commit()
 
     return load_fixture
