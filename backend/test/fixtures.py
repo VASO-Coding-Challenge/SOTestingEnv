@@ -8,11 +8,12 @@ from ..services import (
     QuestionService,
     SubmissionService,
     TeamService,
+    Session_ObjService,
 )
 
 from sqlmodel import Session
 
-__authors__ = ["Andrew Lockard"]
+__authors__ = ["Andrew Lockard", "Michelle Nguyen"]
 
 
 @pytest.fixture()
@@ -39,3 +40,8 @@ def question_svc():
 @pytest.fixture()
 def submission_svc():
     return SubmissionService()
+
+
+@pytest.fixture()
+def session_obj_svc():
+    return Session_ObjService()
