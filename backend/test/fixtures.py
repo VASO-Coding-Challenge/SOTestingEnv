@@ -43,5 +43,5 @@ def submission_svc():
 
 
 @pytest.fixture()
-def session_obj_svc():
-    return Session_ObjService()
+def session_obj_svc(session: Session):
+    return Session_ObjService(session)
