@@ -1,5 +1,6 @@
 """This API Route handles ES GUI functionality for creating and updating problems."""
 
+from typing import List
 from fastapi import APIRouter, HTTPException, Body
 from ..services.problems import ProblemService
 from ..models import ProblemResponse
@@ -83,3 +84,10 @@ def update_demo_cases(q_num: int, content: str = Body(...)):
     """Update a problem’s demo cases."""
     ProblemService.write_file(q_num, "demo_cases.py", content)
     return {"message": "Demo cases updated successfully"}
+
+
+@api.delete("{q_num}", response_model=dict, tags=["Problems"])
+def delete_problem(q_num: int):
+    """Delete a problem"""
+    ProblemService.delete_problem(q_num)
+    return {"message": f"Problem {q_num} deleted successfully."}

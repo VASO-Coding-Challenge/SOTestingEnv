@@ -17,6 +17,7 @@ interface Problem {
 
 interface ProblemCreateResponse {
   message: string;
+  problem_number?: number;
 }
 
 const Test: React.FC = () => {
@@ -44,14 +45,53 @@ const Test: React.FC = () => {
       setError(null);
       addDebugInfo('Fetching problems started');
       
-      // Simulate API call with mock data for now
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const mockData = [1, 2, 3];
-      setProblems(mockData);
-      addDebugInfo('Fetched problems successfully');
+      try {
+        // Try to fetch problems from API
+        const response = await fetch('/api/problems/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error with Status Code: ${response.status}`);
+        }
+
+        const data = await response.json() as number[];
+        setProblems(data);
+        addDebugInfo(`Fetched ${data.length} problems successfully`);
+      } catch (apiErr) {
+        // Handle API error, but continue with local fallback
+        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+        addDebugInfo(`API error: ${errorMsg}, falling back to local storage`);
+        
+        // Get existing problems from localStorage
+        try {
+          // Get all localStorage keys and filter for problem keys
+          const allKeys = Object.keys(localStorage);
+          const problemKeys = allKeys.filter(key => key.startsWith('problem_'));
+          
+          // Extract problem numbers
+          const existingProblems = problemKeys.map(key => {
+            return parseInt(key.replace('problem_', ''));
+          }).sort((a, b) => a - b);
+          
+          if (existingProblems.length > 0) {
+            setProblems(existingProblems);
+            addDebugInfo(`Loaded ${existingProblems.length} existing problems from local storage`);
+          } else {
+            addDebugInfo('No problems found in local storage');
+            setProblems([]);
+          }
+        } catch (localErr) {
+          addDebugInfo(`LocalStorage error: ${String(localErr)}`);
+          setProblems([]);
+        }
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error fetching problems: ${errorMsg}`);
+      addDebugInfo(`Error in fetchProblems: ${errorMsg}`);
       setError('Failed to load problems. Please try again.');
     } finally {
       setLoading(false);
@@ -64,39 +104,10 @@ const Test: React.FC = () => {
       setError(null);
       addDebugInfo(`Fetching details for problem ${problemNum}`);
       
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const mockProblem: Problem = {
-        num: problemNum,
-        prompt: `Example prompt for problem ${problemNum}`,
-        starter_code: `def solution_${problemNum}():\n    # Your code here\n    pass`,
-        test_cases: `# Test cases for problem ${problemNum}`,
-        demo_cases: `# Demo cases for problem ${problemNum}`,
-        docs: []
-      };
-      
-      setSelectedProblem(mockProblem);
-      addDebugInfo(`Fetched details for problem ${problemNum} successfully`);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error fetching details for problem ${problemNum}: ${errorMsg}`);
-      setError(`Failed to load problem ${problemNum}. Please try again.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createProblem = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo('Problem creation started');
-      
-      // Try the actual API call first
       try {
-        addDebugInfo('Attempting to call actual API endpoint');
-        const response = await fetch('/api/problems/create/', {
-          method: 'POST',
+        // Try to fetch from API
+        const response = await fetch(`/api/problems/${problemNum}/`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -106,24 +117,138 @@ const Test: React.FC = () => {
           throw new Error(`HTTP Error with Status Code: ${response.status}`);
         }
 
+        const data = await response.json() as Problem;
+        setSelectedProblem(data);
+        addDebugInfo(`Fetched details for problem ${problemNum} successfully`);
+        
+        // Save to localStorage for backup
+        localStorage.setItem(`problem_${problemNum}`, JSON.stringify(data));
+      } catch (apiErr) {
+        // Try localStorage backup
+        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+        addDebugInfo(`API error: ${errorMsg}, trying localStorage backup`);
+        
+        const storedProblem = localStorage.getItem(`problem_${problemNum}`);
+        if (storedProblem) {
+          try {
+            const parsedProblem = JSON.parse(storedProblem) as Problem;
+            setSelectedProblem(parsedProblem);
+            addDebugInfo(`Loaded problem ${problemNum} from localStorage`);
+            return;
+          } catch (parseErr) {
+            addDebugInfo(`Error parsing stored problem: ${String(parseErr)}`);
+          }
+        }
+        
+        // Fallback to default problem template with custom initial content
+        const defaultProblem: Problem = createDefaultProblem(problemNum);
+        
+        setSelectedProblem(defaultProblem);
+        addDebugInfo(`Created default template for problem ${problemNum}`);
+        
+        // Save default template to localStorage
+        localStorage.setItem(`problem_${problemNum}`, JSON.stringify(defaultProblem));
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      addDebugInfo(`Error in fetchProblemDetails: ${errorMsg}`);
+      setError(`Failed to load problem ${problemNum}. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to create a default problem with specified templates
+  const createDefaultProblem = (problemNum: number): Problem => {
+    return {
+      num: problemNum,
+      prompt: "",
+      starter_code: `def function_name(input_data: str) -> str:
+    # TODO: Implement your solution here
+    return None`,
+      test_cases: `"""Test cases for problem ${problemNum}"""
+
+import unittest
+from decorators import weight
+
+class Test(unittest.TestCase):
+    @weight(1)
+    def test_insert_name(self):
+        self.assertEqual(temp("Hello World"), "Hello")`,
+      demo_cases: `import unittest
+
+class Test(unittest.TestCase):
+    def test_insert_name(self):
+        self.assertEqual(temp("Hello World"), "el ol")`,
+      docs: []
+    };
+  };
+
+  const createProblem = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      addDebugInfo('Problem creation started');
+      
+      try {
+        // Try to create via API
+        const response = await fetch('/api/problems/create/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error with Status Code: ${response.status}`);
+        }
+
         const data = await response.json() as ProblemCreateResponse;
         addDebugInfo(`Problem created with response: ${JSON.stringify(data)}`);
-        await fetchProblems(); // Refresh the problem list
-        return;
+        
+        // Refresh the problem list
+        await fetchProblems();
+        
+        // Select the newly created problem if available
+        if (data.problem_number) {
+          void fetchProblemDetails(data.problem_number);
+        }
       } catch (apiErr) {
-        // If the actual API fails, fallback to mock implementation
+        // Fallback to local creation
         const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API call failed: ${errorMsg}. Falling back to mock data.`);
+        addDebugInfo(`API error: ${errorMsg}, falling back to local creation`);
+        
+        // Get current problems from localStorage
+        let currentProblems: number[] = [];
+        try {
+          // Get all localStorage keys and filter for problem keys
+          const allKeys = Object.keys(localStorage);
+          const problemKeys = allKeys.filter(key => key.startsWith('problem_'));
+          
+          // Extract problem numbers
+          currentProblems = problemKeys.map(key => {
+            return parseInt(key.replace('problem_', ''));
+          }).sort((a, b) => a - b);
+        } catch (localErr) {
+          addDebugInfo(`LocalStorage error: ${String(localErr)}`);
+        }
+        
+        // Create a new problem with next number
+        const nextProblemNum = currentProblems.length > 0 ? Math.max(...currentProblems) + 1 : 1;
+        
+        // Create default problem content with custom templates
+        const defaultProblem = createDefaultProblem(nextProblemNum);
+        
+        // Save to localStorage
+        localStorage.setItem(`problem_${nextProblemNum}`, JSON.stringify(defaultProblem));
+        
+        addDebugInfo(`Created problem ${nextProblemNum} locally`);
+        
+        // Refresh problem list and select the new problem
+        setSelectedProblem(defaultProblem);
+        void fetchProblems();
       }
-      
-      // Mock implementation as fallback
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Create a new problem with next number
-      const nextProblemNum = problems.length > 0 ? Math.max(...problems) + 1 : 1;
-      setProblems(prevProblems => [...prevProblems, nextProblemNum]);
-      
-      addDebugInfo(`Created mock problem with number ${nextProblemNum}`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       addDebugInfo(`Error in createProblem: ${errorMsg}`);
@@ -133,30 +258,97 @@ const Test: React.FC = () => {
     }
   };
 
+  const handleDeleteProblem = async (problemNum: number): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      addDebugInfo(`Deleting problem ${problemNum}`);
+  
+      try {
+        // Try to delete via API
+        const response = await fetch(`/api/problems/${problemNum}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP Error with Status Code: ${response.status}`);
+        }
+  
+        addDebugInfo(`Problem ${problemNum} deleted successfully from the server`);
+      } catch (apiErr) {
+        // API call failed, fallback to localStorage deletion
+        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+        addDebugInfo(`API error deleting problem: ${errorMsg}, falling back to localStorage`);
+  
+        // Remove problem from localStorage
+        localStorage.removeItem(`problem_${problemNum}`);
+      }
+  
+      // Remove from state
+      setProblems((prevProblems) => prevProblems.filter((num) => num !== problemNum));
+      
+      // If the deleted problem was selected, clear selection
+      if (selectedProblem?.num === problemNum) {
+        setSelectedProblem(null);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      addDebugInfo(`Error in handleDeleteProblem: ${errorMsg}`);
+      setError(`Failed to delete problem ${problemNum}. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleUpdateFile = async (problemNum: number, filename: string, content: string): Promise<void> => {
+    if (!selectedProblem) return;
+    
     try {
       setLoading(true);
       setError(null);
       addDebugInfo(`Updating file ${filename} for problem ${problemNum}`);
       
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // First update local state to make UI responsive
+      const updatedProblem = {
+        ...selectedProblem,
+        [filename === 'prompt.md' ? 'prompt' : 
+         filename === 'starter.py' ? 'starter_code' :
+         filename === 'test_cases.py' ? 'test_cases' :
+         filename === 'demo_cases.py' ? 'demo_cases' : '']: content
+      };
       
-      // Just update the local state for now
-      if (selectedProblem && selectedProblem.num === problemNum) {
-        setSelectedProblem({
-          ...selectedProblem,
-          [filename === 'prompt.md' ? 'prompt' : 
-           filename === 'starter.py' ? 'starter_code' :
-           filename === 'test_cases.py' ? 'test_cases' :
-           filename === 'demo_cases.py' ? 'demo_cases' : '']: content
+      setSelectedProblem(updatedProblem);
+      
+      // Save to localStorage as backup
+      localStorage.setItem(`problem_${problemNum}`, JSON.stringify(updatedProblem));
+      
+      try {
+        // Only use PUT for API updates
+        const response = await fetch(`/api/problems/${problemNum}/files/${filename}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: content })
         });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP Error with Status Code: ${response.status}`);
+        }
+
+        addDebugInfo(`Updated file ${filename} successfully on server using PUT`);
+      } catch (apiErr) {
+        // Log API error but don't show to user since we already updated locally
+        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+        addDebugInfo(`API error saving ${filename}: ${errorMsg}, but saved locally`);
       }
-      addDebugInfo(`Updated file ${filename} successfully`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error updating ${filename}: ${errorMsg}`);
-      setError(`Failed to update ${filename}. Please try again.`);
+      addDebugInfo(`Error in handleUpdateFile: ${errorMsg}`);
+      setError(`Failed to update ${filename}. Changes saved locally but not on server.`);
     } finally {
       setLoading(false);
     }
@@ -197,12 +389,12 @@ const Test: React.FC = () => {
         <button
           onClick={handleCreateProblemClick}
           disabled={loading}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Creating...' : 'Create New Problem'}
         </button>
         
-        {/* Force reset button */}
+        {/* Reset loading state button for development */}
         <button
           onClick={() => setLoading(false)}
           className="ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
@@ -246,7 +438,9 @@ const Test: React.FC = () => {
                   <li key={num}>
                     <button
                       onClick={() => handleProblemClick(num)}
-                      className="text-blue-500 hover:text-blue-700"
+                      className={`text-blue-500 hover:text-blue-700 ${
+                        selectedProblem?.num === num ? 'font-bold' : ''
+                      }`}
                     >
                       Problem {num}
                     </button>
@@ -265,7 +459,15 @@ const Test: React.FC = () => {
           ) : selectedProblem ? (
             <div>
               <h3 className="text-lg font-medium mb-2">Problem {selectedProblem.num}</h3>
-              
+
+              {/* Delete */}
+              <button onClick={() => 
+                { void handleDeleteProblem(selectedProblem.num); }
+              } 
+                disabled={loading} className="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"> 
+                {loading ? 'Deleting...' : 'Delete Problem'}
+              </button>
+
               {/* Prompt */}
               <div className="mb-4">
                 <h4 className="font-medium mb-1">Prompt</h4>
@@ -281,9 +483,10 @@ const Test: React.FC = () => {
                   onClick={() => 
                     handleSaveFile(selectedProblem.num, 'prompt.md', selectedProblem.prompt)
                   }
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                  disabled={loading}
+                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Prompt
+                  {loading ? 'Saving...' : 'Save Prompt'}
                 </button>
               </div>
               
@@ -302,9 +505,10 @@ const Test: React.FC = () => {
                   onClick={() => 
                     handleSaveFile(selectedProblem.num, 'starter.py', selectedProblem.starter_code)
                   }
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                  disabled={loading}
+                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Starter Code
+                  {loading ? 'Saving...' : 'Save Starter Code'}
                 </button>
               </div>
               
@@ -323,9 +527,10 @@ const Test: React.FC = () => {
                   onClick={() => 
                     handleSaveFile(selectedProblem.num, 'test_cases.py', selectedProblem.test_cases)
                   }
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                  disabled={loading}
+                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Test Cases
+                  {loading ? 'Saving...' : 'Save Test Cases'}
                 </button>
               </div>
               
@@ -344,9 +549,10 @@ const Test: React.FC = () => {
                   onClick={() => 
                     handleSaveFile(selectedProblem.num, 'demo_cases.py', selectedProblem.demo_cases)
                   }
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                  disabled={loading}
+                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Demo Cases
+                  {loading ? 'Saving...' : 'Save Demo Cases'}
                 </button>
               </div>
             </div>

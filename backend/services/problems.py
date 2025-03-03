@@ -1,6 +1,7 @@
 """Service to handle manipulation of problems for ES GUI"""
 
 import os
+import shutil
 from typing import List
 from ..models import Document, ProblemResponse
 
@@ -93,3 +94,35 @@ class ProblemService:
                 local_docs.append(Document(content=content, title=doc_title))
 
         return local_docs
+
+    @staticmethod
+    def delete_problem(q_num: int):
+        """Deletes a specific problem and renumbers the remaining problems."""
+        problem_path = os.path.join(QUESTIONS_DIR, f"q{q_num}")
+
+        if not os.path.exists(problem_path):
+            raise FileNotFoundError(f"Problem {q_num} not found.")
+
+        try:
+            # Remove the specified problem directory
+            shutil.rmtree(problem_path)
+
+            # Get remaining problems and sort them
+            all_problems = sorted(
+                [
+                    int(f[1:])
+                    for f in os.listdir(QUESTIONS_DIR)
+                    if f.startswith("q") and f[1:].isdigit()
+                ]
+            )
+
+            # Rename problems to maintain consecutive numbering
+            for idx, old_q_num in enumerate(all_problems, start=1):
+                old_path = os.path.join(QUESTIONS_DIR, f"q{old_q_num}")
+                new_path = os.path.join(QUESTIONS_DIR, f"q{idx}")
+
+                if old_q_num != idx:  # Rename only if needed
+                    shutil.move(old_path, new_path)
+
+        except Exception as e:
+            raise RuntimeError(f"Error deleting problem: {str(e)}")
