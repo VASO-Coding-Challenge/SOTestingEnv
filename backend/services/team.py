@@ -1,6 +1,8 @@
 """Service to handle the Teams feature"""
 
 from typing import List
+
+from backend.models.session_obj import Session_Obj
 from ..db import db_session
 from fastapi import Depends
 from sqlmodel import Session, select, and_, delete
@@ -46,6 +48,7 @@ class TeamService:
                     team_df["Start Time"], "%m/%d/%Y %H:%M"
                 ),
                 end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
+                session_id=team_df.get("Session ID"),  # necessary?
             )
         except ValueError:
             raise ValueError(f"ValueError while processing {team_df}")
@@ -111,6 +114,7 @@ class TeamService:
             existing_team.password = team.password
             existing_team.start_time = team.start_time
             existing_team.end_time = team.end_time
+            existing_team.session_id = team.session_id  # update session assignment
             self._session.add(existing_team)
             self._session.commit()
             return existing_team
@@ -130,6 +134,7 @@ class TeamService:
                 password=team.password,
                 start_time=team.start_time,
                 end_time=team.end_time,
+                session_id=team.session_id,  # necessary?
             )
         self._session.add(team)
         self._session.commit()
@@ -224,3 +229,18 @@ class TeamService:
             )
         self._session.delete(member)
         self._session.commit()
+
+    def get_team_session(self, team_id: int) -> Session_Obj | None:
+        """Get the session a team belongs to.
+
+        Args:
+            team_id (int): ID of the team
+        Returns:
+            Session_Obj | None: The session the team belongs to, or None
+        Raises:
+            ResourceNotFoundException: If team not found
+        """
+        team = self._session.get(Team, team_id)
+        if not team:
+            raise ResourceNotFoundException("Team", team_id)
+        return team.session

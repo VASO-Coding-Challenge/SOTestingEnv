@@ -12,3 +12,4 @@ from .exceptions import ResourceNotFoundException
 from .questions import QuestionService
 from .submissions import SubmissionService
 from .auth import AuthService
+from .session_obj import Session_ObjService
