@@ -29,7 +29,7 @@ import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
 
 // Fake Data for testing purposes
-import { session_data, session_teams } from "../data/session";
+import { session_teams } from "../data/session";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -51,7 +51,7 @@ interface Session {
 }
 
 export default function Scheduling() {
-  const [sessions, setSessions] = useState(session_data);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [teams, setTeams] = useState(session_teams);
   const [unassignedTeams, setUnassignedTeams] = useState([]);
   const [selectedTeams, setSelectedTeams] = useState([]);
@@ -87,11 +87,31 @@ export default function Scheduling() {
       localStorage.removeItem("token");
       navigate("/login");
     }
+
+    fetchSessions();
   }, [navigate]);
 
-  const handleGetSessions = () => {
-    // Fetch the session data
-    console.log("Fetching session data");
+  const fetchSessions = async () => {
+    // Fetch all sessions
+    try {
+      const response = await fetch("/api/sessions", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch sessions");
+        return;
+      }
+
+      const data = (await response.json()) as Session[];
+      setSessions(data);
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    }
   };
 
   const handleCreateSession = () => {
