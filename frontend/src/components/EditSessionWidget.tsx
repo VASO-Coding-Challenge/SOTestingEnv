@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import {
   Dialog,
   DialogContent,
@@ -16,28 +15,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@radix-ui/react-select";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PencilLine, Plus } from "lucide-react";
+import { PencilLine, Plus, X } from "lucide-react";
 
 const EditSessionWidget = ({ session, teams, onSave }) => {
-  const [date, setDate] = useState(session?.date || "");
-  const [startTime, setStartTime] = useState(session?.startTime || "");
-  const [endTime, setEndTime] = useState(session?.endTime || "");
-  const [selectedTeams, setSelectedTeams] = useState(session?.teams || []);
+  // Local state for date, start time, end time and selected teams
+  const [date, setDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [selectedTeams, setSelectedTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState("");
 
-  const handleSave = () => {
-    onSave({
-      ...session,
-      date,
-      startTime,
-      endTime,
-      teams: selectedTeams,
-    });
-  };
+  // When the session (or teams) changes, prepopulate fields
+  useEffect(() => {
+    if (session) {
+      // Extract date and times from ISO strings
+      const sessionDate = session.start_time.split("T")[0];
+      const sessionStartTime = session.start_time.split("T")[1].substring(0, 5);
+      const sessionEndTime = session.end_time.split("T")[1].substring(0, 5);
+      setDate(sessionDate);
+      setStartTime(sessionStartTime);
+      setEndTime(sessionEndTime);
+      // Build selected teams array based on session.teams (an array of team IDs)
+      const initialTeams = teams.filter((team) =>
+        session.teams.includes(team.id)
+      );
+      setSelectedTeams(initialTeams);
+    }
+  }, [session, teams]);
 
   const handleAddTeam = (teamName) => {
     if (teamName && !selectedTeams.find((team) => team.name === teamName)) {
@@ -49,10 +57,45 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
     setSelectedTeam("");
   };
 
+  const handleRemoveTeam = (teamId) => {
+    setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
+  };
+
+  const handleSave = async () => {
+    // Build the updated session payload
+    const updatedSessionData = {
+      ...session,
+      start_time: `${date}T${startTime}:00Z`,
+      end_time: `${date}T${endTime}:00Z`,
+      // teams: selectedTeams.map((team) => team.id),
+    };
+
+    try {
+      const response = await fetch(`/api/sessions/${session.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(updatedSessionData),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to update session");
+        return;
+      }
+
+      const updatedSession = await response.json();
+      onSave(updatedSession); // Pass the updated session back to the parent
+    } catch (error) {
+      console.error("Error updating session:", error);
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger>
-        <PencilLine />
+        <PencilLine className="cursor-pointer" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -89,8 +132,17 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
           <DialogTitle>Team Selection</DialogTitle>
           <div className="flex flex-row gap-2 flex-wrap">
             {selectedTeams.map((team) => (
-              <Badge key={team.id} variant="secondary" className="bg-blue-400">
+              <Badge
+                key={team.id}
+                variant="secondary"
+                className="bg-blue-400 flex items-center"
+              >
                 {team.name}
+                <X
+                  size={16}
+                  className="-mr-1 hover:text-[#FE7A7A] cursor-pointer transition-colors"
+                  onClick={() => handleRemoveTeam(team.id)}
+                />
               </Badge>
             ))}
           </div>
