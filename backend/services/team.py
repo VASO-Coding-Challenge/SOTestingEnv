@@ -21,7 +21,7 @@ from ..models import Team, TeamData, TeamMember, TeamMemberCreate
 from ..models.team import TeamPublic
 
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu", "Tsering Lama"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 

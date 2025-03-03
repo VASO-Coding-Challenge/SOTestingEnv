@@ -19,7 +19,7 @@ from backend.test.fake_data.team_members import fake_team_members_fixture
 
 # TODO: Test table reading and exporting functions
 
-__authors__ = ["Andrew Lockard"]
+__authors__ = ["Andrew Lockard", "Tsering Lama"]
 
 
 def test_get_team_basic(team_svc, fake_team_fixture):

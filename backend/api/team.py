@@ -7,7 +7,7 @@ from ..services.team import TeamService
 from ..models.team_members import TeamMemberCreate, TeamMemberPublic
 from .auth import authed_team
 
-__authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
+__authors__ = ["Andrew Lockard", "Mustafa Aljumayli", "Tsering Lama"]
 
 api = APIRouter(prefix="/api/team")
 

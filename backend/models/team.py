@@ -11,6 +11,7 @@ __authors__ = [
     "Andrew Lockard",
     "Ivan Wu",
     "Michelle Nguyen",
+    "Tsering Lama"
 ]
 
 
@@ -32,7 +33,7 @@ class Team(TeamBase, table=True):
 
 class TeamData(TeamBase):
     """Model to define the creation shape of the team model"""
-    
+
     password: str
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
