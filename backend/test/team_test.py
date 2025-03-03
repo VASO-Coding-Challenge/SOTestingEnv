@@ -3,6 +3,7 @@
 from datetime import datetime
 from backend.models import Team, TeamMember
 import polars as pl
+import select
 
 from backend.models.team import TeamData
 from backend.services.exceptions import (
@@ -271,3 +272,137 @@ def test_team_member_not_allowed_deleting(team_svc, fake_team_fixture):
         team_svc.delete_team_member(
             team_svc.get_team("B2").members[0].id, team_svc.get_team("B1")
         )
+
+# NEW TESTS
+
+def test_create_batch_teams_basic(team_svc, fake_team_fixture):
+    """Test creating a batch of teams"""
+    fake_team_fixture()
+    original_count = len(team_svc.get_all_teams())
+    
+    template = TeamData(
+        name="Batch",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="template-pwd",
+    )
+    
+    batch_size = 3
+    teams = team_svc.create_batch_teams(batch_size, template)
+    
+    # Verify correct number of teams created
+    assert len(teams) == batch_size
+    assert len(team_svc.get_all_teams()) == original_count + batch_size
+    
+    # Verify naming pattern
+    for i, team in enumerate(teams):
+        assert team.name == f"Batch_{i+1}"
+
+
+def test_create_batch_teams_with_session(team_svc, fake_team_fixture):
+    """Test creating a batch of teams assigned to a session"""
+    fake_team_fixture()
+    
+    # Create a template with session_id
+    template = TeamData(
+        name="SessionBatch",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="session-pwd",
+        session_id=1,  # Assuming session 1 exists from fixtures
+    )
+    
+    teams = team_svc.create_batch_teams(2, template)
+    
+    # Verify session assignment
+    for team in teams:
+        assert team.session_id == 1
+
+
+def test_delete_team_by_id(team_svc, fake_team_fixture):
+    """Test deleting a team by ID"""
+    fake_team_fixture()
+    
+    # Get an existing team ID
+    team_id = team_svc.get_all_teams()[0].id
+    
+    # Delete the team
+    success = team_svc.delete_team_by_id(team_id)
+    
+    # Check success and team removal
+    assert success == True
+    
+    # Verify team is gone
+    with pytest.raises(ResourceNotFoundException):
+        team_svc.get_team(team_id)
+
+
+def test_delete_team_by_id_not_exist(team_svc, fake_team_fixture):
+    """Test deleting a team by ID that doesn't exist"""
+    fake_team_fixture()
+    
+    # Use a very high ID that shouldn't exist
+    non_existent_id = 9999
+    
+    # Try to delete non-existent team
+    success = team_svc.delete_team_by_id(non_existent_id)
+    
+    # Should return False, not raise an exception
+    assert success == False
+
+
+def test_delete_team_by_id_removes_members(team_svc, fake_team_fixture, fake_team_members_fixture, session):
+    """Test that deleting a team by ID also removes its members"""
+    fake_team_fixture()
+    fake_team_members_fixture()
+    
+    # Get a team with members
+    team = team_svc.get_all_teams()[0]
+    
+    # Add a member if the team doesn't have any
+    if len(team.members) == 0:
+        new_member = TeamMember(first_name="Test", last_name="User", team_id=team.id, id=None)
+        team_svc.add_team_member(new_member, team)
+        team = team_svc.get_team(team.id)  # Refresh team data
+    
+    # Remember the member IDs
+    member_ids = [member.id for member in team.members]
+    
+    # Delete the team
+    team_svc.delete_team_by_id(team.id)
+    
+    # Verify members are gone
+    for member_id in member_ids:
+        assert session.get(TeamMember, member_id) is None
+
+
+def test_delete_all_teams_implementation(team_svc, fake_team_fixture, fake_team_members_fixture, session):
+    """Test the implementation of delete_all_teams to ensure it removes team members"""
+    fake_team_fixture()
+    fake_team_members_fixture()
+    
+    # Make sure we have some teams and members
+    assert len(team_svc.get_all_teams()) > 0
+    
+    # Delete all teams
+    team_svc.delete_all_teams()
+    
+    # Verify no teams remain
+    assert len(team_svc.get_all_teams()) == 0
+    
+    # Verify no team members remain
+    members = session.exec(select(TeamMember)).all()
+    assert len(members) == 0
+
+
+def test_get_all_teams_implementation(team_svc, fake_team_fixture):
+    """Test that get_all_teams returns the correct team objects"""
+    fake_team_fixture()
+    
+    teams = team_svc.get_all_teams()
+    
+    # Verify we got Team objects with the expected attributes
+    for team in teams:
+        assert hasattr(team, 'id')
+        assert hasattr(team, 'name')
+        assert hasattr(team, 'password')  # This should exist if returning Team objects

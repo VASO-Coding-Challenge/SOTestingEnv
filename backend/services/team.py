@@ -8,6 +8,8 @@ from fastapi import Depends
 from sqlmodel import Session, select, and_, delete
 import polars as pl
 import datetime as dt
+import random
+import string
 
 from .exceptions import (
     ResourceNotFoundException,
@@ -16,6 +18,8 @@ from .exceptions import (
 )
 
 from ..models import Team, TeamData, TeamMember, TeamMemberCreate
+from ..models.team import TeamPublic
+
 
 __authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
 
@@ -139,6 +143,49 @@ class TeamService:
         self._session.add(team)
         self._session.commit()
         return team
+    
+    def create_batch_teams(self, count: int, team_template: TeamData) -> List[Team]:
+        """Create multiple teams based on a template.
+        Args:
+            count (int): Number of teams to create
+            team_template (TeamData): Template for team data
+        Returns:
+            List[Team]: List of created teams
+        """
+        created_teams = []
+        
+        # Base template data
+        base_name = team_template.name
+        session_id = team_template.session_id
+        start_time = team_template.start_time
+        end_time = team_template.end_time
+        
+        for i in range(1, count + 1):
+            # Generate unique name by appending index
+            team_name = f"{base_name}_{i}"
+            
+            # Generate random password (8 characters)
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            
+            # Create new team
+            new_team = Team(
+                name=team_name,
+                password=password,
+                start_time=start_time,
+                end_time=end_time,
+                session_id=session_id
+            )
+            
+            self._session.add(new_team)
+            created_teams.append(new_team)
+        
+        self._session.commit()
+        
+        # Refresh all teams to get their IDs
+        for team in created_teams:
+            self._session.refresh(team)
+            
+        return created_teams
 
     def get_team(self, identifier) -> Team:
         """Gets the team by id (int) or name (str)"""
@@ -162,7 +209,11 @@ class TeamService:
         return team
 
     def get_all_teams(self) -> List[Team]:
-        """Gets a list of all the teams"""
+        """Gets a list of all the teams
+        
+        Returns:
+            List[Team]: List of all teams
+        """
         teams = self._session.exec(select(Team)).all()
         return teams
 
@@ -176,9 +227,39 @@ class TeamService:
         return team
 
     def delete_all_teams(self):
-        """Deletes all teams"""
-        self._session.exec(delete(Team))
+        """Deletes all teams and their members
+        
+        Returns:
+            bool: True if operation successful
+        """
+        # First delete all team members
         self._session.exec(delete(TeamMember))
+        # Then delete all teams
+        self._session.exec(delete(Team))
+        self._session.commit()
+        return True
+    
+    def delete_team_by_id(self, team_id: int) -> bool:
+        """Deletes a team by its ID
+        
+        Args:
+            team_id (int): ID of the team to delete
+            
+        Returns:
+            bool: True if team was deleted, False if team wasn't found
+            
+        Note: This will also delete all associated team members
+        """
+        # Find the team
+        team = self._session.get(Team, team_id)
+        if not team:
+            return False
+            
+        # Delete all members of this team
+        self._session.exec(delete(TeamMember).where(TeamMember.team_id == team_id))
+        
+        # Delete the team
+        self._session.delete(team)
         self._session.commit()
         return True
 

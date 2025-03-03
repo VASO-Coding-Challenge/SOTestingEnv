@@ -1,8 +1,8 @@
 """API Routes associated with Teams and TeamMember data objects"""
 
 from typing import List
-from fastapi import APIRouter, Depends
-from ..models.team import TeamPublic, Team
+from fastapi import APIRouter, Depends, HTTPException
+from ..models.team import TeamPublic, Team, TeamData
 from ..services.team import TeamService
 from ..models.team_members import TeamMemberCreate, TeamMemberPublic
 from .auth import authed_team
@@ -42,3 +42,49 @@ def delete_team_member(
 ):
     """Deletes a team member from the currenlty logged in team."""
     team_svc.delete_team_member(member_id, team)
+
+
+# reorder this later
+
+@api.get("/all", response_model=list[TeamPublic], tags=["Teams"])
+def get_all_teams(
+    team_svc: TeamService = Depends(),
+) -> list[TeamPublic]:
+    """Retrieve all teams"""
+    return team_svc.get_all_teams()
+
+@api.post("", response_model=TeamPublic, tags=["Teams"])
+def create_team(
+    team_data: TeamData, team_svc: TeamService = Depends()
+) -> TeamPublic:
+    """Create a new team"""
+    return team_svc.create_team(team_data)
+
+
+@api.post("/batch/{count}", response_model=list[TeamPublic], tags=["Teams"])
+def create_batch_teams(
+    count: int, team_template: TeamData, team_svc: TeamService = Depends()
+) -> list[TeamPublic]:
+    """Create multiple teams at once based on a template
+    
+    Args:
+        count: Number of teams to create
+        team_template: Template for the teams with base name, password, etc.
+    """
+    return team_svc.create_batch_teams(count, team_template)
+
+
+@api.delete("/{team_id}", tags=["Teams"])
+def delete_team(team_id: int, team_svc: TeamService = Depends()):
+    """Delete a specific team"""
+    success = team_svc.delete_team_by_id(team_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": f"Team {team_id} deleted successfully"}
+
+
+@api.delete("", tags=["Teams"])
+def delete_all_teams(team_svc: TeamService = Depends()):
+    """Delete all teams"""
+    team_svc.delete_all_teams()
+    return {"message": "All teams deleted successfully"}

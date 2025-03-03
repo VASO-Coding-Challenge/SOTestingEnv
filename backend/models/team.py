@@ -32,7 +32,7 @@ class Team(TeamBase, table=True):
 
 class TeamData(TeamBase):
     """Model to define the creation shape of the team model"""
-
+    
     password: str
 
 
