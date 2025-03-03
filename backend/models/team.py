@@ -2,7 +2,7 @@
 
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
-
+from datetime import datetime
 from .session_obj import Session_Obj
 
 __authors__ = [
@@ -34,6 +34,8 @@ class TeamData(TeamBase):
     """Model to define the creation shape of the team model"""
     
     password: str
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
 
 
 class TeamPublic(TeamBase):
