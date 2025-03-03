@@ -12,6 +12,22 @@ QUESTIONS_DIR = "es_files/questions"
 class ProblemService:
     """Service to handle problem management"""
 
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_all_problems() -> List[int]:
+        try:
+            return sorted(
+                [
+                    int(f[1:])
+                    for f in os.listdir(QUESTIONS_DIR)
+                    if f.startswith("q") and f[1:].isdigit()
+                ]
+            )
+        except Exception as e:
+            raise RuntimeError(f"Error fetching problems: {str(e)}")
+
     @staticmethod  # I made these methods static because we don't need to store any instance-specific state (self)
     def get_question_path(q_num: int, filename: str) -> str:
         """Get the full file path for a given problem and filename."""
