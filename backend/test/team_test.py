@@ -4,6 +4,8 @@ from datetime import datetime
 from backend.models import Team, TeamMember
 import polars as pl
 import select
+from ..db import db_session
+from sqlmodel import Session, select 
 
 from backend.models.team import TeamData
 from backend.services.exceptions import (
@@ -253,6 +255,7 @@ def test_create_team_team_data(team_svc, fake_team_fixture):
         start_time=datetime.now(),
         end_time=datetime.now(),
         password="password",
+        session_id=None
     )
     team_svc.create_team(team_data)
     assert team_svc.get_team("C4").name == team_data.name
@@ -265,13 +268,28 @@ def test_team_member_not_found_deleting(team_svc, fake_team_fixture):
         team_svc.delete_team_member(100, team_svc.get_team(1))
 
 
-def test_team_member_not_allowed_deleting(team_svc, fake_team_fixture):
-    """Test that a team member is not found if the team does not exist"""
+def test_team_member_not_allowed_deleting(team_svc, fake_team_fixture, fake_team_members_fixture):
+    """Test that a team member cannot be deleted by a different team"""
     fake_team_fixture()
+    fake_team_members_fixture()
+    
+    # Get a team and a member from another team
+    team1 = team_svc.get_team("B1")
+    team2 = team_svc.get_team("B2")
+    
+    # Find a member that belongs to team2
+    team2_members = [m for m in team_svc.get_all_teams() if m.id == team2.id][0].members
+    
+    # If team2 has no members, we need to add one
+    if not team2_members:
+        from backend.models.team_members import TeamMemberCreate
+        new_member = TeamMemberCreate(first_name="Test", last_name="User")
+        team_svc.add_team_member(new_member, team2)
+        team2 = team_svc.get_team("B2")  # Refresh to get updated member list
+    
+    # Now try to delete team2's member using team1's credentials
     with pytest.raises(ResourceNotAllowedException):
-        team_svc.delete_team_member(
-            team_svc.get_team("B2").members[0].id, team_svc.get_team("B1")
-        )
+        team_svc.delete_team_member(team2.members[0].id, team1)
 
 # NEW TESTS
 
@@ -285,6 +303,7 @@ def test_create_batch_teams_basic(team_svc, fake_team_fixture):
         start_time=datetime.now(),
         end_time=datetime.now(),
         password="template-pwd",
+        session_id=None
     )
     
     batch_size = 3

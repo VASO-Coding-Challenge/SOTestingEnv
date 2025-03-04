@@ -42,7 +42,7 @@ def delete_team_member(
 ):
     """Deletes a team member from the currenlty logged in team."""
     team_svc.delete_team_member(member_id, team)
-
+    return {"message": f"Team Member {member_id} deleted successfully"}
 
 # reorder this later
 

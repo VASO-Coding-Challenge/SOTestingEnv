@@ -85,6 +85,8 @@ class TeamService:
                 "Team Number": [team.name],
                 "Password": [team.password],
                 "Session ID": [team.session_id],
+                "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M") if team.start_time else ""],
+                "End Time": [team.end_time.strftime("%m/%d/%Y %H:%M") if team.end_time else ""]
             }
         )
         return team_df
@@ -266,6 +268,11 @@ class TeamService:
     def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
         team = self.get_team(team.name)
+        
+        # First delete team members
+        for member in team.members:
+            self._session.delete(member)
+        
         self._session.delete(team)
         self._session.commit()
         return True

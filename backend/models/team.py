@@ -27,6 +27,8 @@ class Team(TeamBase, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     password: str
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
     members: list["TeamMember"] = Relationship(back_populates="team")
     session: Optional["Session_Obj"] = Relationship(back_populates="teams")
 
