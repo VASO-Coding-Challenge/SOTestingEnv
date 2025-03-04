@@ -16,7 +16,7 @@ def create_fake_sessions(session: Session):
         id=1,
         name="Session 1",
         start_time=datetime.now(),
-        end_time=datetime.now(),
+        end_time=datetime.now() + timedelta(hours=2),
     )
     session2 = SessionModel(
         id=2,

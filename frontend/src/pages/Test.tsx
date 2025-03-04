@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface Document {
   title: string;
@@ -15,549 +14,399 @@ interface Problem {
   docs: Document[];
 }
 
-interface ProblemCreateResponse {
-  message: string;
-  problem_number?: number;
-}
-
 const Test: React.FC = () => {
   const [problems, setProblems] = useState<number[]>([]);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+  const [allProblems, setAllProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string[]>([]);
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  // Form fields for updating a problem
+  const [prompt, setPrompt] = useState<string>('');
+  const [starterCode, setStarterCode] = useState<string>('');
+  const [testCases, setTestCases] = useState<string>('');
+  const [demoCases, setDemoCases] = useState<string>('');
 
-  // Fetch all problems on component mount
+  const apiBaseUrl = '/api/problems'; // Adjust this to your API base URL
+
+  // Helper function to handle fetch errors
+  const handleFetchResponse = async (response: Response) => {
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || `Error: ${response.status}`);
+    }
+    return response.json();
+  };
+
+  // Fetch the list of problem numbers
+  const fetchProblems = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/`);
+      const data = await handleFetchResponse(response);
+      setProblems(data);
+      setSuccess('Problems list fetched successfully');
+    } catch (err) {
+      setError('Failed to fetch problems list');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch all problem details
+  const fetchAllProblems = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/all`);
+      const data = await handleFetchResponse(response);
+      setAllProblems(data);
+      setSuccess('All problems fetched successfully');
+    } catch (err) {
+      setError('Failed to fetch all problems');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch a specific problem's details
+  const fetchProblem = async (qNum: number): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/${qNum}`);
+      const data = await handleFetchResponse(response);
+      setSelectedProblem(data);
+      
+      // Update form fields with the fetched data
+      setPrompt(data.prompt);
+      setStarterCode(data.starter_code);
+      setTestCases(data.test_cases);
+      setDemoCases(data.demo_cases);
+      
+      setSuccess(`Problem ${qNum} fetched successfully`);
+    } catch (err) {
+      setError(`Failed to fetch problem ${qNum}`);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create a new problem
+  const createProblem = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await handleFetchResponse(response);
+      setSuccess(data.message);
+      // Refresh the problem list after creating a new problem
+      await fetchProblems();
+    } catch (err) {
+      setError('Failed to create a new problem');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update a problem
+  const updateProblem = async (qNum: number): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/${qNum}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt,
+          starter_code: starterCode,
+          test_cases: testCases,
+          demo_cases: demoCases
+        })
+      });
+      const data = await handleFetchResponse(response);
+      setSuccess(data.message);
+      // Refresh the selected problem data
+      await fetchProblem(qNum);
+    } catch (err) {
+      setError(`Failed to update problem ${qNum}`);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete a problem
+  const deleteProblem = async (qNum: number): Promise<void> => {
+    if (!window.confirm(`Are you sure you want to delete problem ${qNum}?`)) {
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/${qNum}`, {
+        method: 'DELETE'
+      });
+      const data = await handleFetchResponse(response);
+      setSuccess(data.message);
+      // Clear selected problem if it was deleted
+      if (selectedProblem?.num === qNum) {
+        setSelectedProblem(null);
+        setPrompt('');
+        setStarterCode('');
+        setTestCases('');
+        setDemoCases('');
+      }
+      // Refresh the problem list after deletion
+      await fetchProblems();
+    } catch (err) {
+      setError(`Failed to delete problem ${qNum}`);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete all problems
+  const deleteAllProblems = async (): Promise<void> => {
+    if (!window.confirm('Are you sure you want to delete ALL problems? This cannot be undone!')) {
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/`, {
+        method: 'DELETE'
+      });
+      const data = await handleFetchResponse(response);
+      setSuccess(data.message);
+      // Clear selected problem and list
+      setSelectedProblem(null);
+      setProblems([]);
+      setAllProblems([]);
+      setPrompt('');
+      setStarterCode('');
+      setTestCases('');
+      setDemoCases('');
+    } catch (err) {
+      setError('Failed to delete all problems');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle button clicks safely
+  const handleFetchProblems = () => {
+    void fetchProblems();
+  };
+
+  const handleFetchAllProblems = () => {
+    void fetchAllProblems();
+  };
+
+  const handleCreateProblem = () => {
+    void createProblem();
+  };
+
+  const handleDeleteAllProblems = () => {
+    void deleteAllProblems();
+  };
+
+  const handleFetchProblem = (qNum: number) => {
+    void fetchProblem(qNum);
+  };
+
+  const handleDeleteProblem = (qNum: number) => {
+    void deleteProblem(qNum);
+  };
+
+  const handleUpdateProblem = (qNum: number) => {
+    void updateProblem(qNum);
+  };
+
+  // Load problems list on component mount
   useEffect(() => {
     void fetchProblems();
   }, []);
 
-  // Debug logger function
-  const addDebugInfo = (message: string) => {
-    console.log(`DEBUG: ${message}`);
-    setDebugInfo(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
-  };
-
-  const fetchProblems = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo('Fetching problems started');
-      
-      try {
-        // Try to fetch problems from API
-        const response = await fetch('/api/problems/', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code: ${response.status}`);
-        }
-
-        const data = await response.json() as number[];
-        setProblems(data);
-        addDebugInfo(`Fetched ${data.length} problems successfully`);
-      } catch (apiErr) {
-        // Handle API error, but continue with local fallback
-        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API error: ${errorMsg}, falling back to local storage`);
-        
-        // Get existing problems from localStorage
-        try {
-          // Get all localStorage keys and filter for problem keys
-          const allKeys = Object.keys(localStorage);
-          const problemKeys = allKeys.filter(key => key.startsWith('problem_'));
-          
-          // Extract problem numbers
-          const existingProblems = problemKeys.map(key => {
-            return parseInt(key.replace('problem_', ''));
-          }).sort((a, b) => a - b);
-          
-          if (existingProblems.length > 0) {
-            setProblems(existingProblems);
-            addDebugInfo(`Loaded ${existingProblems.length} existing problems from local storage`);
-          } else {
-            addDebugInfo('No problems found in local storage');
-            setProblems([]);
-          }
-        } catch (localErr) {
-          addDebugInfo(`LocalStorage error: ${String(localErr)}`);
-          setProblems([]);
-        }
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error in fetchProblems: ${errorMsg}`);
-      setError('Failed to load problems. Please try again.');
-    } finally {
-      setLoading(false);
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  };
-
-  const fetchProblemDetails = async (problemNum: number): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo(`Fetching details for problem ${problemNum}`);
-      
-      try {
-        // Try to fetch from API
-        const response = await fetch(`/api/problems/${problemNum}/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code: ${response.status}`);
-        }
-
-        const data = await response.json() as Problem;
-        setSelectedProblem(data);
-        addDebugInfo(`Fetched details for problem ${problemNum} successfully`);
-        
-        // Save to localStorage for backup
-        localStorage.setItem(`problem_${problemNum}`, JSON.stringify(data));
-      } catch (apiErr) {
-        // Try localStorage backup
-        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API error: ${errorMsg}, trying localStorage backup`);
-        
-        const storedProblem = localStorage.getItem(`problem_${problemNum}`);
-        if (storedProblem) {
-          try {
-            const parsedProblem = JSON.parse(storedProblem) as Problem;
-            setSelectedProblem(parsedProblem);
-            addDebugInfo(`Loaded problem ${problemNum} from localStorage`);
-            return;
-          } catch (parseErr) {
-            addDebugInfo(`Error parsing stored problem: ${String(parseErr)}`);
-          }
-        }
-        
-        // Fallback to default problem template with custom initial content
-        const defaultProblem: Problem = createDefaultProblem(problemNum);
-        
-        setSelectedProblem(defaultProblem);
-        addDebugInfo(`Created default template for problem ${problemNum}`);
-        
-        // Save default template to localStorage
-        localStorage.setItem(`problem_${problemNum}`, JSON.stringify(defaultProblem));
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error in fetchProblemDetails: ${errorMsg}`);
-      setError(`Failed to load problem ${problemNum}. Please try again.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Helper function to create a default problem with specified templates
-  const createDefaultProblem = (problemNum: number): Problem => {
-    return {
-      num: problemNum,
-      prompt: "",
-      starter_code: `def function_name(input_data: str) -> str:
-    # TODO: Implement your solution here
-    return None`,
-      test_cases: `"""Test cases for problem ${problemNum}"""
-
-import unittest
-from decorators import weight
-
-class Test(unittest.TestCase):
-    @weight(1)
-    def test_insert_name(self):
-        self.assertEqual(temp("Hello World"), "Hello")`,
-      demo_cases: `import unittest
-
-class Test(unittest.TestCase):
-    def test_insert_name(self):
-        self.assertEqual(temp("Hello World"), "el ol")`,
-      docs: []
-    };
-  };
-
-  const createProblem = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo('Problem creation started');
-      
-      try {
-        // Try to create via API
-        const response = await fetch('/api/problems/create/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({})
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code: ${response.status}`);
-        }
-
-        const data = await response.json() as ProblemCreateResponse;
-        addDebugInfo(`Problem created with response: ${JSON.stringify(data)}`);
-        
-        // Refresh the problem list
-        await fetchProblems();
-        
-        // Select the newly created problem if available
-        if (data.problem_number) {
-          void fetchProblemDetails(data.problem_number);
-        }
-      } catch (apiErr) {
-        // Fallback to local creation
-        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API error: ${errorMsg}, falling back to local creation`);
-        
-        // Get current problems from localStorage
-        let currentProblems: number[] = [];
-        try {
-          // Get all localStorage keys and filter for problem keys
-          const allKeys = Object.keys(localStorage);
-          const problemKeys = allKeys.filter(key => key.startsWith('problem_'));
-          
-          // Extract problem numbers
-          currentProblems = problemKeys.map(key => {
-            return parseInt(key.replace('problem_', ''));
-          }).sort((a, b) => a - b);
-        } catch (localErr) {
-          addDebugInfo(`LocalStorage error: ${String(localErr)}`);
-        }
-        
-        // Create a new problem with next number
-        const nextProblemNum = currentProblems.length > 0 ? Math.max(...currentProblems) + 1 : 1;
-        
-        // Create default problem content with custom templates
-        const defaultProblem = createDefaultProblem(nextProblemNum);
-        
-        // Save to localStorage
-        localStorage.setItem(`problem_${nextProblemNum}`, JSON.stringify(defaultProblem));
-        
-        addDebugInfo(`Created problem ${nextProblemNum} locally`);
-        
-        // Refresh problem list and select the new problem
-        setSelectedProblem(defaultProblem);
-        void fetchProblems();
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error in createProblem: ${errorMsg}`);
-      setError('Failed to create problem. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteProblem = async (problemNum: number): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo(`Deleting problem ${problemNum}`);
-  
-      try {
-        // Try to delete via API
-        const response = await fetch(`/api/problems/${problemNum}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code: ${response.status}`);
-        }
-  
-        addDebugInfo(`Problem ${problemNum} deleted successfully from the server`);
-      } catch (apiErr) {
-        // API call failed, fallback to localStorage deletion
-        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API error deleting problem: ${errorMsg}, falling back to localStorage`);
-  
-        // Remove problem from localStorage
-        localStorage.removeItem(`problem_${problemNum}`);
-      }
-  
-      // Remove from state
-      setProblems((prevProblems) => prevProblems.filter((num) => num !== problemNum));
-      
-      // If the deleted problem was selected, clear selection
-      if (selectedProblem?.num === problemNum) {
-        setSelectedProblem(null);
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error in handleDeleteProblem: ${errorMsg}`);
-      setError(`Failed to delete problem ${problemNum}. Please try again.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleUpdateFile = async (problemNum: number, filename: string, content: string): Promise<void> => {
-    if (!selectedProblem) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      addDebugInfo(`Updating file ${filename} for problem ${problemNum}`);
-      
-      // First update local state to make UI responsive
-      const updatedProblem = {
-        ...selectedProblem,
-        [filename === 'prompt.md' ? 'prompt' : 
-         filename === 'starter.py' ? 'starter_code' :
-         filename === 'test_cases.py' ? 'test_cases' :
-         filename === 'demo_cases.py' ? 'demo_cases' : '']: content
-      };
-      
-      setSelectedProblem(updatedProblem);
-      
-      // Save to localStorage as backup
-      localStorage.setItem(`problem_${problemNum}`, JSON.stringify(updatedProblem));
-      
-      try {
-        // Only use PUT for API updates
-        const response = await fetch(`/api/problems/${problemNum}/files/${filename}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ content: content })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP Error with Status Code: ${response.status}`);
-        }
-
-        addDebugInfo(`Updated file ${filename} successfully on server using PUT`);
-      } catch (apiErr) {
-        // Log API error but don't show to user since we already updated locally
-        const errorMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        addDebugInfo(`API error saving ${filename}: ${errorMsg}, but saved locally`);
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      addDebugInfo(`Error in handleUpdateFile: ${errorMsg}`);
-      setError(`Failed to update ${filename}. Changes saved locally but not on server.`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateProblemClick = (): void => {
-    addDebugInfo('Create button clicked');
-    void createProblem();
-  };
-
-  const handleProblemClick = (num: number): void => {
-    addDebugInfo(`Clicked on problem ${num}`);
-    void fetchProblemDetails(num);
-  };
-
-  const handleSaveFile = (
-    problemNum: number, 
-    filename: string, 
-    content: string
-  ): void => {
-    addDebugInfo(`Save requested for ${filename}`);
-    void handleUpdateFile(problemNum, filename, content);
-  };
+  }, [success]);
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Problem Manager</h1>
+      <h1 className="text-2xl font-bold mb-6">API Testing Dashboard</h1>
       
-      {/* Error message display */}
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      {/* Status messages */}
+      {loading && <div className="bg-blue-100 p-3 mb-4 rounded">Loading...</div>}
+      {error && <div className="bg-red-100 p-3 mb-4 rounded">{error}</div>}
+      {success && <div className="bg-green-100 p-3 mb-4 rounded">{success}</div>}
       
-      {/* Create Problem Button */}
-      <div className="mb-6">
-        <button
-          onClick={handleCreateProblemClick}
-          disabled={loading}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Creating...' : 'Create New Problem'}
-        </button>
-        
-        {/* Reset loading state button for development */}
-        <button
-          onClick={() => setLoading(false)}
-          className="ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Reset Loading State
-        </button>
-      </div>
-      
-      {/* Debug Info Panel */}
-      <div className="mb-6 p-4 bg-gray-100 rounded overflow-auto max-h-40">
-        <h3 className="font-bold mb-2">Debug Info:</h3>
-        <button 
-          onClick={() => setDebugInfo([])}
-          className="mb-2 px-2 py-1 bg-gray-500 text-white text-xs rounded"
-        >
-          Clear Log
-        </button>
-        <div className="text-xs font-mono">
-          {debugInfo.length === 0 ? (
-            <p>No debug info yet</p>
-          ) : (
-            debugInfo.map((info, idx) => (
-              <div key={idx} className="mb-1">{info}</div>
-            ))
-          )}
-        </div>
-      </div>
-      
-      {/* Problem List */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="md:col-span-1 border p-4 rounded">
-          <h2 className="text-xl font-semibold mb-3">Problems</h2>
-          {loading && problems.length === 0 ? (
-            <p>Loading problems...</p>
-          ) : (
-            <ul className="space-y-2">
-              {problems.length === 0 ? (
-                <p>No problems found. Create one to get started.</p>
-              ) : (
-                problems.map((num) => (
-                  <li key={num}>
-                    <button
-                      onClick={() => handleProblemClick(num)}
-                      className={`text-blue-500 hover:text-blue-700 ${
-                        selectedProblem?.num === num ? 'font-bold' : ''
-                      }`}
-                    >
-                      Problem {num}
-                    </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left side: Problem list and actions */}
+        <div className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-xl font-bold mb-4">Problems</h2>
+          
+          <div className="flex space-x-2 mb-4">
+            <button 
+              onClick={handleFetchProblems} 
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              Refresh List
+            </button>
+            <button 
+              onClick={handleFetchAllProblems} 
+              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+            >
+              Fetch All Details
+            </button>
+            <button 
+              onClick={handleCreateProblem} 
+              className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600"
+            >
+              Create New
+            </button>
+            <button 
+              onClick={handleDeleteAllProblems} 
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            >
+              Delete All
+            </button>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold mb-2">Problem Numbers:</h3>
+            {problems.length > 0 ? (
+              <ul className="bg-white p-2 border rounded">
+                {problems.map(num => (
+                  <li key={num} className="flex justify-between items-center p-2 hover:bg-gray-100">
+                    <span>Problem {num}</span>
+                    <div>
+                      <button 
+                        onClick={() => handleFetchProblem(num)} 
+                        className="bg-blue-500 text-white px-2 py-1 text-xs rounded mr-2 hover:bg-blue-600"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteProblem(num)} 
+                        className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </li>
-                ))
-              )}
-            </ul>
-          )}
-        </div>
-        
-        {/* Problem Details */}
-        <div className="md:col-span-2 border p-4 rounded">
-          <h2 className="text-xl font-semibold mb-3">Problem Details</h2>
-          {loading && !selectedProblem ? (
-            <p>Loading problem details...</p>
-          ) : selectedProblem ? (
-            <div>
-              <h3 className="text-lg font-medium mb-2">Problem {selectedProblem.num}</h3>
-
-              {/* Delete */}
-              <button onClick={() => 
-                { void handleDeleteProblem(selectedProblem.num); }
-              } 
-                disabled={loading} className="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"> 
-                {loading ? 'Deleting...' : 'Delete Problem'}
-              </button>
-
-              {/* Prompt */}
-              <div className="mb-4">
-                <h4 className="font-medium mb-1">Prompt</h4>
-                <textarea
-                  value={selectedProblem.prompt}
-                  onChange={(e) => 
-                    setSelectedProblem({...selectedProblem, prompt: e.target.value})
-                  }
-                  className="w-full p-2 border rounded"
-                  rows={5}
-                ></textarea>
-                <button
-                  onClick={() => 
-                    handleSaveFile(selectedProblem.num, 'prompt.md', selectedProblem.prompt)
-                  }
-                  disabled={loading}
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Saving...' : 'Save Prompt'}
-                </button>
-              </div>
-              
-              {/* Starter Code */}
-              <div className="mb-4">
-                <h4 className="font-medium mb-1">Starter Code</h4>
-                <textarea
-                  value={selectedProblem.starter_code}
-                  onChange={(e) => 
-                    setSelectedProblem({...selectedProblem, starter_code: e.target.value})
-                  }
-                  className="w-full p-2 border rounded font-mono"
-                  rows={5}
-                ></textarea>
-                <button
-                  onClick={() => 
-                    handleSaveFile(selectedProblem.num, 'starter.py', selectedProblem.starter_code)
-                  }
-                  disabled={loading}
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Saving...' : 'Save Starter Code'}
-                </button>
-              </div>
-              
-              {/* Test Cases */}
-              <div className="mb-4">
-                <h4 className="font-medium mb-1">Test Cases</h4>
-                <textarea
-                  value={selectedProblem.test_cases}
-                  onChange={(e) => 
-                    setSelectedProblem({...selectedProblem, test_cases: e.target.value})
-                  }
-                  className="w-full p-2 border rounded font-mono"
-                  rows={5}
-                ></textarea>
-                <button
-                  onClick={() => 
-                    handleSaveFile(selectedProblem.num, 'test_cases.py', selectedProblem.test_cases)
-                  }
-                  disabled={loading}
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Saving...' : 'Save Test Cases'}
-                </button>
-              </div>
-              
-              {/* Demo Cases */}
-              <div className="mb-4">
-                <h4 className="font-medium mb-1">Demo Cases</h4>
-                <textarea
-                  value={selectedProblem.demo_cases}
-                  onChange={(e) => 
-                    setSelectedProblem({...selectedProblem, demo_cases: e.target.value})
-                  }
-                  className="w-full p-2 border rounded font-mono"
-                  rows={5}
-                ></textarea>
-                <button
-                  onClick={() => 
-                    handleSaveFile(selectedProblem.num, 'demo_cases.py', selectedProblem.demo_cases)
-                  }
-                  disabled={loading}
-                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Saving...' : 'Save Demo Cases'}
-                </button>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">No problems found.</p>
+            )}
+          </div>
+          
+          {allProblems.length > 0 && (
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">All Problem Details:</h3>
+              <div className="bg-white p-2 border rounded max-h-64 overflow-y-auto">
+                {allProblems.map(problem => (
+                  <details key={problem.num} className="mb-2">
+                    <summary className="cursor-pointer font-medium">Problem {problem.num}</summary>
+                    <div className="p-2 text-sm">
+                      <p><strong>Prompt:</strong> {problem.prompt.substring(0, 100)}...</p>
+                      <p><strong>Starter Code:</strong> {problem.starter_code.substring(0, 100)}...</p>
+                      <p><strong>Test Cases:</strong> {problem.test_cases.substring(0, 100)}...</p>
+                      <p><strong>Demo Cases:</strong> {problem.demo_cases.substring(0, 100)}...</p>
+                    </div>
+                  </details>
+                ))}
               </div>
             </div>
+          )}
+        </div>
+        
+        {/* Right side: Selected problem editor */}
+        <div className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-xl font-bold mb-4">
+            {selectedProblem ? `Edit Problem ${selectedProblem.num}` : 'Select a Problem to Edit'}
+          </h2>
+          
+          {selectedProblem ? (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleUpdateProblem(selectedProblem.num);
+            }}>
+              <div className="mb-4">
+                <label className="block font-medium mb-1">Prompt:</label>
+                <textarea 
+                  value={prompt} 
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  rows={4}
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label className="block font-medium mb-1">Starter Code:</label>
+                <textarea 
+                  value={starterCode} 
+                  onChange={(e) => setStarterCode(e.target.value)}
+                  className="w-full p-2 border rounded font-mono"
+                  rows={6}
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label className="block font-medium mb-1">Test Cases:</label>
+                <textarea 
+                  value={testCases} 
+                  onChange={(e) => setTestCases(e.target.value)}
+                  className="w-full p-2 border rounded font-mono"
+                  rows={6}
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label className="block font-medium mb-1">Demo Cases:</label>
+                <textarea 
+                  value={demoCases} 
+                  onChange={(e) => setDemoCases(e.target.value)}
+                  className="w-full p-2 border rounded font-mono"
+                  rows={4}
+                />
+              </div>
+              
+              <div className="flex justify-end">
+                <button 
+                  type="submit"
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Update Problem
+                </button>
+              </div>
+            </form>
           ) : (
-            <p>Select a problem to view details</p>
+            <p className="text-gray-500">No problem selected. Click "View" on a problem from the list to edit it.</p>
           )}
         </div>
       </div>
