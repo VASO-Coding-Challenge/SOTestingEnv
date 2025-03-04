@@ -11,6 +11,7 @@ import ThankYouPage from "./pages/ThankYouPage";
 import Scheduling from "./pages/Scheduling";
 import TeamManager from "./pages/TeamManager";
 import QuestionManager from "./pages/QuestionManager";
+import Test from "./pages/Test";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -23,6 +24,9 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/scheduling" element={<Scheduling />} />
         <Route path="/team-manager" element={<TeamManager />} />
         <Route path="/question-manager" element={<QuestionManager />} />
+
+        <Route path="/test" element={<Test />} />
+
         {/** The route below is where we view the markdown. */}
         <Route path="/markdown-viewer/:docTitle" element={<MarkdownViewer />} />
       </Routes>

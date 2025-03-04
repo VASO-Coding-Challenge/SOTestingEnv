@@ -1,8 +1,9 @@
-"Demo Cases for Problem 2"
+"Test Cases for Problem 2"
 
 import unittest
 from submission import odd_chars
 from decorators import weight
+
 
 class Test(unittest.TestCase):
 

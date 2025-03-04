@@ -1,14 +1,11 @@
 """File to contain all Session_Obj related tests"""
 
 from datetime import datetime
-
-from sqlmodel import select
-from backend.models import Session_Obj
-from backend.models import Team
-import pytest
+from backend.models import Session_Obj, Team
 from .fixtures import session_obj_svc
 from backend.test.fake_data.session_obj import fake_session_fixture
 from backend.test.fake_data.team import fake_team_fixture
+import pytest
 
 from backend.services.exceptions import (
     ResourceNotAllowedException,
