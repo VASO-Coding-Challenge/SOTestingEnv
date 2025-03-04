@@ -6,8 +6,7 @@ from sqlmodel import Session, select, delete
 from ..models import Team, SessionPublic, Session_Obj
 from ..db import db_session
 from fastapi import Depends
-
-from .exceptions import ResourceNotAllowedException, ResourceNotFoundException
+from .exceptions import ResourceNotFoundException
 
 __authors__ = ["Michelle Nguyen", "Tsering Lama"]
 

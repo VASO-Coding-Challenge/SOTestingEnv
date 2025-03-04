@@ -30,7 +30,7 @@ def get_all_problem_details():
 
 @api.get("/{q_num}", response_model=ProblemResponse, tags=["Problems"])
 def get_problem_details(q_num: int):
-    """Retrieve a specific problem's files/contents."""
+    """Retrieve a specific problem's files/contents"""
     return ProblemService.get_problem(q_num)
 
 
@@ -60,7 +60,7 @@ def get_problem_details(q_num: int):
 
 @api.post("/create/", response_model=dict, tags=["Problems"])
 def create_problem():
-    """Create a new problem."""
+    """Create a new problem"""
     q_num = ProblemService.create_problem()
     return {"message": f"Problem q{q_num} created successfully"}
 
@@ -101,14 +101,14 @@ def update_problem_files(
     test_cases: str = Body(...),
     demo_cases: str = Body(...),
 ):
-    """Update all files of a specific problem."""
+    """Update all files of a specific problem"""
     ProblemService.update_problem(q_num, prompt, starter_code, test_cases, demo_cases)
     return {"message": f"Problem {q_num} updated successfully."}
 
 
 @api.delete("/{q_num}", response_model=dict, tags=["Problems"])
 def delete_problem(q_num: int):
-    """Delete a problem"""
+    """Delete a specific problem"""
     ProblemService.delete_problem(q_num)
     return {"message": f"Problem {q_num} deleted successfully."}
 

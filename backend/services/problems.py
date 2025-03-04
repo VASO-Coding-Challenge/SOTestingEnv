@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from textwrap import dedent
 from typing import List
 
 from fastapi import HTTPException
@@ -91,28 +92,6 @@ class ProblemService:
                 status_code=500, detail=f"Error writing to {filename}: {str(e)}"
             )
 
-    # @staticmethod
-    # def create_problem() -> int:
-    #     """Create a new problem directory with default files."""
-    #     try:
-    #         q_count = 1
-    #         while os.path.exists(os.path.join(QUESTIONS_DIR, f"q{q_count}")):
-    #             q_count += 1
-
-    #         os.makedirs(os.path.join(QUESTIONS_DIR, f"q{q_count}"), exist_ok=True)
-
-    #         # Create default files
-    #         ProblemService.write_file(q_count, "prompt.md", "")
-    #         ProblemService.write_file(q_count, "starter.py", "")
-    #         ProblemService.write_file(q_count, "test_cases.py", "")
-    #         ProblemService.write_file(q_count, "demo_cases.py", "")
-
-    #         return q_count
-    #     except Exception as e:
-    #         raise HTTPException(
-    #             status_code=500, detail=f"Error creating problem: {str(e)}"
-    #         )
-
     @staticmethod
     def create_problem() -> int:
         """Create a new problem directory with default files."""
@@ -127,31 +106,39 @@ class ProblemService:
             # Default content for each file
             default_prompt = "Complete the `first_five` function by returning the first five characters of `string_input`."
 
-            default_starter = """def first_five(string_input: str) -> str:
-        # TODO: Fill out this function
-        return None
-    """
+            default_starter = dedent(
+                """\
+            def first_five(string_input: str) -> str:
+                # TODO: Fill out this function
+                return None
+            """
+            )
 
-            default_test_cases = """import unittest
+            default_test_cases = dedent(
+                """\
+            import unittest
+            from decorators import weight
+            from submission import first_five
 
-    from decorators import weight
-    from submission import first_five
+            class Test(unittest.TestCase):
 
-    class Test(unittest.TestCase):
+                @weight(1)
+                def test_first_five1(self):
+                    self.assertEqual(first_five("Hello World"), "Hello")
+            """
+            )
 
-        @weight(1)
-        def test_first_five1(self):
-            self.assertEqual(first_five("Hello World"), "Hello")
-    """
+            default_demo_cases = dedent(
+                """\
+            import unittest
+            from submission import first_five
 
-            default_demo_cases = """import unittest
-    from submission import first_five
+            class Test(unittest.TestCase):
 
-    class Test(unittest.TestCase):
-
-        def test_first_five1(self):
-            self.assertEqual(first_five("Hello World"), "Hello")
-    """
+                def test_first_five1(self):
+                    self.assertEqual(first_five("Hello World"), "Hello")
+            """
+            )
 
             # Write default content to files
             ProblemService.write_file(q_count, "prompt.md", default_prompt)

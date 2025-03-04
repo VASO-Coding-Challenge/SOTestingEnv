@@ -7,7 +7,7 @@ __authors__ = ["Michelle Nguyen"]
 
 
 class ProblemResponse(SQLModel):
-    """Model for managing problems, including all necessary files."""
+    """Model for managing problems."""
 
     num: int
     prompt: str
