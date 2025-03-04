@@ -39,7 +39,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
       setDate(sessionDate);
       setStartTime(sessionStartTime);
       setEndTime(sessionEndTime);
-      // Build selected teams array based on session.teams (an array of team IDs)
+
       const initialTeams = teams.filter((team) =>
         session.teams.includes(team.id)
       );
@@ -63,33 +63,14 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
 
   const handleSave = async () => {
     // Build the updated session payload
-    const updatedSessionData = {
-      ...session,
+    const updatedSession = {
+      name: session.name,
       start_time: `${date}T${startTime}:00Z`,
       end_time: `${date}T${endTime}:00Z`,
-      // teams: selectedTeams.map((team) => team.id),
+      id: session.id,
+      teams: selectedTeams.map((team) => team.id),
     };
-
-    try {
-      const response = await fetch(`/api/sessions/${session.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(updatedSessionData),
-      });
-
-      if (!response.ok) {
-        console.error("Failed to update session");
-        return;
-      }
-
-      const updatedSession = await response.json();
-      onSave(updatedSession); // Pass the updated session back to the parent
-    } catch (error) {
-      console.error("Error updating session:", error);
-    }
+    onSave(updatedSession, session);
   };
 
   return (

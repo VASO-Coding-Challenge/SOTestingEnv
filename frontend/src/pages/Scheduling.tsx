@@ -28,9 +28,6 @@ import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
 
-// Fake Data for testing purposes
-import { session_teams } from "../data/session";
-
 const LayoutContainer = styled("div")({
   display: "flex",
   height: "100vh",
@@ -150,7 +147,11 @@ export default function Scheduling() {
     }
   };
 
-  const handleEditSession = async (updatedSession: Session) => {
+  const handleEditSession = async (
+    updatedSession: Session,
+    oldSession: Session
+  ) => {
+    const { teams, ...sessionWithoutTeams } = updatedSession;
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}`, {
         method: "PUT",
@@ -158,19 +159,63 @@ export default function Scheduling() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(updatedSession),
+        body: JSON.stringify(sessionWithoutTeams),
       });
 
       if (!response.ok) {
-        console.error("Failed to update session");
+        console.error("Failed to update session: ", response.status);
         return;
       }
 
       console.log("Session updated successfully");
-      void fetchSessions(); // Refresh sessions list
     } catch (error) {
       console.error("Error updating session:", error);
     }
+
+    const addedTeams = updatedSession.teams.filter(
+      (teamId) => !oldSession.teams.includes(teamId)
+    );
+    const removedTeams = oldSession.teams.filter(
+      (teamId) => !updatedSession.teams.includes(teamId)
+    );
+
+    try {
+      const response = await fetch(`/api/sessions/${updatedSession.id}/teams`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(addedTeams),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to add teams to session: ", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error("Error adding teams to session:", error);
+    }
+
+    try {
+      const response = await fetch(`/api/sessions/${updatedSession.id}/teams`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(removedTeams),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to remove teams from session: ", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error("Error removing teams from session:", error);
+    }
+
+    void fetchSessions();
   };
 
   const handleDeleteSession = async (sessionId: string) => {
@@ -315,8 +360,8 @@ export default function Scheduling() {
                       <EditSessionWidget
                         session={session}
                         teams={teams}
-                        onSave={(updatedSession) => {
-                          handleEditSession(updatedSession);
+                        onSave={(updatedSession, oldSession) => {
+                          handleEditSession(updatedSession, oldSession);
                         }}
                       />
                       <Trash2
