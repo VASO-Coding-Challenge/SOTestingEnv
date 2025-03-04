@@ -10,24 +10,24 @@ from ..models import Document, ProblemResponse
 
 __authors__ = ["Michelle Nguyen"]
 
-QUESTIONS_DIR = "es_files/questions"
-
 
 class ProblemService:
     """Service to handle problem management"""
+
+    QUESTIONS_DIR = "es_files/questions"
 
     @staticmethod
     def get_problems_list() -> List[int]:
         """Retrieve all available problem numbers."""
         try:
             # Return empty list when no problems exist instead of raising an exception
-            if not os.path.exists(QUESTIONS_DIR):
+            if not os.path.exists(ProblemService.QUESTIONS_DIR):
                 return []
 
             problems = sorted(
                 [
                     int(f[1:])
-                    for f in os.listdir(QUESTIONS_DIR)
+                    for f in os.listdir(ProblemService.QUESTIONS_DIR)
                     if f.startswith("q") and f[1:].isdigit()
                 ]
             )
@@ -40,12 +40,12 @@ class ProblemService:
     @staticmethod  # I made these methods static because we don't need to store any instance-specific state (self)
     def get_question_path(q_num: int, filename: str) -> str:
         """Get the full file path for a given problem and filename."""
-        return os.path.join(QUESTIONS_DIR, f"q{q_num}", filename)
+        return os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}", filename)
 
     @staticmethod
     def get_problem(q_num: int) -> ProblemResponse:
         """Retrieve all files related to a problem."""
-        if not os.path.exists(os.path.join(QUESTIONS_DIR, f"q{q_num}")):
+        if not os.path.exists(os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")):
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
 
         try:
@@ -97,10 +97,12 @@ class ProblemService:
         """Create a new problem directory with default files."""
         try:
             q_count = 1
-            while os.path.exists(os.path.join(QUESTIONS_DIR, f"q{q_count}")):
+            while os.path.exists(
+                os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_count}")
+            ):
                 q_count += 1
 
-            problem_path = os.path.join(QUESTIONS_DIR, f"q{q_count}")
+            problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_count}")
             os.makedirs(problem_path, exist_ok=True)
 
             # Default content for each file
@@ -157,7 +159,7 @@ class ProblemService:
         q_num: int, prompt: str, starter_code: str, test_cases: str, demo_cases: str
     ):
         """Updates all files of a specific problem."""
-        problem_path = os.path.join(QUESTIONS_DIR, f"q{q_num}")
+        problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")
 
         if not os.path.exists(problem_path):
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
@@ -175,7 +177,7 @@ class ProblemService:
     @staticmethod
     def load_docs(q_num: int) -> List[Document]:
         """Load all documentation files for a problem."""
-        doc_path = os.path.join(QUESTIONS_DIR, f"q{q_num}")
+        doc_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")
         if not os.path.exists(doc_path):
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
 
@@ -197,7 +199,7 @@ class ProblemService:
     @staticmethod
     def delete_problem(q_num: int):
         """Deletes a specific problem and renumbers the remaining problems."""
-        problem_path = os.path.join(QUESTIONS_DIR, f"q{q_num}")
+        problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")
 
         if not os.path.exists(problem_path):
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
@@ -210,15 +212,15 @@ class ProblemService:
             all_problems = sorted(
                 [
                     int(f[1:])
-                    for f in os.listdir(QUESTIONS_DIR)
+                    for f in os.listdir(ProblemService.QUESTIONS_DIR)
                     if f.startswith("q") and f[1:].isdigit()
                 ]
             )
 
             # Rename problems to maintain consecutive numbering
             for idx, old_q_num in enumerate(all_problems, start=1):
-                old_path = os.path.join(QUESTIONS_DIR, f"q{old_q_num}")
-                new_path = os.path.join(QUESTIONS_DIR, f"q{idx}")
+                old_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{old_q_num}")
+                new_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{idx}")
 
                 if old_q_num != idx:  # Rename only if needed
                     shutil.move(old_path, new_path)

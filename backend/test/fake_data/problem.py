@@ -1,29 +1,48 @@
+import tempfile
 import pytest
-import os
-import shutil
-from fastapi import HTTPException
-from backend.services.problems import ProblemService
+from pathlib import Path
+
 
 __authors__ = ["Michelle Nguyen"]
 
 
-@pytest.fixture(scope="function")
-def setup_tmp_questions(tmp_path):
-    """Set up a sample problem directory using tmp_path."""
-    test_dir = tmp_path / "test_questions"
-    test_dir.mkdir()
+@pytest.fixture
+def setup_problem_data():
+    """Create a temporary test environment with sample problem directories."""
 
-    # Override ProblemService's directory for this test session
-    ProblemService.QUESTIONS_DIR = str(test_dir)
+    def create_problem_environment():
+        # Create a temporary directory
+        temp_dir = Path(tempfile.mkdtemp())
 
-    problem_path = test_dir / "q1"
-    problem_path.mkdir()
+        # Create questions subdirectory
+        questions_dir = temp_dir / "es_files" / "questions"
+        questions_dir.mkdir(parents=True, exist_ok=True)
 
-    (problem_path / "prompt.md").write_text("Sample prompt")
-    (problem_path / "starter.py").write_text("def sample(): pass")
-    (problem_path / "test_cases.py").write_text("import unittest")
-    (problem_path / "demo_cases.py").write_text("import unittest")
+        # Create sample problem directories
+        (questions_dir / "q1").mkdir()
+        (questions_dir / "q2").mkdir()
 
-    yield test_dir  # Provide the temporary directory for tests to use
+        # Create sample files for problems
+        for q_num in [1, 2]:
+            problem_dir = questions_dir / f"q{q_num}"
 
-    shutil.rmtree(test_dir, ignore_errors=True)  # Cleanup after test
+            # Create standard problem files
+            (problem_dir / "prompt.md").write_text(f"Prompt for problem {q_num}")
+            (problem_dir / "starter.py").write_text(
+                f"# Starter code for problem {q_num}"
+            )
+            (problem_dir / "test_cases.py").write_text(
+                f"# Test cases for problem {q_num}"
+            )
+            (problem_dir / "demo_cases.py").write_text(
+                f"# Demo cases for problem {q_num}"
+            )
+
+            # Create a documentation file
+            (problem_dir / "doc_example.md").write_text(
+                f"Documentation for problem {q_num}"
+            )
+
+        return temp_dir
+
+    return create_problem_environment
