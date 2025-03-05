@@ -175,9 +175,14 @@ export default function Scheduling() {
     const addedTeams = updatedSession.teams.filter(
       (teamId) => !oldSession.teams.includes(teamId)
     );
+
     const removedTeams = oldSession.teams.filter(
       (teamId) => !updatedSession.teams.includes(teamId)
     );
+
+    if (addedTeams.length === 0 && removedTeams.length === 0) {
+      return;
+    }
 
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}/teams`, {
@@ -216,6 +221,7 @@ export default function Scheduling() {
     }
 
     void fetchSessions();
+    void fetchTeams();
   };
 
   const handleDeleteSession = async (sessionId: string) => {

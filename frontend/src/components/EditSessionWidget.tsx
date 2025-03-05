@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { PencilLine, Plus, X } from "lucide-react";
 
 const EditSessionWidget = ({ session, teams, onSave }) => {
+  const [open, setOpen] = useState(false);
   // Local state for date, start time, end time and selected teams
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -71,10 +72,11 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
       teams: selectedTeams.map((team) => team.id),
     };
     onSave(updatedSession, session);
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <PencilLine className="cursor-pointer" />
       </DialogTrigger>
@@ -141,7 +143,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
               </SelectContent>
             </Select>
             <Button
-              type="button"
+              type="submit"
               className="rounded-l-none -ml-px"
               onClick={() => handleAddTeam(selectedTeam)}
             >
