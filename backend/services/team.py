@@ -135,12 +135,18 @@ class TeamService:
             Team: Created Team object
         """
         if isinstance(team, TeamData):
+            # Generate a random password if one isn't provided or if it's empty
+            password = team.password
+            if not password or password.strip() == "" or password == "string":
+                password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            
+        # Create the team with the password
             team = Team(
                 name=team.name,
-                password=team.password,
+                password=password,
                 start_time=team.start_time,
                 end_time=team.end_time,
-                session_id=team.session_id,  # necessary?
+                session_id=team.session_id,
             )
         self._session.add(team)
         self._session.commit()
