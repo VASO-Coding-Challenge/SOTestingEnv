@@ -6,6 +6,7 @@ import pytest
 from backend.models.team import Team
 from backend.services.passwords import PasswordService
 from backend.db import engine
+from .session_obj import fake_session_fixture
 
 __authors__ = [
     "Mustafa Aljumayli",

@@ -12,7 +12,16 @@ from .services.exceptions import (
     ResourceNotAllowedException,
 )
 
-from .api import team, auth, question, docs, submission, static_files, session_obj
+from .api import (
+    team,
+    auth,
+    question,
+    docs,
+    submission,
+    static_files,
+    session_obj,
+    problem,
+)
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
 
@@ -31,6 +40,7 @@ app = FastAPI(
         docs.openapi_tags,
         submission.openapi_tags,
         session_obj.openapi_tags,
+        problem.openapi_tags,
     ],
 )
 
@@ -46,7 +56,7 @@ app.add_middleware(
 
 
 # ! Plug in each separate API file here (make sure to import above)
-feature_apis = [team, auth, question, docs, submission, session_obj]
+feature_apis = [team, auth, question, docs, submission, session_obj, problem]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)

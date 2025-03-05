@@ -1,8 +1,9 @@
-"""Demo Cases for Problem 5"""
+"""Test Cases for Problem 5"""
 
 import unittest
 from submission import three_input_truth_table
 from decorators import weight
+
 
 class Test(unittest.TestCase):
     @weight(1)

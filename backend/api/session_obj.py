@@ -41,6 +41,14 @@ def create_session(
     return session_svc.create_session_obj(session_data)
 
 
+@api.post("/{session_id}/teams", response_model=SessionPublic, tags=["Sessions"])
+def add_teams_to_session(
+    session_id: int, team_ids: List[int], session_svc: Session_ObjService = Depends()
+) -> SessionPublic:
+    """Add teams to an existing session"""
+    return session_svc.add_teams_to_session(session_id, team_ids)
+
+
 @api.put("/{session_id}", response_model=SessionPublic, tags=["Sessions"])
 def update_session(
     session_id: int,
@@ -68,14 +76,6 @@ def delete_all_sessions(session_svc: Session_ObjService = Depends()):
     """Delete all sessions but keep the teams intact"""
     session_svc.delete_all_session_objs()
     return {"message": "All sessions deleted successfully"}
-
-
-@api.post("/{session_id}/teams", response_model=SessionPublic, tags=["Sessions"])
-def add_teams_to_session(
-    session_id: int, team_ids: List[int], session_svc: Session_ObjService = Depends()
-) -> SessionPublic:
-    """Add teams to an existing session"""
-    return session_svc.add_teams_to_session(session_id, team_ids)
 
 
 @api.delete("/{session_id}/teams", response_model=SessionPublic, tags=["Sessions"])

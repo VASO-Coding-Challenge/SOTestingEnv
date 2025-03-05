@@ -15,8 +15,8 @@ def create_fake_sessions(session: Session):
     session1 = SessionModel(
         id=1,
         name="Session 1",
-        start_time=datetime.now() - timedelta(hours=1),
-        end_time=datetime.now() + timedelta(hours=1),
+        start_time=datetime.now(),
+        end_time=datetime.now() + timedelta(hours=2),
     )
     session2 = SessionModel(
         id=2,
@@ -40,9 +40,9 @@ def create_fake_sessions(session: Session):
 
 
 @pytest.fixture
-def fake_session_fixture(db_session: Session):
+def fake_session_fixture(session: Session):
     def load_fixture():
-        create_fake_sessions(db_session)
-        db_session.commit()
+        create_fake_sessions(session)
+        session.commit()
 
     return load_fixture
