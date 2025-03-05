@@ -109,20 +109,9 @@ class Session_ObjService:
             else session_data.end_time
         )
 
-        # Remove previous team assignments
-        for team in session_obj.teams:
-            team.session_id = None
-
-        if session_data.teams:
-            teams = self._session.exec(
-                select(Team).where(Team.id.in_(session_data.teams))
-            ).all()
-            for team in teams:
-                team.session_id = session_id  # Assign session ID to new teams
-
         self._session.commit()
         self._session.refresh(session_obj)
-
+        
         return SessionPublic(
             id=session_obj.id,
             name=session_obj.name,

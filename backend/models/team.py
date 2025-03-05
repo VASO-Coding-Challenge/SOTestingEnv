@@ -2,7 +2,7 @@
 
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
-
+from datetime import datetime
 from .session_obj import Session_Obj
 
 __authors__ = [
@@ -11,6 +11,7 @@ __authors__ = [
     "Andrew Lockard",
     "Ivan Wu",
     "Michelle Nguyen",
+    "Tsering Lama"
 ]
 
 
@@ -26,6 +27,8 @@ class Team(TeamBase, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     password: str
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
     members: list["TeamMember"] = Relationship(back_populates="team")
     session: Optional["Session_Obj"] = Relationship(back_populates="teams")
 
@@ -34,6 +37,8 @@ class TeamData(TeamBase):
     """Model to define the creation shape of the team model"""
 
     password: str
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
 
 
 class TeamPublic(TeamBase):
