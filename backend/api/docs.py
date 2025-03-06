@@ -113,12 +113,6 @@ async def delete_document(title: str):
     return DocsService.delete_document(title)
 
 
-@api.delete("/{title}", tags=["Docs"])
-async def delete_document(title: str):
-    """Delete a global document."""
-    return DocsService.delete_document(title)
-
-
 @api.delete("/", response_model=Dict[str, int], tags=["Docs"])
 async def delete_all_documents():
     """Delete all global documents."""
