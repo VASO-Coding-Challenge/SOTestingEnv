@@ -1,4 +1,4 @@
-"""Demo cases for problem 7"""
+"""Test cases for problem 7"""
 
 import unittest
 from submission import find_value

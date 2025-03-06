@@ -6,10 +6,8 @@ from sqlmodel import SQLModel, Session
 from ..models import *
 from ..db import engine
 from ..services.team import TeamService
-
 from ..services import PasswordService
-
-from ..test.fake_data import team, word, team_members, session
+from ..test.fake_data import session_obj, team, word, team_members
 
 __authors__ = ["Andrew Lockard", "Nicholas Almy", "Ivan Wu"]
 
@@ -25,7 +23,7 @@ with Session(engine) as db_session:
     pwd_svc = PasswordService(db_session)
     pwd_svc.reset_word_list()
     word.create_words(db_session)
-    session.create_fake_sessions(db_session)
+    session_obj.create_fake_sessions(db_session)
     team.create_fake_teams(db_session)
     team_svc = TeamService(db_session)
     team_svc.teams_to_df(team_svc.get_all_teams()).write_csv("es_files/teams/teams.csv")

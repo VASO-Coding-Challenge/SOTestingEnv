@@ -7,18 +7,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, X } from "lucide-react";
 
 import { jwtDecode } from "jwt-decode";
 
@@ -27,9 +27,6 @@ import { useNavigate } from "react-router-dom";
 
 import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
-
-// Fake Data for testing purposes
-import { session_data, session_teams } from "../data/session";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -50,12 +47,24 @@ interface Session {
   teams: number[];
 }
 
+interface Team {
+  name: string;
+  id: number;
+  session_id: number | null;
+  session: Session | null;
+}
+
 export default function Scheduling() {
-  const [sessions, setSessions] = useState(session_data);
-  const [teams, setTeams] = useState(session_teams);
-  const [unassignedTeams, setUnassignedTeams] = useState([]);
-  const [selectedTeams, setSelectedTeams] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+
+  // Form Input States
+  const [sessionName, setSessionName] = useState("");
+  const [sessionDate, setSessionDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>();
 
   const navigate = useNavigate();
 
@@ -87,40 +96,228 @@ export default function Scheduling() {
       localStorage.removeItem("token");
       navigate("/login");
     }
+
+    void fetchSessions();
+    void fetchTeams();
   }, [navigate]);
 
-  const handleGetSessions = () => {
-    // Fetch the session data
-    console.log("Fetching session data");
+  const fetchSessions = async () => {
+    try {
+      const response = await fetch("/api/sessions", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch sessions");
+        return;
+      }
+
+      const data = (await response.json()) as Session[];
+      setSessions(data);
+      console.log("Sessions:", data);
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    }
   };
 
-  const handleCreateSession = () => {
-    // Create a new session
-    console.log("Creating a new session");
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch("/api/team/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch teams");
+        return;
+      }
+
+      const data = (await response.json()) as Team[];
+      setTeams(data);
+      console.log("Teams:", data);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+    }
   };
 
-  const handleEditSession = () => {
-    // Edit a session
-    console.log("Editing a session");
+  const handleEditSession = async (
+    updatedSession: Session,
+    oldSession: Session
+  ) => {
+    const { teams, ...sessionWithoutTeams } = updatedSession;
+    try {
+      const response = await fetch(`/api/sessions/${updatedSession.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(sessionWithoutTeams),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to update session: ", response.status);
+        return;
+      }
+
+      console.log("Session updated successfully");
+    } catch (error) {
+      console.error("Error updating session:", error);
+    }
+
+    const addedTeams = updatedSession.teams.filter(
+      (teamId) => !oldSession.teams.includes(teamId)
+    );
+
+    const removedTeams = oldSession.teams.filter(
+      (teamId) => !updatedSession.teams.includes(teamId)
+    );
+
+    if (addedTeams.length === 0 && removedTeams.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/sessions/${updatedSession.id}/teams`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(addedTeams),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to add teams to session: ", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error("Error adding teams to session:", error);
+    }
+
+    try {
+      const response = await fetch(`/api/sessions/${updatedSession.id}/teams`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(removedTeams),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to remove teams from session: ", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error("Error removing teams from session:", error);
+    }
+
+    void fetchSessions();
+    void fetchTeams();
   };
 
-  const handleDeleteSession = () => {
-    // Delete a session
-    console.log("Deleting a session");
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to delete session");
+        return;
+      }
+
+      console.log("Session deleted successfully");
+      void fetchTeams();
+      void fetchSessions();
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    }
   };
 
-  const handleGetTeamForSession = () => {
-    // Fetch the team data for a session
-    // TODO: Decide if this should be done in backend
-    console.log("Fetching team data for a session");
+  // Form Input Handlers
+  const handleSessionNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSessionName(e.target.value);
   };
 
-  const handleSubmit = () => {
-    // Submit the created session data
-    console.log("Submitting session data");
+  const handleSessionDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSessionDate(e.target.value);
   };
 
-  // May not be necessary depending on backend implementation
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartTime(e.target.value);
+  };
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndTime(e.target.value);
+  };
+
+  // const handleAddTeam = (teamId: number) => {
+  //   const team = teams.find((t) => t.id === teamId);
+  //   if (team && !selectedTeams.some((t) => t.id === team.id)) {
+  //     setSelectedTeams([...selectedTeams, team]);
+  //   }
+  // };
+
+  // const handleRemoveTeam = (teamId: number) => {
+  //   setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
+  // };
+
+  const handleSubmit = async () => {
+    if (!sessionName || !sessionDate || !startTime || !endTime) {
+      alert("Please fill out all fields");
+      return;
+    }
+
+    const startDateTime = `${sessionDate}T${startTime}:00Z`;
+    const endDateTime = `${sessionDate}T${endTime}:00Z`;
+
+    const sessionData = {
+      name: sessionName,
+      start_time: startDateTime,
+      end_time: endDateTime,
+      id: 0,
+    };
+
+    try {
+      const response = await fetch("/api/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(sessionData),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to create session");
+        return;
+      }
+
+      console.log("Session created successfully");
+      setSessionName("");
+      setSessionDate("");
+      setStartTime("");
+      setEndTime("");
+      setSelectedTeams([]);
+      void fetchSessions(); // Refresh sessions list
+    } catch (error) {
+      console.error("Error creating session:", error);
+    }
+  };
+
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
     return new Intl.DateTimeFormat("en-US", {
@@ -130,7 +327,6 @@ export default function Scheduling() {
     }).format(date);
   };
 
-  // May not be necessary depending on backend implementation
   const formatTime = (isoString: string) => {
     const date = new Date(isoString);
     return new Intl.DateTimeFormat("en-US", {
@@ -147,57 +343,79 @@ export default function Scheduling() {
 
       {/* Main Content */}
       {/* TODO: overflow/scroll */}
-      <main className="flex-1 flex flex-row gap-4 p-4 overflow-x-auto">
+      <main className="flex-1 flex flex-row gap-4 p-4 overflow-y-hidden">
         {/* Session List */}
-        <Card className="max-w-md w-full h-fit">
+        <Card className="max-w-md w-full min-w-[260px] flex flex-col max-h-[calc(100vh-32px)] h-fit">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Sessions</CardTitle>
             <CardDescription>View and manage all sessions</CardDescription>
           </CardHeader>
-          {/* Sessions */}
-          {sessions.map((session) => (
-            <Card key={session.id} className="m-4">
-              <CardHeader className="flex flex-row justify-between items-center">
-                <CardTitle>{session.name}</CardTitle>
-                <div className="flex flex-row gap-2">
-                  <EditSessionWidget
-                    session={session}
-                    teams={teams}
-                    onSave={(updatedSession) => {
-                      handleEditSession(updatedSession);
-                    }}
-                  />
-                  <Trash2 color="#FE7A7A" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div>{formatDate(session.start_time)}</div>
-                <br />
-                <div>
-                  <strong>Start: </strong>
-                  {formatTime(session.start_time)}
-                </div>
-                <div>
-                  <strong>End: </strong>
-                  {formatTime(session.end_time)}
-                </div>
-              </CardContent>
-              <CardContent>
-                <CardTitle>Teams</CardTitle>
-                <div className="flex flex-row gap-2 pt-2">
-                  {teams.map((team) => (
-                    <Badge
-                      key={team.id}
-                      variant="basic"
-                      className="bg-blue-400"
-                    >
-                      {team.name}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Sessions*/}
+          <div className="overflow-y-auto flex-1 pb-4">
+            {sessions.length > 0 &&
+              sessions.map((session) => (
+                <Card key={session.id} className="m-4">
+                  <CardHeader className="flex flex-row justify-between items-center">
+                    <CardTitle>{session.name}</CardTitle>
+                    <div className="flex flex-row gap-2">
+                      <EditSessionWidget
+                        session={session}
+                        teams={teams}
+                        onSave={(updatedSession, oldSession) => {
+                          handleEditSession(updatedSession, oldSession);
+                        }}
+                      />
+                      <Trash2
+                        className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors"
+                        onClick={() =>
+                          handleDeleteSession(session.id.toString())
+                        }
+                      />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div>{formatDate(session.start_time)}</div>
+                    <br />
+                    <div>
+                      <strong>Start: </strong>
+                      {formatTime(session.start_time)}
+                    </div>
+                    <div>
+                      <strong>End: </strong>
+                      {formatTime(session.end_time)}
+                    </div>
+                  </CardContent>
+                  <CardContent>
+                    <CardTitle>Teams</CardTitle>
+                    <div className="flex flex-row gap-2 pt-2">
+                      {teams
+                        .filter((team) => team.session_id === session.id)
+                        .map((team) => (
+                          <Badge
+                            key={team.id}
+                            variant="basic"
+                            className="bg-blue-400 hover:bg-blue-500 transition-colors"
+                          >
+                            {team.name}
+                          </Badge>
+                        ))}
+                      {!teams.some(
+                        (team) => team.session_id === session.id
+                      ) && (
+                        <span className="text-gray-500 text-sm">
+                          No assigned teams
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            {sessions.length === 0 && (
+              <div className="text-gray-500 text-sm text-center">
+                No sessions found
+              </div>
+            )}
+          </div>
         </Card>
 
         {/* Create Session */}
@@ -208,50 +426,99 @@ export default function Scheduling() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <CardTitle>Name</CardTitle>
-            <Input placeholder="Session Name" />
+            <Input
+              placeholder="Session Name"
+              value={sessionName}
+              onChange={handleSessionNameChange}
+            />
             <Separator />
           </CardContent>
           <CardContent className="flex flex-col gap-4">
             <CardTitle>Date & Time</CardTitle>
             <div className="flex flex-row gap-4 items-center">
-              Date: <Input type="date" />
+              Date:{" "}
+              <Input
+                type="date"
+                value={sessionDate}
+                onChange={handleSessionDateChange}
+              />
             </div>
             <div className="flex flex-row gap-4 items-center">
-              Time: <Input type="time" /> to <Input type="time" />
+              Time:{" "}
+              <Input
+                type="time"
+                value={startTime}
+                onChange={handleStartTimeChange}
+              />{" "}
+              to{" "}
+              <Input
+                type="time"
+                value={endTime}
+                onChange={handleEndTimeChange}
+              />
             </div>
             <Separator />
           </CardContent>
-          <CardContent className="flex flex-col gap-4">
+          {/* <CardContent className="flex flex-col gap-4">
             <CardTitle>Team Selection</CardTitle>
             <div className="flex flex-row gap-2">
-              {teams.map((team) => (
-                <Badge key={team.id} variant="basic" className="bg-blue-400">
-                  {team.name}
-                </Badge>
-              ))}
+              {selectedTeams.length > 0 &&
+                selectedTeams.map((team) => (
+                  <Badge
+                    key={team.id}
+                    variant="basic"
+                    className="bg-blue-400 items-center"
+                  >
+                    {team.name}
+                    <X
+                      size={16}
+                      className="-mr-1 hover:text-[#FE7A7A] cursor-pointer transition-colors"
+                      onClick={() => handleRemoveTeam(team.id)}
+                    />
+                  </Badge>
+                ))}
+              {selectedTeams.length === 0 && (
+                <span className="text-gray-500 text-sm">No teams selected</span>
+              )}
             </div>
             <div className="flex flex-row items-center">
-              {/* TODO: Could be improved to be more efficient */}
-              <Select>
+              <Select
+                onValueChange={(value) => setSelectedTeamId(Number(value))}
+                value={selectedTeamId?.toString() || ""}
+              >
                 <SelectTrigger className="rounded-r-none">
                   <SelectValue placeholder="Select a Team" />
                 </SelectTrigger>
                 <SelectContent>
                   {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.name}>
+                    <SelectItem key={team.id} value={team.id.toString()}>
                       {team.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button type="submit" className="rounded-l-none -ml-px">
+              <Button
+                type="button"
+                className="rounded-l-none -ml-px"
+                onClick={() => {
+                  if (selectedTeamId) {
+                    handleAddTeam(selectedTeamId);
+                  }
+                }}
+              >
                 <Plus />
               </Button>
             </div>
             <Separator />
-          </CardContent>
+          </CardContent> */}
           <CardFooter>
-            <Button>CREATE</Button>
+            <Button
+              onClick={() => {
+                void handleSubmit();
+              }}
+            >
+              CREATE
+            </Button>
           </CardFooter>
         </Card>
       </main>

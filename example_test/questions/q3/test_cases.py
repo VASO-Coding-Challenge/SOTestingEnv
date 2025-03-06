@@ -1,8 +1,9 @@
-"""Demo cases for problem 3"""
+"""Test cases for problem 3"""
 
 import unittest
 from submission import check_palindrome
 from decorators import weight
+
 
 class Test(unittest.TestCase):
     @weight(1)
