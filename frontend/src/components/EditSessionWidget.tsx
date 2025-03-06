@@ -78,7 +78,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <PencilLine className="cursor-pointer" />
+        <PencilLine className="hover:text-[#b1b1b1] cursor-pointer transition-colors" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

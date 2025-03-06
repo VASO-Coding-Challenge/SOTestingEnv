@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -240,15 +240,11 @@ export default function Scheduling() {
       }
 
       console.log("Session deleted successfully");
-      void fetchSessions(); // Refresh sessions list
+      void fetchTeams();
+      void fetchSessions();
     } catch (error) {
       console.error("Error deleting session:", error);
     }
-  };
-
-  const handleGetTeamForSession = () => {
-    // Fetch the team data for a session
-    console.log("Fetching team data for a session");
   };
 
   // Form Input Handlers
@@ -268,16 +264,16 @@ export default function Scheduling() {
     setEndTime(e.target.value);
   };
 
-  const handleAddTeam = (teamId: number) => {
-    const team = teams.find((t) => t.id === teamId);
-    if (team && !selectedTeams.some((t) => t.id === team.id)) {
-      setSelectedTeams([...selectedTeams, team]);
-    }
-  };
+  // const handleAddTeam = (teamId: number) => {
+  //   const team = teams.find((t) => t.id === teamId);
+  //   if (team && !selectedTeams.some((t) => t.id === team.id)) {
+  //     setSelectedTeams([...selectedTeams, team]);
+  //   }
+  // };
 
-  const handleRemoveTeam = (teamId: number) => {
-    setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
-  };
+  // const handleRemoveTeam = (teamId: number) => {
+  //   setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
+  // };
 
   const handleSubmit = async () => {
     if (!sessionName || !sessionDate || !startTime || !endTime) {
@@ -293,7 +289,6 @@ export default function Scheduling() {
       start_time: startDateTime,
       end_time: endDateTime,
       id: 0,
-      // teams: selectedTeams.map((team) => team.id),
     };
 
     try {
@@ -371,8 +366,7 @@ export default function Scheduling() {
                         }}
                       />
                       <Trash2
-                        color="#FE7A7A"
-                        className="cursor-pointer"
+                        className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors"
                         onClick={() =>
                           handleDeleteSession(session.id.toString())
                         }
@@ -465,10 +459,9 @@ export default function Scheduling() {
             </div>
             <Separator />
           </CardContent>
-          <CardContent className="flex flex-col gap-4">
+          {/* <CardContent className="flex flex-col gap-4">
             <CardTitle>Team Selection</CardTitle>
             <div className="flex flex-row gap-2">
-              {/* TODO: Ask if teams can be applied to more than one session */}
               {selectedTeams.length > 0 &&
                 selectedTeams.map((team) => (
                   <Badge
@@ -489,7 +482,6 @@ export default function Scheduling() {
               )}
             </div>
             <div className="flex flex-row items-center">
-              {/* TODO: Could be improved to be more efficient */}
               <Select
                 onValueChange={(value) => setSelectedTeamId(Number(value))}
                 value={selectedTeamId?.toString() || ""}
@@ -518,7 +510,7 @@ export default function Scheduling() {
               </Button>
             </div>
             <Separator />
-          </CardContent>
+          </CardContent> */}
           <CardFooter>
             <Button
               onClick={() => {
