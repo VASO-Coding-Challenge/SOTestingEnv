@@ -8,7 +8,6 @@ import polars as pl
 import datetime as dt
 import random
 
-
 from ..models import TeamData, Team, Word
 from .team import TeamService
 

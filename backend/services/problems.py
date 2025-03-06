@@ -22,7 +22,6 @@ class ProblemService:
     def get_problems_list() -> List[int]:
         """Retrieve all available problem numbers."""
         try:
-            # Return empty list when no problems exist instead of raising an exception
             if not os.path.exists(ProblemService.QUESTIONS_DIR):
                 return []
 
@@ -33,13 +32,13 @@ class ProblemService:
                     if f.startswith("q") and f[1:].isdigit()
                 ]
             )
-            return problems  # Return empty list if no problems found
+            return problems
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Error fetching problems: {str(e)}"
             )
 
-    @staticmethod  # I made these methods static because we don't need to store any instance-specific state (self)
+    @staticmethod
     def get_question_path(q_num: int, filename: str) -> str:
         """Get the full file path for a given problem and filename."""
         return os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}", filename)
@@ -107,7 +106,6 @@ class ProblemService:
             problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_count}")
             os.makedirs(problem_path, exist_ok=True)
 
-            # Default content for each file
             default_prompt = "Complete the `first_five` function by returning the first five characters of `string_input`."
 
             default_starter = dedent(
@@ -144,7 +142,6 @@ class ProblemService:
             """
             )
 
-            # Write default content to files
             ProblemService.write_file(q_count, "prompt.md", default_prompt)
             ProblemService.write_file(q_count, "starter.py", default_starter)
             ProblemService.write_file(q_count, "test_cases.py", default_test_cases)
@@ -207,7 +204,6 @@ class ProblemService:
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
 
         try:
-            # Remove the specified problem directory
             shutil.rmtree(problem_path)
 
             # Get remaining problems and sort them

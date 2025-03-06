@@ -41,13 +41,17 @@
 
 # # TEST ROUTE: http://localhost:4402/docs/questions/2/q2
 
+
 from fastapi import APIRouter, File, UploadFile, Form, Body, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import Dict, List, Optional
 from io import StringIO
 
-from models.question import Document
-from services.docs import DocsService
+from ..models.question import Document
+from ..services.docs import DocsService
+
+
+__authors__ = ["Michelle Nguyen"]
+
 
 api = APIRouter(prefix="/docs")
 
@@ -60,7 +64,7 @@ openapi_tags = {
 @api.get("/", response_model=List[Document], tags=["Docs"])
 async def get_all_documents():
     """Get all global documents."""
-    return DocsService.get_documents()
+    return DocsService.get_all_documents()
 
 
 @api.get("/{title}", response_model=Document, tags=["Docs"])
@@ -70,7 +74,7 @@ async def get_document(title: str):
 
 
 @api.post("/", response_model=Document, tags=["Docs"])
-async def upload_document_json(document: DocumentUpload):
+async def upload_document_json(document: Document):
     """Upload a document using JSON request body."""
     return DocsService.upload_document(document.content, document.title)
 
@@ -107,3 +111,16 @@ async def upload_document_form(
 async def delete_document(title: str):
     """Delete a global document."""
     return DocsService.delete_document(title)
+
+
+@api.delete("/{title}", tags=["Docs"])
+async def delete_document(title: str):
+    """Delete a global document."""
+    return DocsService.delete_document(title)
+
+
+@api.delete("/", response_model=Dict[str, int], tags=["Docs"])
+async def delete_all_documents():
+    """Delete all global documents."""
+    count = DocsService.delete_all_documents()
+    return {"successfully deleted": count}

@@ -13,9 +13,7 @@ __authors__ = ["Michelle Nguyen"]
 def test_get_problems_list(setup_problem_data):
     """Test retrieving the list of problems."""
     test_env = setup_problem_data()
-    ProblemService.QUESTIONS_DIR = str(
-        test_env / "es_files" / "questions"
-    )  # overrides real path to temp test path for testing
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
 
     problems = ProblemService.get_problems_list()
     assert len(problems) == 2
@@ -59,7 +57,6 @@ def test_write_file(setup_problem_data):
 
     ProblemService.write_file(1, "new_file.txt", "Test content")
 
-    # Verify the file was written
     path = ProblemService.get_question_path(1, "new_file.txt")
     assert os.path.exists(path)
     with open(path, "r") as f:
@@ -131,14 +128,11 @@ def test_delete_problem(setup_problem_data):
     test_env = setup_problem_data()
     ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
 
-    # Delete problem 1
     ProblemService.delete_problem(1)
 
-    # Check remaining problems
     problems = ProblemService.get_problems_list()
     assert len(problems) == 1
-    assert problems == [1]  # Renumbered from original q2
+    assert problems == [1]
 
-    # Verify the remaining problem's content is now from the original q2
     problem = ProblemService.get_problem(1)
     assert problem.prompt == "Prompt for problem 2"
