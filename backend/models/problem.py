@@ -6,7 +6,7 @@ from .question import Document
 __authors__ = ["Michelle Nguyen"]
 
 
-class ProblemResponse(SQLModel):
+class Problem(SQLModel):
     """Model for managing problems."""
 
     num: int
@@ -14,4 +14,3 @@ class ProblemResponse(SQLModel):
     starter_code: str
     test_cases: str
     demo_cases: str
-    docs: List[Document]
