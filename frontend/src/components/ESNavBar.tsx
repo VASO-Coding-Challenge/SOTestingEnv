@@ -61,7 +61,7 @@ export default function ESNavBar() {
 
   return (
     <SidebarContainer>
-      <div>Image</div>
+      <img className="p-4" src="/SO.png" alt="Image" />
 
       <TabsContainer>
         <Tabs

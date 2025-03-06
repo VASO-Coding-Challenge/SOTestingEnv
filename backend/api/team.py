@@ -20,6 +20,12 @@ def get_team(team: Team = Depends(authed_team)) -> TeamPublic:
     return team
 
 
+@api.get("/all", response_model=list[TeamPublic], tags=["Teams"])
+def get_all_teams(team_svc: TeamService = Depends()):
+    """Gets all the teams"""
+    return team_svc.get_all_teams()
+
+
 @api.get("/members", response_model=list[TeamMemberPublic], tags=["Teams"])
 def get_team_members(team: Team = Depends(authed_team)):
     """Gets all the team members for a team"""
