@@ -63,17 +63,6 @@ def test_write_file(setup_problem_data):
         assert f.read() == "Test content"
 
 
-def test_load_docs(setup_problem_data):
-    """Test loading documentation files for a problem."""
-    test_env = setup_problem_data()
-    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
-
-    docs = ProblemService.load_docs(1)
-    assert len(docs) == 1
-    assert docs[0].title == "example"
-    assert docs[0].content == "Documentation for problem 1"
-
-
 def test_get_problem(setup_problem_data):
     """Test retrieving full problem details."""
     test_env = setup_problem_data()
@@ -85,7 +74,6 @@ def test_get_problem(setup_problem_data):
     assert problem.starter_code == "# Starter code for problem 1"
     assert problem.test_cases == "# Test cases for problem 1"
     assert problem.demo_cases == "# Demo cases for problem 1"
-    assert len(problem.docs) == 1
 
 
 def test_create_problem(setup_problem_data):

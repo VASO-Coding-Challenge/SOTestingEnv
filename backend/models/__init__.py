@@ -21,4 +21,4 @@ from .word import Word
 from .question import Document, Question, QuestionsPublic
 from .submission import Submission, ConsoleLog, ScoredTest
 from .session_obj import Session_Obj, SessionPublic
-from .problem import ProblemResponse
+from .problem import Problem

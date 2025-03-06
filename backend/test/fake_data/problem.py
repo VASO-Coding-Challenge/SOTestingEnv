@@ -38,11 +38,6 @@ def setup_problem_data():
                 f"# Demo cases for problem {q_num}"
             )
 
-            # Create a documentation file
-            (problem_dir / "doc_example.md").write_text(
-                f"Documentation for problem {q_num}"
-            )
-
         return temp_dir
 
     return create_problem_environment

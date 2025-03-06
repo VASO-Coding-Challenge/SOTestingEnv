@@ -3,7 +3,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Body
 from ..services.problems import ProblemService
-from ..models import ProblemResponse
+from ..models import Problem
 
 __authors__ = ["Michelle Nguyen"]
 
@@ -21,14 +21,14 @@ def get_problems_list():
     return ProblemService.get_problems_list()
 
 
-@api.get("/all", response_model=List[ProblemResponse], tags=["Problems"])
+@api.get("/all", response_model=List[Problem], tags=["Problems"])
 def get_all_problem_details():
     """Retrieve all problems and their files/contents."""
     problem_ids = ProblemService.get_problems_list()
     return [ProblemService.get_problem(q_num) for q_num in problem_ids]
 
 
-@api.get("/{q_num}", response_model=ProblemResponse, tags=["Problems"])
+@api.get("/{q_num}", response_model=Problem, tags=["Problems"])
 def get_problem_details(q_num: int):
     """Retrieve a specific problem's files/contents"""
     return ProblemService.get_problem(q_num)
