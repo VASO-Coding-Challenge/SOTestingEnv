@@ -113,7 +113,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
         </div>
         <div className="flex flex-col gap-4">
           <DialogTitle>Team Selection</DialogTitle>
-          <div className="flex flex-row gap-2 flex-wrap">
+          <div className="flex flex-row flex-wrap gap-2 flex-wrap">
             {selectedTeams.map((team) => (
               <Badge
                 key={team.id}
@@ -153,7 +153,11 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
           <Separator />
         </div>
         <DialogFooter>
-          <Button variant="secondary" type="button">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => setOpen(false)}
+          >
             Cancel
           </Button>
           <Button type="button" onClick={handleSave}>

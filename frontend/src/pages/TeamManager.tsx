@@ -4,6 +4,9 @@ import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
+import CreateTeamWidget from "@/components/CreateTeamWidget";
+import EditTeamWidget from "@/components/EditTeamWidget";
+
 import {
   Card,
   CardContent,
@@ -14,13 +17,19 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-import { PencilLine, Trashs, Download, Plus } from "lucide-react";
-
+import { PencilLine, Trash2, Download } from "lucide-react";
 
 const LayoutContainer = styled("div")({
-  display: "flex", 
+  display: "flex",
   height: "100vh",
   width: "100vw",
   overflow: "hidden",
@@ -36,7 +45,7 @@ export default function TeamManager() {
 
   const getUserRole = (token: string): boolean => {
     try {
-      const decoded = jwtDecode<DecodedToken>(token); // Explicitly type the decoded token
+      const decoded = jwtDecode<DecodedToken>(token);
       return decoded.is_admin;
     } catch (error) {
       console.error("Invalid token:", error);
@@ -60,19 +69,19 @@ export default function TeamManager() {
     if (!isAdmin) {
       console.error("User is not an admin");
       localStorage.removeItem("token");
-      navigate("/login"); 
+      navigate("/login");
     }
-    fetchTeams();
+    void fetchTeams();
   }, [navigate]);
 
-  const fetchTeams = async() => {
+  const fetchTeams = async () => {
     try {
-      const response = await fetch("/api/teams", {
+      const response = await fetch("/api/team/all", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-        }
+        },
       });
 
       if (!response.ok) {
@@ -86,31 +95,47 @@ export default function TeamManager() {
     } catch (error) {
       console.error("Error fetching teams:", error);
     }
-  }
+  };
 
   const handleEdit = (teamId: number) => {
     // Handle edit team
     console.log("Edit team:", teamId);
   };
 
-  const handleDelete = (teamId: number) => {
-    // Handle delete team
-    console.log("Delete team:", teamId);
-  };
-  const handleCreate = () => {
-    // Handle delete team
-    console.log("Create team:");
-  };
-  const handleDownload = () => {
-    // Handle delete team
-    console.log("Create team:");
+  const handleDelete = async (teamId: number) => {
+    try {
+      const response = await fetch(`/api/team/${teamId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete team");
+      }
+
+      console.log("Team deleted successfully");
+      await fetchTeams();
+    } catch (error) {
+      console.error("Error deleting team:", error);
+    }
   };
 
+  const handleCreate = () => {
+    void fetchTeams();
+  };
+
+  const handleDownload = () => {
+    // Handle delete team
+    console.log("Download");
+  };
 
   return (
     <LayoutContainer>
       <ESNavBar />
-      
+
       {/* Main Content */}
       <main className="flex-1 flex flex-col gap-4 p-4 overflow-y-hidden">
         {/* Team Management Card */}
@@ -120,7 +145,7 @@ export default function TeamManager() {
             <CardDescription>Manage all competition teams</CardDescription>
             <Separator />
           </CardHeader>
-          
+
           <CardContent className="flex-1 overflow-y-auto pb-4">
             <Table>
               <TableHeader>
@@ -137,22 +162,22 @@ export default function TeamManager() {
                   <TableRow key={team.id}>
                     <TableCell className="font-medium">{team.name}</TableCell>
                     <TableCell>{team.password}</TableCell>
-                    <TableCell>{team.members.join(", ")}</TableCell>
+                    <TableCell>TODO</TableCell>
                     <TableCell>{team.score}</TableCell>
                     <TableCell className="flex gap-2 justify-end">
-                      <Button 
-                        size="icon" 
+                      <Button
+                        size="icon"
                         variant="ghost"
                         onClick={() => handleEdit(team.id)}
                       >
-                        <Pencil className="w-4 h-4" />
+                        <PencilLine className="w-4 h-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => handleDelete(team.id)}
                       >
-                        <Trash className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
+                        <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -160,12 +185,10 @@ export default function TeamManager() {
               </TableBody>
             </Table>
           </CardContent>
-          
+
           <CardFooter className="flex justify-between pt-4">
-            <Button onClick={handleCreate}>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Team
-            </Button>
+            <CreateTeamWidget teams={teams} onCreate={handleCreate} />
+
             <Button variant="secondary" onClick={handleDownload}>
               <Download className="w-4 h-4 mr-2" />
               Download Scores
@@ -180,8 +203,7 @@ export default function TeamManager() {
             <CardDescription>Team submission history</CardDescription>
             <Separator />
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-          </CardContent>
+          <CardContent className="flex-1 overflow-y-auto"></CardContent>
         </Card>
       </main>
     </LayoutContainer>

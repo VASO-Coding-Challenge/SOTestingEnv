@@ -387,7 +387,7 @@ export default function Scheduling() {
                   </CardContent>
                   <CardContent>
                     <CardTitle>Teams</CardTitle>
-                    <div className="flex flex-row gap-2 pt-2">
+                    <div className="flex flex-row flex-wrap gap-2 pt-2">
                       {teams
                         .filter((team) => team.session_id === session.id)
                         .map((team) => (
