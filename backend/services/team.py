@@ -33,9 +33,11 @@ class TeamService:
     """Service that preforms actions on Team Table."""
 
     def __init__(
-        self, session: Session = Depends(db_session)
-    ):  # Add all dependencies via FastAPI injection in the constructor
+        self, session: Session = Depends(db_session),
+    ):  
         self._session = session
+
+
 
     def df_row_to_team(self, team_df: pl.DataFrame) -> TeamData:
         """Converts a DataFrame row to a Team object.
@@ -127,6 +129,7 @@ class TeamService:
         else:
             raise ResourceNotFoundException("Team", team.name)
 
+
     def create_team(self, team: Team | TeamData) -> Team:
         """Create a new team in the database.
         Args:
@@ -140,48 +143,50 @@ class TeamService:
             if not password or password.strip() == "" or password == "string":
                 password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             
-        # Create the team with the password
+            # Create the team with the password and explicitly set session_id to None
             team = Team(
                 name=team.name,
                 password=password,
                 start_time=team.start_time,
                 end_time=team.end_time,
-                session_id=team.session_id,
+                session_id=None,  # Always set to None when creating
             )
+        else:
+            # If a Team object was provided, explicitly set session_id to None
+            team.session_id = None
+            
         self._session.add(team)
         self._session.commit()
         return team
-    
-    def create_batch_teams(self, count: int, team_template: TeamData) -> List[Team]:
-        """Create multiple teams based on a template.
+
+
+    def create_batch_teams(self, team_names: List[str], team_template: TeamData) -> List[Team]:
+        """Create multiple teams based on a template and provided names.
+        
         Args:
-            count (int): Number of teams to create
+            team_names (List[str]): List of team names to create
             team_template (TeamData): Template for team data
+            
         Returns:
             List[Team]: List of created teams
         """
         created_teams = []
         
         # Base template data
-        base_name = team_template.name
-        session_id = team_template.session_id
         start_time = team_template.start_time
         end_time = team_template.end_time
         
-        for i in range(1, count + 1):
-            # Generate unique name by appending index
-            team_name = f"{base_name}_{i}"
-            
+        for team_name in team_names:
             # Generate random password (8 characters)
             password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             
-            # Create new team
+            # Create new team with session_id explicitly set to None
             new_team = Team(
                 name=team_name,
                 password=password,
                 start_time=start_time,
                 end_time=end_time,
-                session_id=session_id
+                session_id=None  # Always set to None when creating
             )
             
             self._session.add(new_team)
@@ -194,6 +199,7 @@ class TeamService:
             self._session.refresh(team)
             
         return created_teams
+
 
     def get_team(self, identifier) -> Team:
         """Gets the team by id (int) or name (str)"""

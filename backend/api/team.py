@@ -21,9 +21,23 @@ def get_team(team: Team = Depends(authed_team)) -> TeamPublic:
 
 
 @api.get("/members", response_model=list[TeamMemberPublic], tags=["Teams"])
-def get_team_members(team: Team = Depends(authed_team)):
-    """Gets all the team members for a team"""
-    return team.members
+def get_team_members(
+    team_id: int = None,
+    team: Team = Depends(authed_team),
+    team_svc: TeamService = Depends(),
+):
+    """
+    Gets all the team members for a team
+    If team_id is provided, returns members for that specific team
+    Otherwise, returns members for the currently authenticated team
+    """
+    if team_id:
+        # If a specific team ID is requested, get that team
+        requested_team = team_svc.get_team(team_id)
+        return requested_team.members
+    else:
+        # Otherwise return the current authenticated team's members
+        return team.members
 
 
 @api.post("/members", response_model=TeamMemberPublic, tags=["Teams"])
@@ -61,17 +75,17 @@ def create_team(
     return team_svc.create_team(team_data)
 
 
-@api.post("/batch/{count}", response_model=list[TeamPublic], tags=["Teams"])
+@api.post("/batch", response_model=list[TeamPublic], tags=["Teams"])
 def create_batch_teams(
-    count: int, team_template: TeamData, team_svc: TeamService = Depends()
+    team_names: List[str], team_template: TeamData, team_svc: TeamService = Depends()
 ) -> list[TeamPublic]:
-    """Create multiple teams at once based on a template
+    """Create multiple teams at once based on a template and provided names
     
     Args:
-        count: Number of teams to create
-        team_template: Template for the teams with base name, password, etc.
+        team_names: List of team names to create
+        team_template: Template for the teams with password, times, etc.
     """
-    return team_svc.create_batch_teams(count, team_template)
+    return team_svc.create_batch_teams(team_names, team_template)
 
 
 @api.delete("/{team_id}", tags=["Teams"])
