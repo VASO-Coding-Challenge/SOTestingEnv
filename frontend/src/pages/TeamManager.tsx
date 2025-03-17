@@ -42,6 +42,13 @@ interface DecodedToken {
 export default function TeamManager() {
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
+  const [scores, setScores] = useState<
+    Array<{
+      "Team Number": string;
+      Score: string;
+      "Max Score": string;
+    }>
+  >([]);
 
   const getUserRole = (token: string): boolean => {
     try {
@@ -72,6 +79,7 @@ export default function TeamManager() {
       navigate("/login");
     }
     void fetchTeams();
+    void fetchScores();
   }, [navigate]);
 
   const fetchTeams = async () => {
@@ -94,6 +102,23 @@ export default function TeamManager() {
       console.log("Teams:", data);
     } catch (error) {
       console.error("Error fetching teams:", error);
+    }
+  };
+
+  const fetchScores = async () => {
+    try {
+      const response = await fetch("/api/score", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch scores");
+
+      const data = await response.json();
+      setScores(data);
+    } catch (error) {
+      console.error("Error fetching scores:", error);
     }
   };
 
@@ -127,9 +152,35 @@ export default function TeamManager() {
     void fetchTeams();
   };
 
-  const handleDownload = () => {
-    // Handle delete team
-    console.log("Download");
+  const handleDownload = async () => {
+    try {
+      await fetch("/api/score", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const response = await fetch("/api/score/download", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to download file");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "scores.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      await fetchScores();
+    } catch (error) {
+      console.error("Download error:", error);
+    }
   };
 
   return (
@@ -139,7 +190,7 @@ export default function TeamManager() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col gap-4 p-4 overflow-y-hidden">
         {/* Team Management Card */}
-        <Card className="w-full flex flex-col">
+        <Card className="max-h-md w-full flex flex-col h-[calc(100vh-26rem)]">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Team Management</CardTitle>
             <CardDescription>Manage all competition teams</CardDescription>
@@ -163,7 +214,18 @@ export default function TeamManager() {
                     <TableCell className="font-medium">{team.name}</TableCell>
                     <TableCell>{team.password}</TableCell>
                     <TableCell>TODO</TableCell>
-                    <TableCell>{team.score}</TableCell>
+                    <TableCell>
+                      {scores.find((s) => s["Team Number"] === team.name)
+                        ? `${
+                            scores.find((s) => s["Team Number"] === team.name)
+                              ?.Score
+                          } / ${
+                            scores.find(
+                              (s) => s["Team Number"] === team.name
+                            )?.["Max Score"]
+                          }`
+                        : "N/A"}
+                    </TableCell>
                     <TableCell className="flex gap-2 justify-end">
                       <Button
                         size="icon"
@@ -203,7 +265,9 @@ export default function TeamManager() {
             <CardDescription>Team submission history</CardDescription>
             <Separator />
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto"></CardContent>
+          <CardContent className="flex-1 overflow-y-auto">
+            <CardTitle>Get Submissions</CardTitle>
+          </CardContent>
         </Card>
       </main>
     </LayoutContainer>
