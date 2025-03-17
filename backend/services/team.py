@@ -1,11 +1,15 @@
 """Service to handle the Teams feature"""
 
 from typing import List
+
+from backend.models.session_obj import Session_Obj
 from ..db import db_session
 from fastapi import Depends
 from sqlmodel import Session, select, and_, delete
 import polars as pl
 import datetime as dt
+import random
+import string
 
 from .exceptions import (
     ResourceNotFoundException,
@@ -14,8 +18,10 @@ from .exceptions import (
 )
 
 from ..models import Team, TeamData, TeamMember, TeamMemberCreate
+from ..models.team import TeamPublic
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu"]
+
+__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu", "Tsering Lama"]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -46,6 +52,7 @@ class TeamService:
                     team_df["Start Time"], "%m/%d/%Y %H:%M"
                 ),
                 end_time=dt.datetime.strptime(team_df["End Time"], "%m/%d/%Y %H:%M"),
+                session_id=team_df.get("Session ID"),  # necessary?
             )
         except ValueError:
             raise ValueError(f"ValueError while processing {team_df}")
@@ -78,6 +85,8 @@ class TeamService:
                 "Team Number": [team.name],
                 "Password": [team.password],
                 "Session ID": [team.session_id],
+                "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M") if team.start_time else ""],
+                "End Time": [team.end_time.strftime("%m/%d/%Y %H:%M") if team.end_time else ""]
             }
         )
         return team_df
@@ -111,6 +120,7 @@ class TeamService:
             existing_team.password = team.password
             existing_team.start_time = team.start_time
             existing_team.end_time = team.end_time
+            existing_team.session_id = team.session_id  # update session assignment
             self._session.add(existing_team)
             self._session.commit()
             return existing_team
@@ -125,15 +135,65 @@ class TeamService:
             Team: Created Team object
         """
         if isinstance(team, TeamData):
+            # Generate a random password if one isn't provided or if it's empty
+            password = team.password
+            if not password or password.strip() == "" or password == "string":
+                password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            
+        # Create the team with the password
             team = Team(
                 name=team.name,
-                password=team.password,
+                password=password,
                 start_time=team.start_time,
                 end_time=team.end_time,
+                session_id=team.session_id,
             )
         self._session.add(team)
         self._session.commit()
         return team
+    
+    def create_batch_teams(self, count: int, team_template: TeamData) -> List[Team]:
+        """Create multiple teams based on a template.
+        Args:
+            count (int): Number of teams to create
+            team_template (TeamData): Template for team data
+        Returns:
+            List[Team]: List of created teams
+        """
+        created_teams = []
+        
+        # Base template data
+        base_name = team_template.name
+        session_id = team_template.session_id
+        start_time = team_template.start_time
+        end_time = team_template.end_time
+        
+        for i in range(1, count + 1):
+            # Generate unique name by appending index
+            team_name = f"{base_name}_{i}"
+            
+            # Generate random password (8 characters)
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            
+            # Create new team
+            new_team = Team(
+                name=team_name,
+                password=password,
+                start_time=start_time,
+                end_time=end_time,
+                session_id=session_id
+            )
+            
+            self._session.add(new_team)
+            created_teams.append(new_team)
+        
+        self._session.commit()
+        
+        # Refresh all teams to get their IDs
+        for team in created_teams:
+            self._session.refresh(team)
+            
+        return created_teams
 
     def get_team(self, identifier) -> Team:
         """Gets the team by id (int) or name (str)"""
@@ -157,7 +217,11 @@ class TeamService:
         return team
 
     def get_all_teams(self) -> List[Team]:
-        """Gets a list of all the teams"""
+        """Gets a list of all the teams
+        
+        Returns:
+            List[Team]: List of all teams
+        """
         teams = self._session.exec(select(Team)).all()
         return teams
 
@@ -171,15 +235,50 @@ class TeamService:
         return team
 
     def delete_all_teams(self):
-        """Deletes all teams"""
-        self._session.exec(delete(Team))
+        """Deletes all teams and their members
+        
+        Returns:
+            bool: True if operation successful
+        """
+        # First delete all team members
         self._session.exec(delete(TeamMember))
+        # Then delete all teams
+        self._session.exec(delete(Team))
+        self._session.commit()
+        return True
+    
+    def delete_team_by_id(self, team_id: int) -> bool:
+        """Deletes a team by its ID
+        
+        Args:
+            team_id (int): ID of the team to delete
+            
+        Returns:
+            bool: True if team was deleted, False if team wasn't found
+            
+        Note: This will also delete all associated team members
+        """
+        # Find the team
+        team = self._session.get(Team, team_id)
+        if not team:
+            return False
+            
+        # Delete all members of this team
+        self._session.exec(delete(TeamMember).where(TeamMember.team_id == team_id))
+        
+        # Delete the team
+        self._session.delete(team)
         self._session.commit()
         return True
 
     def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
         team = self.get_team(team.name)
+        
+        # First delete team members
+        for member in team.members:
+            self._session.delete(member)
+        
         self._session.delete(team)
         self._session.commit()
         return True
@@ -224,3 +323,18 @@ class TeamService:
             )
         self._session.delete(member)
         self._session.commit()
+
+    def get_team_session(self, team_id: int) -> Session_Obj | None:
+        """Get the session a team belongs to.
+
+        Args:
+            team_id (int): ID of the team
+        Returns:
+            Session_Obj | None: The session the team belongs to, or None
+        Raises:
+            ResourceNotFoundException: If team not found
+        """
+        team = self._session.get(Team, team_id)
+        if not team:
+            raise ResourceNotFoundException("Team", team_id)
+        return team.session

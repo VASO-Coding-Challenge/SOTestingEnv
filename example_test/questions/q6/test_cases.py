@@ -1,13 +1,15 @@
-"""Demo Cases for problem 6"""
+"""Test Cases for problem 6"""
 
 import unittest
 from submission import fifth_node
 from decorators import weight
 
+
 class Node:
     def __init__(self, val):
         self.next = None
         self.value = val
+
 
 class List:
     def __init__(self):
@@ -24,7 +26,8 @@ class List:
             while node.next != None:
                 node = node.next
             node.next = Node(val)
-        
+
+
 class Test(unittest.TestCase):
     @weight(3)
     def test_fifth_node1(self):
