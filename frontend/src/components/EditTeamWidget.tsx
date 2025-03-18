@@ -14,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PencilLine } from "lucide-react";
 
 const EditTeamWidget = ({ teams, onSave }) => {
+  const [open, setOpen] = useState(false);
+
   return <></>;
 };
 

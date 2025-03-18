@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import CounterInput from "@/components/ui/counter-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -48,13 +47,24 @@ const CreateTeamWidget = ({ teams = [], onCreate }: CreateTeamWidgetProps) => {
 
   const handleCreate = async () => {
     try {
-      const response = await fetch("/api/teams/PLACEHOLDER", {
+      const now = new Date().toISOString();
+      const requestBody = {
+        team_names: teamNames,
+        team_template: {
+          name: "string",
+          session_id: 0,
+          password: "string",
+          start_time: now,
+          end_time: now,
+        },
+      };
+      const response = await fetch("/api/team/batch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        // body: JSON.stringify({teamNames}),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
