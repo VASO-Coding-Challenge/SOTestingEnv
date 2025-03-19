@@ -1,8 +1,8 @@
 """File to contain all Problem manipulation related tests"""
 
 import os
-from fastapi import HTTPException
 import pytest
+from fastapi import HTTPException
 from ..services import ProblemService
 from ..test.fake_data.problem import setup_problem_data
 
