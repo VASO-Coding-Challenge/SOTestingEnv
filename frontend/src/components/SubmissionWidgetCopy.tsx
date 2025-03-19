@@ -37,7 +37,11 @@ const SubmissionWidgetCopy: React.FC<SubmissionWidgetProps> = ({
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
     sessionStorage.getItem(`question_1`) ||
-      question.starter_code 
+      question.demo_test_case_code 
+  );
+  const [code2, setCode2] = useState<string>(
+    sessionStorage.getItem(`question_1`) ||
+      question.test_case_code 
   );
 
   const [submissionResponse, setSubmissionResponse] = useState<string>(
@@ -146,13 +150,26 @@ const SubmissionWidgetCopy: React.FC<SubmissionWidgetProps> = ({
               paddingTop: "50px",
             }}
           >
-            <p>demo test case</p>
+            <p>demo test cases</p>
             <Editor
               height="100%"
               defaultLanguage="python"
               value={code}
               theme="vs-light"
               onChange={(value) => setCode(value || "")}
+              options={{
+                fontSize: 14,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+              }}
+            />
+            <p>test cases</p>
+            <Editor
+              height="100%"
+              defaultLanguage="python"
+              value={code2}
+              theme="vs-light"
+              onChange={(value) => setCode2(value || "")}
               options={{
                 fontSize: 14,
                 minimap: { enabled: false },
