@@ -350,7 +350,7 @@ class SubmissionService:
         if not problem_numbers:
             return "No problems found in the system."
 
-        deleted_count = 0  # Track the number of deleted submissions
+        deleted_count = 0
 
         for p_num in problem_numbers:
             problem_dir = os.path.join(submissions_dir, f"q{p_num}")
@@ -361,7 +361,6 @@ class SubmissionService:
                     os.remove(submission_path)
                     deleted_count += 1
 
-                    # Optionally, remove the problem directory if it's empty
                     if not os.listdir(problem_dir):
                         os.rmdir(problem_dir)
 
