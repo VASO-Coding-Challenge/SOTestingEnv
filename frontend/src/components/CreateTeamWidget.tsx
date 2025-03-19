@@ -35,6 +35,12 @@ const CreateTeamWidget = ({ teams = [], onCreate }: CreateTeamWidgetProps) => {
   const [teamNames, setTeamNames] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!open) {
+      setDivision("B");
+      setRangeStart(1);
+      setRangeEnd(1);
+      setTeamNames([]);
+    }
     if (rangeStart > rangeEnd) {
       setTeamNames([]);
     }
@@ -43,7 +49,7 @@ const CreateTeamWidget = ({ teams = [], onCreate }: CreateTeamWidgetProps) => {
       (_, i) => `${division}${rangeStart + i}`
     );
     setTeamNames(names);
-  }, [rangeStart, rangeEnd, division]);
+  }, [rangeStart, rangeEnd, division, open]);
 
   const handleCreate = async () => {
     try {

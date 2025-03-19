@@ -11,14 +11,14 @@ __authors__ = [
     "Andrew Lockard",
     "Ivan Wu",
     "Michelle Nguyen",
-    "Tsering Lama"
+    "Tsering Lama",
 ]
 
 
 class TeamBase(SQLModel):
     """Base model for Team table, this model should not be exported"""
 
-    name: str
+    name: str = Field(unique=True)
     session_id: Optional[int] = Field(foreign_key="session_obj.id", nullable=True)
 
 
