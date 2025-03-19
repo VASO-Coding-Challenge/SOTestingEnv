@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import CreateTeamWidget from "@/components/CreateTeamWidget";
 import EditTeamWidget from "@/components/EditTeamWidget";
+import GetTeamSubmissionWidget from "@/components/GetSubmissionWidget";
 
 import {
   Card,
@@ -42,6 +43,9 @@ interface DecodedToken {
 export default function TeamManager() {
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
+  const [teamMembers, setTeamMembers] = useState<{ [key: number]: string[] }>(
+    {}
+  );
   const [scores, setScores] = useState<
     Array<{
       "Team Number": string;
@@ -99,9 +103,43 @@ export default function TeamManager() {
 
       const data = await response.json();
       setTeams(data);
+
+      data.forEach((team: { id: number }) => {
+        void fetchTeamMembers(team.id);
+      });
+
       console.log("Teams:", data);
     } catch (error) {
       console.error("Error fetching teams:", error);
+    }
+  };
+
+  const fetchTeamMembers = async (teamId: number) => {
+    try {
+      const response = await fetch(`/api/team/members?team_id=${teamId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`Failed to fetch members for team ${teamId}`);
+        return;
+      }
+
+      const data = await response.json();
+      setTeamMembers((prev) => ({
+        ...prev,
+        [teamId]: data.map(
+          (m: { first_name: string; last_name: string }) =>
+            `${m.first_name} ${m.last_name}`
+        ),
+      }));
+      console.log(`Team ${teamId} members:`, data);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
     }
   };
 
@@ -202,7 +240,7 @@ export default function TeamManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[200px]">Team Name</TableHead>
-                  <TableHead>Password</TableHead>
+                  {/* <TableHead>Password</TableHead> */}
                   <TableHead>Members</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -212,8 +250,12 @@ export default function TeamManager() {
                 {teams.map((team) => (
                   <TableRow key={team.id}>
                     <TableCell className="font-medium">{team.name}</TableCell>
-                    <TableCell>{team.password}</TableCell>
-                    <TableCell>TODO</TableCell>
+                    {/* <TableCell>{team.password}</TableCell> */}
+                    <TableCell>
+                      {teamMembers[team.id]?.length
+                        ? teamMembers[team.id].join(", ")
+                        : "No members"}
+                    </TableCell>
                     <TableCell>
                       {scores.find((s) => s["Team Number"] === team.name)
                         ? `${
@@ -227,13 +269,7 @@ export default function TeamManager() {
                         : "N/A"}
                     </TableCell>
                     <TableCell className="flex gap-2 justify-end">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleEdit(team.id)}
-                      >
-                        <PencilLine className="w-4 h-4" />
-                      </Button>
+                      <EditTeamWidget team={team} onSave={handleEdit} />
                       <Button
                         size="icon"
                         variant="ghost"
@@ -259,16 +295,7 @@ export default function TeamManager() {
         </Card>
 
         {/* Submissions Card */}
-        <Card className="w-fit min-w-[300px] flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Submissions</CardTitle>
-            <CardDescription>Team submission history</CardDescription>
-            <Separator />
-          </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto">
-            <CardTitle>Get Submissions</CardTitle>
-          </CardContent>
-        </Card>
+        <GetTeamSubmissionWidget />
       </main>
     </LayoutContainer>
   );
