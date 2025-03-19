@@ -17,6 +17,12 @@ openapi_tags = {
 api = APIRouter(prefix="/api/submissions")
 
 
+@api.get("/all", response_model=Dict[str, Dict[int, str]], tags=["Submissions"])
+def get_all_submissions():
+    """Get all teams' submissions across all problems."""
+    return SubmissionService.get_all_submissions()
+
+
 @api.get("/team/{team_name}", response_model=Dict[int, str], tags=["Submissions"])
 def get_team_submissions(team_name: str):
     """Get a specific team's submissions across all problems."""
@@ -24,12 +30,6 @@ def get_team_submissions(team_name: str):
         return SubmissionService.get_team_submissions(team_name)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-@api.get("/all", response_model=Dict[str, Dict[int, str]], tags=["Submissions"])
-def get_all_submissions():
-    """Get all teams' submissions across all problems."""
-    return SubmissionService.get_all_submissions()
 
 
 @api.get("/team/{team_name}/problem/{p_num}", response_model=str, tags=["Submissions"])
