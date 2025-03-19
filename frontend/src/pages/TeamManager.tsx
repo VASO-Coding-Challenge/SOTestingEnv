@@ -228,7 +228,7 @@ export default function TeamManager() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col gap-4 p-4 overflow-y-hidden">
         {/* Team Management Card */}
-        <Card className="max-h-md w-full flex flex-col h-[calc(100vh-26rem)]">
+        <Card className="w-full flex flex-col max-h-[calc(100vh_-_24rem)] overflow-hidden">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Team Management</CardTitle>
             <CardDescription>Manage all competition teams</CardDescription>
@@ -295,7 +295,7 @@ export default function TeamManager() {
         </Card>
 
         {/* Submissions Card */}
-        <GetTeamSubmissionWidget />
+        <GetTeamSubmissionWidget teamNames={teams.map((team) => team.name)} />
       </main>
     </LayoutContainer>
   );

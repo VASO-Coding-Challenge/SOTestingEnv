@@ -1,11 +1,15 @@
 """Service to handle the Submissions and interaction with Judge0 API"""
 
+import glob
 import os
 import json
+from typing import Dict
 import requests  # type: ignore
 import base64
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
+
+from backend.services.problems import ProblemService
 
 from ..models import Submission, ConsoleLog, Team, ScoredTest
 from backend.services.exceptions import ResourceNotFoundException
@@ -234,3 +238,99 @@ class SubmissionService:
                     )
                 new_zip.write(path, arcname="submission.py")
             return base64.b64encode(f.getvalue())
+
+    @staticmethod
+    def get_team_submissions(team_name: str) -> Dict[int, str]:
+        """
+        Get all submissions for a specific team.
+
+        Args:
+            team_name (str): Team name (e.g., "B1").
+
+        Returns:
+            Dict[int, str]: Dictionary mapping problem numbers to submission file content.
+
+        Raises:
+            ValueError: If team has no submissions.
+        """
+        result = {}
+        found_any = False
+
+        problem_numbers = ProblemService.get_problems_list()
+
+        for p_num in problem_numbers:
+            problem_dir = os.path.join(submissions_dir, f"q{p_num}")
+            submission_path = os.path.join(problem_dir, f"{team_name}.py")
+
+            if os.path.exists(submission_path):
+                found_any = True
+                with open(submission_path, "r") as f:
+                    result[p_num] = f.read()
+
+        if not found_any:
+            raise ValueError(f"No submissions found for team {team_name}")
+
+        return result
+
+    @staticmethod
+    def get_all_submissions() -> Dict[str, Dict[int, str]]:
+        """
+        Get all submissions from all teams.
+
+        Returns:
+            Dict[str, Dict[int, str]]: Dictionary mapping team names to their submissions.
+        """
+        result = {}
+
+        problem_numbers = ProblemService.get_problems_list()
+
+        problem_dirs = [
+            os.path.join(submissions_dir, f"q{p_num}") for p_num in problem_numbers
+        ]
+
+        all_teams = set()
+
+        for problem_dir in problem_dirs:
+            if os.path.exists(problem_dir):
+                team_files = glob.glob(os.path.join(problem_dir, "*.py"))
+                for team_file in team_files:
+                    team_name = os.path.basename(team_file).replace(".py", "")
+                    all_teams.add(team_name)
+
+        for team_name in all_teams:
+            try:
+                team_submissions = SubmissionService.get_team_submissions(team_name)
+                result[team_name] = team_submissions
+            except (ValueError, Exception):
+                continue
+
+        return result
+
+    @staticmethod
+    def get_specific_submission(team_name: str, p_num: int) -> str:
+        """
+        Get a specific submission for a team and problem.
+
+        Args:
+            team_name (str): Team name (e.g., "B1").
+            p_num (int): Problem number.
+
+        Returns:
+            str: Content of the submission file.
+
+        Raises:
+            ValueError: If submission does not exist.
+        """
+        problem_dir = os.path.join(submissions_dir, f"q{p_num}")
+        submission_path = os.path.join(problem_dir, f"{team_name}.py")
+
+        if not os.path.exists(problem_dir):
+            raise ValueError(f"Problem {p_num} does not exist")
+
+        if not os.path.exists(submission_path):
+            raise ValueError(
+                f"No submission found for team {team_name} on problem {p_num}"
+            )
+
+        with open(submission_path, "r") as f:
+            return f.read()

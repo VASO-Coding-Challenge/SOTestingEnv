@@ -64,19 +64,19 @@ def delete_team_member(
     team_svc.delete_team_member(member_id, team)
     return {"message": f"Team Member {member_id} deleted successfully"}
 
+
 # reorder this later
 
-@api.get("/all", response_model=list[TeamPublic], tags=["Teams"])
-def get_all_teams(
-    team_svc: TeamService = Depends(),
-) -> list[TeamPublic]:
-    """Retrieve all teams"""
-    return team_svc.get_all_teams()
+# @api.get("/all", response_model=list[TeamPublic], tags=["Teams"])
+# def get_all_teams(
+#     team_svc: TeamService = Depends(),
+# ) -> list[TeamPublic]:
+#     """Retrieve all teams"""
+#     return team_svc.get_all_teams()
+
 
 @api.post("", response_model=TeamPublic, tags=["Teams"])
-def create_team(
-    team_data: TeamData, team_svc: TeamService = Depends()
-) -> TeamPublic:
+def create_team(team_data: TeamData, team_svc: TeamService = Depends()) -> TeamPublic:
     """Create a new team"""
     return team_svc.create_team(team_data)
 
@@ -86,7 +86,7 @@ def create_batch_teams(
     team_names: List[str], team_template: TeamData, team_svc: TeamService = Depends()
 ) -> list[TeamPublic]:
     """Create multiple teams at once based on a template and provided names
-    
+
     Args:
         team_names: List of team names to create
         team_template: Template for the teams with password, times, etc.

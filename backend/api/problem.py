@@ -120,20 +120,19 @@ def delete_all_problems():
         while True:
             problem_ids = ProblemService.get_problems_list()
             if not problem_ids:
-                break  # Stop when all problems are deleted
+                break
 
-            for q_num in problem_ids[:]:  # Copy list to avoid modification issues
+            for q_num in problem_ids[:]:
                 try:
                     ProblemService.delete_problem(q_num)
                 except HTTPException as e:
                     if e.status_code == 404:
-                        continue  # Ignore and keep deleting
+                        continue
                     else:
-                        raise  # Raise other unexpected errors
+                        raise
 
         return {"message": "All problems deleted successfully."}
     except Exception as e:
-        # Handle any unexpected exceptions
         raise HTTPException(
             status_code=500, detail=f"Error deleting all problems: {str(e)}"
         )
