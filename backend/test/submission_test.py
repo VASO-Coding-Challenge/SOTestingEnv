@@ -1,6 +1,7 @@
 """File to contain all Submission related tests"""
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
@@ -109,3 +110,37 @@ def test_get_specific_submission(setup_submission_data):
             with pytest.raises(ValueError) as excinfo:
                 SubmissionService.get_specific_submission("A1", 4)
             assert "Problem 4 does not exist" in str(excinfo.value)
+
+
+def test_delete_team_submissions(setup_submission_data):
+    """Test deleting a specific team's submissions."""
+    test_env = setup_submission_data()
+
+    submissions_path = str(test_env / "es_files" / "submissions")
+
+    with patch("backend.services.submissions.submissions_dir", submissions_path):
+        with patch.object(ProblemService, "get_problems_list", return_value=[1, 2, 3]):
+
+            # Ensure team A1 has submissions before deletion
+            assert (Path(submissions_path) / "q1" / "A1.py").exists()
+            assert (Path(submissions_path) / "q2" / "A1.py").exists()
+
+            # Delete team A1's submissions
+            result = SubmissionService.delete_submissions("A1")
+
+            # Ensure files are deleted
+            assert not (Path(submissions_path) / "q1" / "A1.py").exists()
+            assert not (Path(submissions_path) / "q2" / "A1.py").exists()
+
+            # Ensure other teams' submissions are unaffected
+            assert (Path(submissions_path) / "q1" / "B2.py").exists()
+            assert (Path(submissions_path) / "q2" / "C3.py").exists()
+            assert (Path(submissions_path) / "q3" / "B2.py").exists()
+            assert (Path(submissions_path) / "q3" / "C3.py").exists()
+
+            # Check the return message
+            assert result == "Deleted 2 submission(s) for team 'A1'."
+
+            # Try deleting a team with no submissions
+            result_no_submissions = SubmissionService.delete_submissions("D4")
+            assert result_no_submissions == "No submissions found for deletion."

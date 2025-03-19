@@ -334,3 +334,42 @@ class SubmissionService:
 
         with open(submission_path, "r") as f:
             return f.read()
+
+    @staticmethod
+    def delete_submissions(team_name: str):
+        """
+        Delete all submissions of a specific team.
+
+        Args:
+            team_name (str): Team name (e.g., "B1").
+
+        Returns:
+            str: Success message indicating how many submissions were deleted.
+        """
+        problem_numbers = ProblemService.get_problems_list()
+        if not problem_numbers:
+            return "No problems found in the system."
+
+        deleted_count = 0  # Track the number of deleted submissions
+
+        for p_num in problem_numbers:
+            problem_dir = os.path.join(submissions_dir, f"q{p_num}")
+            submission_path = os.path.join(problem_dir, f"{team_name}.py")
+
+            if os.path.exists(submission_path):
+                try:
+                    os.remove(submission_path)
+                    deleted_count += 1
+
+                    # Optionally, remove the problem directory if it's empty
+                    if not os.listdir(problem_dir):
+                        os.rmdir(problem_dir)
+
+                except Exception as e:
+                    return f"Error deleting submission {submission_path}: {str(e)}"
+
+        return (
+            f"Deleted {deleted_count} submission(s) for team '{team_name}'."
+            if deleted_count > 0
+            else "No submissions found for deletion."
+        )
