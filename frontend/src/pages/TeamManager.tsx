@@ -1,13 +1,14 @@
+"use client";
+
 import { jwtDecode } from "jwt-decode";
 import { styled } from "@mui/system";
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import CreateTeamWidget from "@/components/CreateTeamWidget";
-// import EditTeamWidget from "@/components/EditTeamWidget";
 import ConfirmationAlert from "@/components/ConfirmationAlert";
 import GetTeamSubmissionWidget from "@/components/GetSubmissionWidget";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Card,
@@ -28,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { PencilLine, Trash2, Download } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -54,6 +55,11 @@ export default function TeamManager() {
       "Max Score": string;
     }>
   >([]);
+  const [isLoadingTeams, setIsLoadingTeams] = useState(true);
+  const [isLoadingScores, setIsLoadingScores] = useState(true);
+  const [loadingMembers, setLoadingMembers] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   const getUserRole = (token: string): boolean => {
     try {
@@ -88,6 +94,7 @@ export default function TeamManager() {
   }, [navigate]);
 
   const fetchTeams = async () => {
+    setIsLoadingTeams(true);
     try {
       const response = await fetch("/api/team/all", {
         method: "GET",
@@ -105,13 +112,19 @@ export default function TeamManager() {
       const data = await response.json();
       setTeams(data);
 
+      // Initialize loading state for each team's members
+      const membersLoadingState: { [key: number]: boolean } = {};
       data.forEach((team: { id: number }) => {
+        membersLoadingState[team.id] = true;
         void fetchTeamMembers(team.id);
       });
+      setLoadingMembers(membersLoadingState);
 
       console.log("Teams:", data);
     } catch (error) {
       console.error("Error fetching teams:", error);
+    } finally {
+      setIsLoadingTeams(false);
     }
   };
 
@@ -141,10 +154,16 @@ export default function TeamManager() {
       console.log(`Team ${teamId} members:`, data);
     } catch (error) {
       console.error("Error fetching team members:", error);
+    } finally {
+      setLoadingMembers((prev) => ({
+        ...prev,
+        [teamId]: false,
+      }));
     }
   };
 
   const fetchScores = async () => {
+    setIsLoadingScores(true);
     try {
       const response = await fetch("/api/score", {
         headers: {
@@ -158,6 +177,8 @@ export default function TeamManager() {
       setScores(data);
     } catch (error) {
       console.error("Error fetching scores:", error);
+    } finally {
+      setIsLoadingScores(false);
     }
   };
 
@@ -242,6 +263,24 @@ export default function TeamManager() {
     }
   };
 
+  // Skeleton row component for loading state
+  const SkeletonRow = () => (
+    <TableRow>
+      <TableCell>
+        <Skeleton className="h-5 w-[180px]" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-5 w-[250px]" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-5 w-[100px]" />
+      </TableCell>
+      <TableCell className="flex gap-2 justify-end">
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <LayoutContainer>
       <ESNavBar />
@@ -261,51 +300,67 @@ export default function TeamManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[200px]">Team Name</TableHead>
-                  {/* <TableHead>Password</TableHead> */}
                   <TableHead>Members</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {teams.map((team) => (
-                  <TableRow key={team.id}>
-                    <TableCell className="font-medium">{team.name}</TableCell>
-                    {/* <TableCell>{team.password}</TableCell> */}
-                    <TableCell>
-                      {teamMembers[team.id]?.length
-                        ? teamMembers[team.id].join(", ")
-                        : "No members"}
-                    </TableCell>
-                    <TableCell>
-                      {scores.find((s) => s["Team Number"] === team.name)
-                        ? `${
-                            scores.find((s) => s["Team Number"] === team.name)
-                              ?.Score
-                          } / ${
-                            scores.find(
+                {isLoadingTeams
+                  ? // Show skeleton rows when loading
+                    Array(5)
+                      .fill(0)
+                      .map((_, index) => (
+                        <SkeletonRow key={`skeleton-${index}`} />
+                      ))
+                  : teams.map((team) => (
+                      <TableRow key={team.id}>
+                        <TableCell className="font-medium">
+                          {team.name}
+                        </TableCell>
+                        <TableCell>
+                          {loadingMembers[team.id] ? (
+                            <Skeleton className="h-5 w-[250px]" />
+                          ) : teamMembers[team.id]?.length ? (
+                            teamMembers[team.id].join(", ")
+                          ) : (
+                            "No members"
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isLoadingScores ? (
+                            <Skeleton className="h-5 w-[100px]" />
+                          ) : scores.find(
                               (s) => s["Team Number"] === team.name
-                            )?.["Max Score"]
-                          }`
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell className="flex gap-2 justify-end">
-                      {/* <EditTeamWidget team={team} onSave={handleEdit} /> */}
-                      <ConfirmationAlert
-                        title="Delete Team"
-                        description="Are you sure you want to delete this team?"
-                        actionText="Delete"
-                        cancelText="Cancel"
-                        onAction={() => handleDelete(team.id)}
-                        trigger={
-                          <Button size="icon" variant="ghost">
-                            <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
-                          </Button>
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                            ) ? (
+                            `${
+                              scores.find((s) => s["Team Number"] === team.name)
+                                ?.Score
+                            } / ${
+                              scores.find(
+                                (s) => s["Team Number"] === team.name
+                              )?.["Max Score"]
+                            }`
+                          ) : (
+                            "N/A"
+                          )}
+                        </TableCell>
+                        <TableCell className="flex gap-2 justify-end">
+                          <ConfirmationAlert
+                            title="Delete Team"
+                            description="Are you sure you want to delete this team?"
+                            actionText="Delete"
+                            cancelText="Cancel"
+                            onAction={() => handleDelete(team.id)}
+                            trigger={
+                              <Button size="icon" variant="ghost">
+                                <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
+                              </Button>
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
           </CardContent>
@@ -314,8 +369,16 @@ export default function TeamManager() {
             <CreateTeamWidget teams={teams} onCreate={handleCreate} />
 
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={handleDownload}>
-                <Download className="w-4 h-4 mr-2" />
+              <Button
+                variant="secondary"
+                onClick={handleDownload}
+                disabled={isLoadingScores}
+              >
+                {isLoadingScores ? (
+                  <Skeleton className="h-4 w-4 mr-2 rounded-full" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
                 Download Scores
               </Button>
               <ConfirmationAlert

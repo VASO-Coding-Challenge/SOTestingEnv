@@ -2,6 +2,7 @@
 
 from typing import List
 from fastapi import APIRouter, HTTPException, Body
+from fastapi.responses import FileResponse
 from ..services.problems import ProblemService
 from ..models import Problem
 
@@ -136,3 +137,15 @@ def delete_all_problems():
         raise HTTPException(
             status_code=500, detail=f"Error deleting all problems: {str(e)}"
         )
+
+
+@api.get("/problems/download", tags=["Problems"])
+def download_all_problems():
+    """Endpoint to download all problems as a ZIP file."""
+    try:
+        zip_path = ProblemService.zip_all_problems()
+        return FileResponse(
+            zip_path, filename="problems.zip", media_type="application/zip"
+        )
+    except HTTPException as e:
+        raise e
