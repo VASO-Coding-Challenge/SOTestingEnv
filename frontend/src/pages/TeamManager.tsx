@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import CreateTeamWidget from "@/components/CreateTeamWidget";
-import EditTeamWidget from "@/components/EditTeamWidget";
+// import EditTeamWidget from "@/components/EditTeamWidget";
+import ConfirmationAlert from "@/components/ConfirmationAlert";
 import GetTeamSubmissionWidget from "@/components/GetSubmissionWidget";
 
 import {
@@ -269,14 +270,19 @@ export default function TeamManager() {
                         : "N/A"}
                     </TableCell>
                     <TableCell className="flex gap-2 justify-end">
-                      <EditTeamWidget team={team} onSave={handleEdit} />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDelete(team.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
-                      </Button>
+                      {/* <EditTeamWidget team={team} onSave={handleEdit} /> */}
+                      <ConfirmationAlert
+                        title="Delete Team"
+                        description="Are you sure you want to delete this team?"
+                        actionText="Delete"
+                        cancelText="Cancel"
+                        onAction={() => handleDelete(team.id)}
+                        trigger={
+                          <Button size="icon" variant="ghost">
+                            <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
+                          </Button>
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
