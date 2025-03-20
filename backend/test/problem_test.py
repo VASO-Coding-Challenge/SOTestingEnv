@@ -1,8 +1,12 @@
 """File to contain all Problem manipulation related tests"""
 
-import os
-from fastapi import HTTPException
 import pytest
+import shutil
+import zipfile
+import os
+from pathlib import Path
+from unittest.mock import patch
+from fastapi import HTTPException
 from ..services import ProblemService
 from ..test.fake_data.problem import setup_problem_data
 
@@ -124,3 +128,38 @@ def test_delete_problem(setup_problem_data):
 
     problem = ProblemService.get_problem(1)
     assert problem.prompt == "Prompt for problem 2"
+
+
+def test_zip_all_problems(setup_problem_data):
+    """Test if zip_all_problems correctly generates a ZIP file containing all problems."""
+    test_env = setup_problem_data()
+
+    with patch(
+        "backend.services.ProblemService.QUESTIONS_DIR",
+        str(test_env / "es_files" / "questions"),
+    ):
+        zip_path = ProblemService.zip_all_problems()
+
+        assert Path(zip_path).exists(), "ZIP file was not created."
+        assert zip_path.endswith(".zip"), "Generated file is not a ZIP archive."
+
+        with zipfile.ZipFile(zip_path, "r") as zip_file:
+            file_list = zip_file.namelist()
+
+            expected_files = [
+                "q1/prompt.md",
+                "q1/starter.py",
+                "q1/test_cases.py",
+                "q1/demo_cases.py",
+                "q2/prompt.md",
+                "q2/starter.py",
+                "q2/test_cases.py",
+                "q2/demo_cases.py",
+            ]
+
+            for expected_file in expected_files:
+                assert (
+                    expected_file in file_list
+                ), f"Missing file in ZIP: {expected_file}"
+
+        shutil.rmtree(test_env)

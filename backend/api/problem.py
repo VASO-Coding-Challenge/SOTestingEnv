@@ -2,6 +2,7 @@
 
 from typing import List
 from fastapi import APIRouter, HTTPException, Body
+from fastapi.responses import FileResponse
 from ..services.problems import ProblemService
 from ..models import Problem
 
@@ -120,20 +121,31 @@ def delete_all_problems():
         while True:
             problem_ids = ProblemService.get_problems_list()
             if not problem_ids:
-                break  # Stop when all problems are deleted
+                break
 
-            for q_num in problem_ids[:]:  # Copy list to avoid modification issues
+            for q_num in problem_ids[:]:
                 try:
                     ProblemService.delete_problem(q_num)
                 except HTTPException as e:
                     if e.status_code == 404:
-                        continue  # Ignore and keep deleting
+                        continue
                     else:
-                        raise  # Raise other unexpected errors
+                        raise
 
         return {"message": "All problems deleted successfully."}
     except Exception as e:
-        # Handle any unexpected exceptions
         raise HTTPException(
             status_code=500, detail=f"Error deleting all problems: {str(e)}"
         )
+
+
+@api.get("/problems/download", tags=["Problems"])
+def download_all_problems():
+    """Endpoint to download all problems as a ZIP file."""
+    try:
+        zip_path = ProblemService.zip_all_problems()
+        return FileResponse(
+            zip_path, filename="problems.zip", media_type="application/zip"
+        )
+    except HTTPException as e:
+        raise e

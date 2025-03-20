@@ -1,1 +1,0 @@
-Complete the `first_five` function by returning the first five characters of `string_input`

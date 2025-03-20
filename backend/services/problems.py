@@ -3,6 +3,7 @@
 import os
 import shutil
 
+import tempfile
 from textwrap import dedent
 from typing import List
 
@@ -203,4 +204,23 @@ class ProblemService:
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Error deleting problem {q_num}: {str(e)}"
+            )
+
+    @staticmethod
+    def zip_all_problems() -> str:
+        """Creates a ZIP archive containing all problem files."""
+        if not os.path.exists(ProblemService.QUESTIONS_DIR):
+            raise HTTPException(status_code=404, detail="No problems found.")
+
+        temp_zip_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(temp_zip_dir, "problems.zip")
+
+        try:
+            shutil.make_archive(
+                zip_path.replace(".zip", ""), "zip", ProblemService.QUESTIONS_DIR
+            )
+            return zip_path
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error creating ZIP file: {str(e)}"
             )
