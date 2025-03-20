@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { jwtDecode } from "jwt-decode";
 
@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 
 import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
+import ConfirmationAlert from "@/components/ConfirmationAlert";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -151,6 +152,18 @@ export default function Scheduling() {
     updatedSession: Session,
     oldSession: Session
   ) => {
+    setSessions((prevSessions) =>
+      prevSessions.map((session) =>
+        session.id === updatedSession.id
+          ? {
+              ...updatedSession,
+              startTime: new Date(updatedSession.startTime),
+              endTime: new Date(updatedSession.endTime),
+            }
+          : session
+      )
+    );
+
     const { teams, ...sessionWithoutTeams } = updatedSession;
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}`, {
@@ -365,10 +378,16 @@ export default function Scheduling() {
                           handleEditSession(updatedSession, oldSession);
                         }}
                       />
-                      <Trash2
-                        className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors"
-                        onClick={() =>
+                      <ConfirmationAlert
+                        title="Delete Session"
+                        description="Are you sure you want to delete this session?"
+                        actionText="Delete"
+                        cancelText="Cancel"
+                        onAction={() =>
                           handleDeleteSession(session.id.toString())
+                        }
+                        trigger={
+                          <Trash2 className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors" />
                         }
                       />
                     </div>

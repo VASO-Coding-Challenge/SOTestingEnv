@@ -24,6 +24,7 @@ import { PencilLine, Plus, X } from "lucide-react";
 const EditSessionWidget = ({ session, teams, onSave }) => {
   const [open, setOpen] = useState(false);
   // Local state for date, start time, end time and selected teams
+  const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -33,10 +34,25 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
   // When the session (or teams) changes, prepopulate fields
   useEffect(() => {
     if (session) {
-      // Extract date and times from ISO strings
-      const sessionDate = session.start_time.split("T")[0];
-      const sessionStartTime = session.start_time.split("T")[1].substring(0, 5);
-      const sessionEndTime = session.end_time.split("T")[1].substring(0, 5);
+      const startDateTime = new Date(session.start_time);
+      const endDateTime = new Date(session.end_time);
+
+      // Convert UTC dates to local date strings (YYYY-MM-DD)
+      const sessionDate = startDateTime.toLocaleDateString("en-CA");
+
+      // Convert UTC times to local time strings (HH:mm)
+      const sessionStartTime = startDateTime.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      const sessionEndTime = endDateTime.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+      setName(session.name);
       setDate(sessionDate);
       setStartTime(sessionStartTime);
       setEndTime(sessionEndTime);
@@ -63,14 +79,19 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
   };
 
   const handleSave = async () => {
-    // Build the updated session payload
+    // Create Date objects from local date and time inputs
+    const startDateTime = new Date(`${date}T${startTime}:00`);
+    const endDateTime = new Date(`${date}T${endTime}:00`);
+
+    // Convert to ISO strings in UTC
     const updatedSession = {
-      name: session.name,
-      start_time: `${date}T${startTime}:00Z`,
-      end_time: `${date}T${endTime}:00Z`,
+      name: name,
+      start_time: startDateTime.toISOString(),
+      end_time: endDateTime.toISOString(),
       id: session.id,
       teams: selectedTeams.map((team) => team.id),
     };
+
     onSave(updatedSession, session);
     setOpen(false);
   };
@@ -86,6 +107,17 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
           <DialogDescription>Edit the session details below.</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
+          <DialogTitle>Name</DialogTitle>
+          <div className="flex flex-row gap-4 items-center">
+            Name:{" "}
+            <Input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <Separator />
+
           <DialogTitle>Date & Time</DialogTitle>
           <div className="flex flex-row gap-4 items-center">
             Date:{" "}

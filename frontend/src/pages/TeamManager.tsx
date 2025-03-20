@@ -187,6 +187,26 @@ export default function TeamManager() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    try {
+      const response = await fetch("/api/team", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete all teams");
+      }
+
+      await fetchTeams();
+    } catch (error) {
+      console.error("Error deleting all teams:", error);
+    }
+  };
+
   const handleCreate = () => {
     void fetchTeams();
   };
@@ -293,10 +313,25 @@ export default function TeamManager() {
           <CardFooter className="flex justify-between pt-4">
             <CreateTeamWidget teams={teams} onCreate={handleCreate} />
 
-            <Button variant="secondary" onClick={handleDownload}>
-              <Download className="w-4 h-4 mr-2" />
-              Download Scores
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={handleDownload}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Scores
+              </Button>
+              <ConfirmationAlert
+                title="Delete All Teams"
+                description="Are you sure you want to delete all teams?"
+                actionText="Delete All"
+                cancelText="Cancel"
+                onAction={handleDeleteAll}
+                trigger={
+                  <Button variant="destructive">
+                    <Trash2 className="w-4 h-4 text-white" />
+                    Delete All Teams
+                  </Button>
+                }
+              />
+            </div>
           </CardFooter>
         </Card>
 
