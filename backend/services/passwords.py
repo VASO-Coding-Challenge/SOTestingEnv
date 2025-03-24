@@ -12,7 +12,7 @@ import random
 from ..models import TeamData, Team, Word
 from .team import TeamService
 
-__authors__ = ["Nicholas Almy", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Andrew Lockard", "Tsering Lama"]
 
 
 class PasswordService:

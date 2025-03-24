@@ -14,6 +14,7 @@ DEFAULT_FILE = "es_files/teams/teams.csv"
 
 
 # TODO: Update to use new Team and Session model when implementing functionality to manage teams
+# Change in the add_teams function
 def add_teams():
     args = parse_cli()
     if not validate_args(args):
@@ -26,33 +27,33 @@ def add_teams():
 
     with Session(engine) as session:
         team_svc = TeamService(session)
-        pwd_svc = PasswordService(session)
-        team_list = team_svc.get_all_teams()
-        # Find the last team number for the prefix
-        last_team = 0
-        for team in team_list:
-            if team.name.startswith(args.prefix):
-                last_team = max(last_team, int(team.name[len(args.prefix) :]))
-                print(last_team)
-        # Create new teams
-        for i in range(1, int(args.number) + 1):
-            team = TeamData(
-                name=f"{args.prefix}{last_team + i}",
-                password=pwd_svc.generate_password(),
-                start_time=start_time,
-                end_time=end_time,
-            )
-            team: TeamData = team_svc.create_team(team)
-            team_list.append(team)
-        # Add new teams to the table
+        
+        # Create template
+        template = TeamData(
+            name="placeholder",  # This won't be used directly
+            password="",  # Will be generated
+            start_time=start_time,
+            end_time=end_time,
+            session_id=None
+        )
+        
+        # Create batch of teams
+        teams = team_svc.create_batch_teams(
+            template_name=args.prefix,
+            batch_size=int(args.number),
+            template=template
+        )
+        
+        # Get all teams for saving to file
+        all_teams = team_svc.get_all_teams()
         team_table = (
-            team_svc.teams_to_df(team_list).unique().sort(["Start Time", "Team Number"])
+            team_svc.teams_to_df(all_teams).unique().sort(["Start Time", "Team Number"])
         )
 
     # Save the password changes back to file
     team_table.write_csv(args.file)
 
-    sys.stdout.write(f"Saved/updated to file {args.file}")
+    sys.stdout.write(f"Created {len(teams)} new teams. Saved/updated to file {args.file}")
 
 
 def parse_cli() -> argparse.Namespace:
