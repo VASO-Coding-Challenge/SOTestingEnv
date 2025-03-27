@@ -1,0 +1,1 @@
+Complete the `odd_chars` function by returing the odd-indexed characters of `string_input`

@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import { jwtDecode } from "jwt-decode";
 
@@ -27,6 +27,10 @@ import { useNavigate } from "react-router-dom";
 
 import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
+import ConfirmationAlert from "@/components/ConfirmationAlert";
+
+import { Session } from "../models/session";
+import { Team } from "../models/team";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -39,21 +43,6 @@ interface DecodedToken {
   is_admin: boolean;
 }
 
-interface Session {
-  id: number;
-  name: string;
-  start_time: string;
-  end_time: string;
-  teams: number[];
-}
-
-interface Team {
-  name: string;
-  id: number;
-  session_id: number | null;
-  session: Session | null;
-}
-
 export default function Scheduling() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -63,8 +52,8 @@ export default function Scheduling() {
   const [sessionDate, setSessionDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
-  const [selectedTeamId, setSelectedTeamId] = useState<number | null>();
+  // const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  // const [selectedTeamId, setSelectedTeamId] = useState<number | null>();
 
   const navigate = useNavigate();
 
@@ -151,7 +140,19 @@ export default function Scheduling() {
     updatedSession: Session,
     oldSession: Session
   ) => {
-    const { teams, ...sessionWithoutTeams } = updatedSession;
+    setSessions((prevSessions) =>
+      prevSessions.map((session) =>
+        session.id === updatedSession.id
+          ? {
+              ...updatedSession,
+              startTime: new Date(updatedSession.start_time),
+              endTime: new Date(updatedSession.end_time),
+            }
+          : session
+      )
+    );
+
+    const { ...sessionWithoutTeams } = updatedSession;
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}`, {
         method: "PUT",
@@ -311,7 +312,7 @@ export default function Scheduling() {
       setSessionDate("");
       setStartTime("");
       setEndTime("");
-      setSelectedTeams([]);
+      // setSelectedTeams([]);
       void fetchSessions(); // Refresh sessions list
     } catch (error) {
       console.error("Error creating session:", error);
@@ -361,14 +362,23 @@ export default function Scheduling() {
                       <EditSessionWidget
                         session={session}
                         teams={teams}
-                        onSave={(updatedSession, oldSession) => {
-                          handleEditSession(updatedSession, oldSession);
+                        onSave={(
+                          updatedSession: Session,
+                          oldSession: Session
+                        ) => {
+                          void handleEditSession(updatedSession, oldSession);
                         }}
                       />
-                      <Trash2
-                        className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors"
-                        onClick={() =>
-                          handleDeleteSession(session.id.toString())
+                      <ConfirmationAlert
+                        title="Delete Session"
+                        description="Are you sure you want to delete this session?"
+                        actionText="Delete"
+                        cancelText="Cancel"
+                        onAction={() =>
+                          void handleDeleteSession(session.id.toString())
+                        }
+                        trigger={
+                          <Trash2 className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors" />
                         }
                       />
                     </div>
@@ -387,7 +397,7 @@ export default function Scheduling() {
                   </CardContent>
                   <CardContent>
                     <CardTitle>Teams</CardTitle>
-                    <div className="flex flex-row gap-2 pt-2">
+                    <div className="flex flex-row flex-wrap gap-2 pt-2">
                       {teams
                         .filter((team) => team.session_id === session.id)
                         .map((team) => (

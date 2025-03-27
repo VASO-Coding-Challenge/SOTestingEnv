@@ -21,22 +21,56 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PencilLine, Plus, X } from "lucide-react";
 
-const EditSessionWidget = ({ session, teams, onSave }) => {
+import { Session } from "@/models/session";
+import { Team } from "@/models/team";
+
+interface EditSessionWidgetProps {
+  session: Session;
+  teams: Team[];
+  onSave: (updatedSession: Session, session: Session) => void;
+}
+
+const EditSessionWidget = ({
+  session,
+  teams,
+  onSave,
+}: EditSessionWidgetProps) => {
   const [open, setOpen] = useState(false);
   // Local state for date, start time, end time and selected teams
+  const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedTeams, setSelectedTeams] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<Team>({
+    name: "",
+    id: 0,
+    session_id: null,
+    session: null,
+  });
 
   // When the session (or teams) changes, prepopulate fields
   useEffect(() => {
     if (session) {
-      // Extract date and times from ISO strings
-      const sessionDate = session.start_time.split("T")[0];
-      const sessionStartTime = session.start_time.split("T")[1].substring(0, 5);
-      const sessionEndTime = session.end_time.split("T")[1].substring(0, 5);
+      const startDateTime = new Date(session.start_time);
+      const endDateTime = new Date(session.end_time);
+
+      // Convert UTC dates to local date strings (YYYY-MM-DD)
+      const sessionDate = startDateTime.toLocaleDateString("en-CA");
+
+      // Convert UTC times to local time strings (HH:mm)
+      const sessionStartTime = startDateTime.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      const sessionEndTime = endDateTime.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+      setName(session.name);
       setDate(sessionDate);
       setStartTime(sessionStartTime);
       setEndTime(sessionEndTime);
@@ -48,29 +82,42 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
     }
   }, [session, teams]);
 
-  const handleAddTeam = (teamName) => {
+  const handleAddTeam = (teamName: string) => {
     if (teamName && !selectedTeams.find((team) => team.name === teamName)) {
       const teamToAdd = teams.find((team) => team.name === teamName);
       if (teamToAdd) {
         setSelectedTeams([...selectedTeams, teamToAdd]);
       }
     }
-    setSelectedTeam("");
+    setSelectedTeam({ name: "", id: 0, session_id: null, session: null });
   };
 
-  const handleRemoveTeam = (teamId) => {
+  const handleRemoveTeam = (teamId: number) => {
     setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
   };
 
   const handleSave = async () => {
-    // Build the updated session payload
+    const startDateTime = new Date(`${date}T${startTime}:00`);
+    const endDateTime = new Date(`${date}T${endTime}:00`);
+
+    const formatLocalISO = (date: Date) => {
+      const pad = (num: number) => num.toString().padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+    };
+
+    const start_time = formatLocalISO(startDateTime);
+    const end_time = formatLocalISO(endDateTime);
+
     const updatedSession = {
-      name: session.name,
-      start_time: `${date}T${startTime}:00Z`,
-      end_time: `${date}T${endTime}:00Z`,
+      name: name,
+      start_time: start_time,
+      end_time: end_time,
       id: session.id,
       teams: selectedTeams.map((team) => team.id),
     };
+
     onSave(updatedSession, session);
     setOpen(false);
   };
@@ -86,6 +133,17 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
           <DialogDescription>Edit the session details below.</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
+          <DialogTitle>Name</DialogTitle>
+          <div className="flex flex-row gap-4 items-center">
+            Name:{" "}
+            <Input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <Separator />
+
           <DialogTitle>Date & Time</DialogTitle>
           <div className="flex flex-row gap-4 items-center">
             Date:{" "}
@@ -113,7 +171,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
         </div>
         <div className="flex flex-col gap-4">
           <DialogTitle>Team Selection</DialogTitle>
-          <div className="flex flex-row gap-2 flex-wrap">
+          <div className="flex flex-row flex-wrap gap-2">
             {selectedTeams.map((team) => (
               <Badge
                 key={team.id}
@@ -130,7 +188,13 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
             ))}
           </div>
           <div className="flex flex-row items-center">
-            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+            <Select
+              value={selectedTeam.name}
+              onValueChange={(value) => {
+                const team = teams.find((team) => team.name === value);
+                if (team) setSelectedTeam(team);
+              }}
+            >
               <SelectTrigger className="rounded-r-none">
                 <SelectValue placeholder="Select a Team" />
               </SelectTrigger>
@@ -145,7 +209,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
             <Button
               type="submit"
               className="rounded-l-none -ml-px"
-              onClick={() => handleAddTeam(selectedTeam)}
+              onClick={() => handleAddTeam(selectedTeam.name)}
             >
               <Plus />
             </Button>
@@ -153,7 +217,11 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
           <Separator />
         </div>
         <DialogFooter>
-          <Button variant="secondary" type="button">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => setOpen(false)}
+          >
             Cancel
           </Button>
           <Button type="button" onClick={handleSave}>

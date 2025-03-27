@@ -6,7 +6,7 @@ from sqlmodel import Session, select, delete
 from ..models import Team, SessionPublic, Session_Obj
 from ..db import db_session
 from fastapi import Depends
-from .exceptions import ResourceNotFoundException
+from .exceptions import ResourceNotFoundException, ResourceNotAllowedException
 
 __authors__ = ["Michelle Nguyen", "Tsering Lama"]
 
@@ -111,7 +111,7 @@ class Session_ObjService:
 
         self._session.commit()
         self._session.refresh(session_obj)
-        
+
         return SessionPublic(
             id=session_obj.id,
             name=session_obj.name,
