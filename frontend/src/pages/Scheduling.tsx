@@ -152,7 +152,7 @@ export default function Scheduling() {
       )
     );
 
-    const { teams, ...sessionWithoutTeams } = updatedSession;
+    const { ...sessionWithoutTeams } = updatedSession;
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}`, {
         method: "PUT",
@@ -366,7 +366,7 @@ export default function Scheduling() {
                           updatedSession: Session,
                           oldSession: Session
                         ) => {
-                          handleEditSession(updatedSession, oldSession);
+                          void handleEditSession(updatedSession, oldSession);
                         }}
                       />
                       <ConfirmationAlert
@@ -375,7 +375,7 @@ export default function Scheduling() {
                         actionText="Delete"
                         cancelText="Cancel"
                         onAction={() =>
-                          handleDeleteSession(session.id.toString())
+                          void handleDeleteSession(session.id.toString())
                         }
                         trigger={
                           <Trash2 className="text-[#FE7A7A] hover:text-[#ffcfcf] cursor-pointer transition-colors" />
