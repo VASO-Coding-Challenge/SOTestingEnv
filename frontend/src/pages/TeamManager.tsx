@@ -1,8 +1,6 @@
-"use client";
-
 import { jwtDecode } from "jwt-decode";
 import { styled } from "@mui/system";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import CreateTeamWidget from "@/components/CreateTeamWidget";
@@ -29,6 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Team, TeamMember, TeamScore } from "@/models/team";
+
 import { Trash2, Download } from "lucide-react";
 
 const LayoutContainer = styled("div")({
@@ -44,17 +44,11 @@ interface DecodedToken {
 
 export default function TeamManager() {
   const navigate = useNavigate();
-  const [teams, setTeams] = useState([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [teamMembers, setTeamMembers] = useState<{ [key: number]: string[] }>(
     {}
   );
-  const [scores, setScores] = useState<
-    Array<{
-      "Team Number": string;
-      Score: string;
-      "Max Score": string;
-    }>
-  >([]);
+  const [scores, setScores] = useState<TeamScore[]>([]);
   const [isLoadingTeams, setIsLoadingTeams] = useState(true);
   const [isLoadingScores, setIsLoadingScores] = useState(true);
   const [loadingMembers, setLoadingMembers] = useState<{
@@ -70,6 +64,41 @@ export default function TeamManager() {
       return false;
     }
   };
+
+  const fetchTeams = useCallback(async () => {
+    setIsLoadingTeams(true);
+    try {
+      const response = await fetch("/api/team/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch teams");
+        return;
+      }
+
+      const data: Team[] = (await response.json()) as Team[];
+      setTeams(data);
+
+      // Initialize loading state for each team's members
+      const membersLoadingState: { [key: number]: boolean } = {};
+      data.forEach((team: { id: number }) => {
+        membersLoadingState[team.id] = true;
+        void fetchTeamMembers(team.id);
+      });
+      setLoadingMembers(membersLoadingState);
+
+      console.log("Teams:", data);
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+    } finally {
+      setIsLoadingTeams(false);
+    }
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -91,40 +120,25 @@ export default function TeamManager() {
     }
     void fetchTeams();
     void fetchScores();
-  }, [navigate]);
+  }, [navigate, fetchTeams]);
 
-  const fetchTeams = async () => {
-    setIsLoadingTeams(true);
+  const fetchScores = async () => {
+    setIsLoadingScores(true);
     try {
-      const response = await fetch("/api/team/all", {
-        method: "GET",
+      const response = await fetch("/api/score", {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
-      if (!response.ok) {
-        console.error("Failed to fetch teams");
-        return;
-      }
+      if (!response.ok) throw new Error("Failed to fetch scores");
 
-      const data = await response.json();
-      setTeams(data);
-
-      // Initialize loading state for each team's members
-      const membersLoadingState: { [key: number]: boolean } = {};
-      data.forEach((team: { id: number }) => {
-        membersLoadingState[team.id] = true;
-        void fetchTeamMembers(team.id);
-      });
-      setLoadingMembers(membersLoadingState);
-
-      console.log("Teams:", data);
+      const data: TeamScore[] = (await response.json()) as TeamScore[];
+      setScores(data);
     } catch (error) {
-      console.error("Error fetching teams:", error);
+      console.error("Error fetching scores:", error);
     } finally {
-      setIsLoadingTeams(false);
+      setIsLoadingScores(false);
     }
   };
 
@@ -143,7 +157,7 @@ export default function TeamManager() {
         return;
       }
 
-      const data = await response.json();
+      const data: TeamMember[] = (await response.json()) as TeamMember[];
       setTeamMembers((prev) => ({
         ...prev,
         [teamId]: data.map(
@@ -162,30 +176,10 @@ export default function TeamManager() {
     }
   };
 
-  const fetchScores = async () => {
-    setIsLoadingScores(true);
-    try {
-      const response = await fetch("/api/score", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch scores");
-
-      const data = await response.json();
-      setScores(data);
-    } catch (error) {
-      console.error("Error fetching scores:", error);
-    } finally {
-      setIsLoadingScores(false);
-    }
-  };
-
-  const handleEdit = (teamId: number) => {
-    // Handle edit team
-    console.log("Edit team:", teamId);
-  };
+  // const handleEdit = (teamId: number) => {
+  //   // Handle edit team
+  //   console.log("Edit team:", teamId);
+  // };
 
   const handleDelete = async (teamId: number) => {
     try {
@@ -313,7 +307,7 @@ export default function TeamManager() {
                       .map((_, index) => (
                         <SkeletonRow key={`skeleton-${index}`} />
                       ))
-                  : teams.map((team) => (
+                  : teams.map((team: Team) => (
                       <TableRow key={team.id}>
                         <TableCell className="font-medium">
                           {team.name}
@@ -351,7 +345,9 @@ export default function TeamManager() {
                             description="Are you sure you want to delete this team?"
                             actionText="Delete"
                             cancelText="Cancel"
-                            onAction={() => handleDelete(team.id)}
+                            onAction={() => {
+                              void handleDelete(team.id);
+                            }}
                             trigger={
                               <Button size="icon" variant="ghost">
                                 <Trash2 className="w-4 h-4 text-[#FE7A7A] hover:text-[#ffcfcf]" />
@@ -366,12 +362,14 @@ export default function TeamManager() {
           </CardContent>
 
           <CardFooter className="flex justify-between pt-4">
-            <CreateTeamWidget teams={teams} onCreate={handleCreate} />
+            <CreateTeamWidget onCreate={handleCreate} />
 
             <div className="flex gap-2">
               <Button
                 variant="secondary"
-                onClick={handleDownload}
+                onClick={() => {
+                  void handleDownload();
+                }}
                 disabled={isLoadingScores}
               >
                 {isLoadingScores ? (
@@ -386,7 +384,9 @@ export default function TeamManager() {
                 description="Are you sure you want to delete all teams?"
                 actionText="Delete All"
                 cancelText="Cancel"
-                onAction={handleDeleteAll}
+                onAction={() => {
+                  void handleDeleteAll();
+                }}
                 trigger={
                   <Button variant="destructive">
                     <Trash2 className="w-4 h-4 text-white" />
@@ -399,7 +399,9 @@ export default function TeamManager() {
         </Card>
 
         {/* Submissions Card */}
-        <GetTeamSubmissionWidget teamNames={teams.map((team) => team.name)} />
+        <GetTeamSubmissionWidget
+          teamNames={teams.map((team: Team) => team.name)}
+        />
       </main>
     </LayoutContainer>
   );

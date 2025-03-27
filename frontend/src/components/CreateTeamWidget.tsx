@@ -16,18 +16,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-interface Team {
-  id: string;
-  name: string;
-  division: "B" | "C";
-}
-
 interface CreateTeamWidgetProps {
-  teams: Team[];
   onCreate: () => void;
 }
 
-const CreateTeamWidget = ({ teams = [], onCreate }: CreateTeamWidgetProps) => {
+const CreateTeamWidget = ({ onCreate }: CreateTeamWidgetProps) => {
   const [open, setOpen] = useState(false);
   const [division, setDivision] = useState<"B" | "C">("B");
   const [rangeStart, setRangeStart] = useState<number>(1);
@@ -163,7 +156,12 @@ const CreateTeamWidget = ({ teams = [], onCreate }: CreateTeamWidgetProps) => {
           >
             Cancel
           </Button>
-          <Button type="button" onClick={handleCreate}>
+          <Button
+            type="button"
+            onClick={() => {
+              void handleCreate();
+            }}
+          >
             Save
           </Button>
         </DialogFooter>

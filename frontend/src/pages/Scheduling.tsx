@@ -29,6 +29,9 @@ import ESNavBar from "../components/ESNavBar";
 import EditSessionWidget from "@/components/EditSessionWidget";
 import ConfirmationAlert from "@/components/ConfirmationAlert";
 
+import { Session } from "../models/session";
+import { Team } from "../models/team";
+
 const LayoutContainer = styled("div")({
   display: "flex",
   height: "100vh",
@@ -40,21 +43,6 @@ interface DecodedToken {
   is_admin: boolean;
 }
 
-interface Session {
-  id: number;
-  name: string;
-  start_time: string;
-  end_time: string;
-  teams: number[];
-}
-
-interface Team {
-  name: string;
-  id: number;
-  session_id: number | null;
-  session: Session | null;
-}
-
 export default function Scheduling() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -64,8 +52,8 @@ export default function Scheduling() {
   const [sessionDate, setSessionDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
-  const [selectedTeamId, setSelectedTeamId] = useState<number | null>();
+  // const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  // const [selectedTeamId, setSelectedTeamId] = useState<number | null>();
 
   const navigate = useNavigate();
 
@@ -157,8 +145,8 @@ export default function Scheduling() {
         session.id === updatedSession.id
           ? {
               ...updatedSession,
-              startTime: new Date(updatedSession.startTime),
-              endTime: new Date(updatedSession.endTime),
+              startTime: new Date(updatedSession.start_time),
+              endTime: new Date(updatedSession.end_time),
             }
           : session
       )
@@ -324,7 +312,7 @@ export default function Scheduling() {
       setSessionDate("");
       setStartTime("");
       setEndTime("");
-      setSelectedTeams([]);
+      // setSelectedTeams([]);
       void fetchSessions(); // Refresh sessions list
     } catch (error) {
       console.error("Error creating session:", error);
@@ -374,7 +362,10 @@ export default function Scheduling() {
                       <EditSessionWidget
                         session={session}
                         teams={teams}
-                        onSave={(updatedSession, oldSession) => {
+                        onSave={(
+                          updatedSession: Session,
+                          oldSession: Session
+                        ) => {
                           handleEditSession(updatedSession, oldSession);
                         }}
                       />

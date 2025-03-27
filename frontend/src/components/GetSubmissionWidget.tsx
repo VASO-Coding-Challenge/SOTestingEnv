@@ -20,6 +20,16 @@ import { Label } from "@/components/ui/label";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
+interface Submissions {
+  [problemNum: string]: string;
+}
+
+interface AllSubmissions {
+  [teamName: string]: {
+    [taskId: string]: string;
+  };
+}
+
 export default function GetTeamSubmissionWidget({
   teamNames,
 }: {
@@ -55,7 +65,7 @@ export default function GetTeamSubmissionWidget({
           `HTTP Error: ${response.status} ${response.statusText}`
         );
 
-      const data: number[] = JSON.parse(text); // Manually parse
+      const data: number[] = JSON.parse(text) as number[];
       setQuestions(data);
     } catch (error) {
       console.error("Error fetching questions:", error);
@@ -87,11 +97,11 @@ export default function GetTeamSubmissionWidget({
         },
       });
 
-      const submissions = await response.json();
+      const submissions: Submissions = (await response.json()) as Submissions;
       const zip = new JSZip();
 
       Object.entries(submissions).forEach(([problemNum, code]) => {
-        zip.file(`problem_${problemNum}.py`, code as string);
+        zip.file(`problem_${problemNum}.py`, code);
       });
 
       const content = await zip.generateAsync({ type: "blob" });
@@ -136,7 +146,7 @@ export default function GetTeamSubmissionWidget({
         },
       });
 
-      const data = await response.json();
+      const data: AllSubmissions = (await response.json()) as AllSubmissions;
       const zip = new JSZip();
 
       Object.entries(data).forEach(([teamName, submissions]) => {
@@ -252,7 +262,9 @@ export default function GetTeamSubmissionWidget({
         )}
 
         <Button
-          onClick={handleDownload}
+          onClick={() => {
+            void handleDownload();
+          }}
           disabled={isDisabled}
           className="w-full"
         >
