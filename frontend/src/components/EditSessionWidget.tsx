@@ -21,15 +21,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PencilLine, Plus, X } from "lucide-react";
 
-const EditSessionWidget = ({ session, teams, onSave }) => {
+import { Session } from "@/models/session";
+import { Team } from "@/models/team";
+
+interface EditSessionWidgetProps {
+  session: Session;
+  teams: Team[];
+  onSave: (updatedSession: Session, session: Session) => void;
+}
+
+const EditSessionWidget = ({
+  session,
+  teams,
+  onSave,
+}: EditSessionWidgetProps) => {
   const [open, setOpen] = useState(false);
   // Local state for date, start time, end time and selected teams
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [selectedTeams, setSelectedTeams] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<Team>({
+    name: "",
+    id: 0,
+    session_id: null,
+    session: null,
+  });
 
   // When the session (or teams) changes, prepopulate fields
   useEffect(() => {
@@ -64,26 +82,24 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
     }
   }, [session, teams]);
 
-  const handleAddTeam = (teamName) => {
+  const handleAddTeam = (teamName: string) => {
     if (teamName && !selectedTeams.find((team) => team.name === teamName)) {
       const teamToAdd = teams.find((team) => team.name === teamName);
       if (teamToAdd) {
         setSelectedTeams([...selectedTeams, teamToAdd]);
       }
     }
-    setSelectedTeam("");
+    setSelectedTeam({ name: "", id: 0, session_id: null, session: null });
   };
 
-  const handleRemoveTeam = (teamId) => {
+  const handleRemoveTeam = (teamId: number) => {
     setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
   };
 
   const handleSave = async () => {
-    // Create Date objects from local date and time inputs
     const startDateTime = new Date(`${date}T${startTime}:00`);
     const endDateTime = new Date(`${date}T${endTime}:00`);
 
-    // Function to format date as local ISO string without timezone
     const formatLocalISO = (date: Date) => {
       const pad = (num: number) => num.toString().padStart(2, "0");
       return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
@@ -91,11 +107,9 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
       )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
     };
 
-    // Convert to local ISO strings
     const start_time = formatLocalISO(startDateTime);
     const end_time = formatLocalISO(endDateTime);
 
-    // Create updated session object
     const updatedSession = {
       name: name,
       start_time: start_time,
@@ -157,7 +171,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
         </div>
         <div className="flex flex-col gap-4">
           <DialogTitle>Team Selection</DialogTitle>
-          <div className="flex flex-row flex-wrap gap-2 flex-wrap">
+          <div className="flex flex-row flex-wrap gap-2">
             {selectedTeams.map((team) => (
               <Badge
                 key={team.id}
@@ -174,7 +188,13 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
             ))}
           </div>
           <div className="flex flex-row items-center">
-            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+            <Select
+              value={selectedTeam.name}
+              onValueChange={(value) => {
+                const team = teams.find((team) => team.name === value);
+                if (team) setSelectedTeam(team);
+              }}
+            >
               <SelectTrigger className="rounded-r-none">
                 <SelectValue placeholder="Select a Team" />
               </SelectTrigger>
@@ -189,7 +209,7 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
             <Button
               type="submit"
               className="rounded-l-none -ml-px"
-              onClick={() => handleAddTeam(selectedTeam)}
+              onClick={() => handleAddTeam(selectedTeam.name)}
             >
               <Plus />
             </Button>
