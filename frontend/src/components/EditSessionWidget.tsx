@@ -83,11 +83,23 @@ const EditSessionWidget = ({ session, teams, onSave }) => {
     const startDateTime = new Date(`${date}T${startTime}:00`);
     const endDateTime = new Date(`${date}T${endTime}:00`);
 
-    // Convert to ISO strings in UTC
+    // Function to format date as local ISO string without timezone
+    const formatLocalISO = (date: Date) => {
+      const pad = (num: number) => num.toString().padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+    };
+
+    // Convert to local ISO strings
+    const start_time = formatLocalISO(startDateTime);
+    const end_time = formatLocalISO(endDateTime);
+
+    // Create updated session object
     const updatedSession = {
       name: name,
-      start_time: startDateTime.toISOString(),
-      end_time: endDateTime.toISOString(),
+      start_time: start_time,
+      end_time: end_time,
       id: session.id,
       teams: selectedTeams.map((team) => team.id),
     };
