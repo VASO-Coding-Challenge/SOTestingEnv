@@ -21,7 +21,13 @@ from ..models import Team, TeamData, TeamMember, TeamMemberCreate
 from ..models.team import TeamPublic
 
 
-__authors__ = ["Nicholas Almy", "Mustafa Aljumayli", "Andrew Lockard", "Ivan Wu", "Tsering Lama"]
+__authors__ = [
+    "Nicholas Almy",
+    "Mustafa Aljumayli",
+    "Andrew Lockard",
+    "Ivan Wu",
+    "Tsering Lama",
+]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"
 
@@ -93,8 +99,16 @@ class TeamService:
                 "Team Number": [team.name],
                 "Password": [team.password],
                 "Session ID": [team.session_id],
-                "Start Time": [team.start_time.strftime("%m/%d/%Y %H:%M") if team.start_time else ""],
-                "End Time": [team.end_time.strftime("%m/%d/%Y %H:%M") if team.end_time else ""]
+                "Start Time": [
+                    (
+                        team.start_time.strftime("%m/%d/%Y %H:%M")
+                        if team.start_time
+                        else ""
+                    )
+                ],
+                "End Time": [
+                    team.end_time.strftime("%m/%d/%Y %H:%M") if team.end_time else ""
+                ],
             }
         )
         return team_df
@@ -168,7 +182,7 @@ class TeamService:
         else:
             # If a Team object was provided, use it as is
             pass
-                
+
         self._session.add(team)
         self._session.commit()
         self._session.refresh(team)
@@ -330,7 +344,7 @@ class TeamService:
 
     def get_all_teams(self) -> List[Team]:
         """Gets a list of all the teams
-        
+
         Returns:
             List[Team]: List of all teams
         """
@@ -348,7 +362,7 @@ class TeamService:
 
     def delete_all_teams(self):
         """Deletes all teams and their members
-        
+
         Returns:
             bool: True if operation successful
         """
@@ -358,26 +372,26 @@ class TeamService:
         self._session.exec(delete(Team))
         self._session.commit()
         return True
-    
+
     def delete_team_by_id(self, team_id: int) -> bool:
         """Deletes a team by its ID
-        
+
         Args:
             team_id (int): ID of the team to delete
-            
+
         Returns:
             bool: True if team was deleted, False if team wasn't found
-            
+
         Note: This will also delete all associated team members
         """
         # Find the team
         team = self._session.get(Team, team_id)
         if not team:
             return False
-            
+
         # Delete all members of this team
         self._session.exec(delete(TeamMember).where(TeamMember.team_id == team_id))
-        
+
         # Delete the team
         self._session.delete(team)
         self._session.commit()
@@ -386,11 +400,11 @@ class TeamService:
     def delete_team(self, team: TeamData | Team) -> bool:
         """Deletes a team"""
         team = self.get_team(team.name)
-        
+
         # First delete team members
         for member in team.members:
             self._session.delete(member)
-        
+
         self._session.delete(team)
         self._session.commit()
         return True
@@ -450,7 +464,7 @@ class TeamService:
         if not team:
             raise ResourceNotFoundException("Team", team_id)
         return team.session
-    
+  
     def team_name_exists(self, name: str) -> bool:
         """Check if a team with the given name already exists.
         

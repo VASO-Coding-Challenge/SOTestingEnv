@@ -1,8 +1,12 @@
 """File to contain all Problem manipulation related tests"""
 
-import os
-from fastapi import HTTPException
 import pytest
+import shutil
+import zipfile
+import os
+from pathlib import Path
+from unittest.mock import patch
+from fastapi import HTTPException
 from ..services import ProblemService
 from ..test.fake_data.problem import setup_problem_data
 
@@ -13,9 +17,7 @@ __authors__ = ["Michelle Nguyen"]
 def test_get_problems_list(setup_problem_data):
     """Test retrieving the list of problems."""
     test_env = setup_problem_data()
-    ProblemService.QUESTIONS_DIR = str(
-        test_env / "es_files" / "questions"
-    )  # overrides real path to temp test path for testing
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
 
     problems = ProblemService.get_problems_list()
     assert len(problems) == 2
@@ -59,22 +61,10 @@ def test_write_file(setup_problem_data):
 
     ProblemService.write_file(1, "new_file.txt", "Test content")
 
-    # Verify the file was written
     path = ProblemService.get_question_path(1, "new_file.txt")
     assert os.path.exists(path)
     with open(path, "r") as f:
         assert f.read() == "Test content"
-
-
-def test_load_docs(setup_problem_data):
-    """Test loading documentation files for a problem."""
-    test_env = setup_problem_data()
-    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
-
-    docs = ProblemService.load_docs(1)
-    assert len(docs) == 1
-    assert docs[0].title == "example"
-    assert docs[0].content == "Documentation for problem 1"
 
 
 def test_get_problem(setup_problem_data):
@@ -88,7 +78,6 @@ def test_get_problem(setup_problem_data):
     assert problem.starter_code == "# Starter code for problem 1"
     assert problem.test_cases == "# Test cases for problem 1"
     assert problem.demo_cases == "# Demo cases for problem 1"
-    assert len(problem.docs) == 1
 
 
 def test_create_problem(setup_problem_data):
@@ -131,14 +120,46 @@ def test_delete_problem(setup_problem_data):
     test_env = setup_problem_data()
     ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
 
-    # Delete problem 1
     ProblemService.delete_problem(1)
 
-    # Check remaining problems
     problems = ProblemService.get_problems_list()
     assert len(problems) == 1
-    assert problems == [1]  # Renumbered from original q2
+    assert problems == [1]
 
-    # Verify the remaining problem's content is now from the original q2
     problem = ProblemService.get_problem(1)
     assert problem.prompt == "Prompt for problem 2"
+
+
+def test_zip_all_problems(setup_problem_data):
+    """Test if zip_all_problems correctly generates a ZIP file containing all problems."""
+    test_env = setup_problem_data()
+
+    with patch(
+        "backend.services.ProblemService.QUESTIONS_DIR",
+        str(test_env / "es_files" / "questions"),
+    ):
+        zip_path = ProblemService.zip_all_problems()
+
+        assert Path(zip_path).exists(), "ZIP file was not created."
+        assert zip_path.endswith(".zip"), "Generated file is not a ZIP archive."
+
+        with zipfile.ZipFile(zip_path, "r") as zip_file:
+            file_list = zip_file.namelist()
+
+            expected_files = [
+                "q1/prompt.md",
+                "q1/starter.py",
+                "q1/test_cases.py",
+                "q1/demo_cases.py",
+                "q2/prompt.md",
+                "q2/starter.py",
+                "q2/test_cases.py",
+                "q2/demo_cases.py",
+            ]
+
+            for expected_file in expected_files:
+                assert (
+                    expected_file in file_list
+                ), f"Missing file in ZIP: {expected_file}"
+
+        shutil.rmtree(test_env)

@@ -2,8 +2,9 @@
 
 from typing import List
 from fastapi import APIRouter, HTTPException, Body
+from fastapi.responses import FileResponse
 from ..services.problems import ProblemService
-from ..models import ProblemResponse
+from ..models import Problem
 
 __authors__ = ["Michelle Nguyen"]
 
@@ -21,14 +22,14 @@ def get_problems_list():
     return ProblemService.get_problems_list()
 
 
-@api.get("/all", response_model=List[ProblemResponse], tags=["Problems"])
+@api.get("/all", response_model=List[Problem], tags=["Problems"])
 def get_all_problem_details():
     """Retrieve all problems and their files/contents."""
     problem_ids = ProblemService.get_problems_list()
     return [ProblemService.get_problem(q_num) for q_num in problem_ids]
 
 
-@api.get("/{q_num}", response_model=ProblemResponse, tags=["Problems"])
+@api.get("/{q_num}", response_model=Problem, tags=["Problems"])
 def get_problem_details(q_num: int):
     """Retrieve a specific problem's files/contents"""
     return ProblemService.get_problem(q_num)
@@ -120,20 +121,31 @@ def delete_all_problems():
         while True:
             problem_ids = ProblemService.get_problems_list()
             if not problem_ids:
-                break  # Stop when all problems are deleted
+                break
 
-            for q_num in problem_ids[:]:  # Copy list to avoid modification issues
+            for q_num in problem_ids[:]:
                 try:
                     ProblemService.delete_problem(q_num)
                 except HTTPException as e:
                     if e.status_code == 404:
-                        continue  # Ignore and keep deleting
+                        continue
                     else:
-                        raise  # Raise other unexpected errors
+                        raise
 
         return {"message": "All problems deleted successfully."}
     except Exception as e:
-        # Handle any unexpected exceptions
         raise HTTPException(
             status_code=500, detail=f"Error deleting all problems: {str(e)}"
         )
+
+
+@api.get("/problems/download", tags=["Problems"])
+def download_all_problems():
+    """Endpoint to download all problems as a ZIP file."""
+    try:
+        zip_path = ProblemService.zip_all_problems()
+        return FileResponse(
+            zip_path, filename="problems.zip", media_type="application/zip"
+        )
+    except HTTPException as e:
+        raise e

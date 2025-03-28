@@ -21,6 +21,7 @@ from .api import (
     static_files,
     session_obj,
     problem,
+    scores,
 )
 
 __authors__ = ["Andrew Lockard", "Mustafa Aljumayli"]
@@ -56,7 +57,7 @@ app.add_middleware(
 
 
 # ! Plug in each separate API file here (make sure to import above)
-feature_apis = [team, auth, question, docs, submission, session_obj, problem]
+feature_apis = [team, auth, question, docs, submission, session_obj, problem, scores]
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)

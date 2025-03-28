@@ -2,11 +2,14 @@
 
 import os
 import shutil
+
+import tempfile
 from textwrap import dedent
 from typing import List
 
 from fastapi import HTTPException
-from ..models import Document, ProblemResponse
+from ..models import Document, Problem
+
 
 __authors__ = ["Michelle Nguyen"]
 
@@ -20,7 +23,6 @@ class ProblemService:
     def get_problems_list() -> List[int]:
         """Retrieve all available problem numbers."""
         try:
-            # Return empty list when no problems exist instead of raising an exception
             if not os.path.exists(ProblemService.QUESTIONS_DIR):
                 return []
 
@@ -31,31 +33,30 @@ class ProblemService:
                     if f.startswith("q") and f[1:].isdigit()
                 ]
             )
-            return problems  # Return empty list if no problems found
+            return problems
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Error fetching problems: {str(e)}"
             )
 
-    @staticmethod  # I made these methods static because we don't need to store any instance-specific state (self)
+    @staticmethod
     def get_question_path(q_num: int, filename: str) -> str:
         """Get the full file path for a given problem and filename."""
         return os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}", filename)
 
     @staticmethod
-    def get_problem(q_num: int) -> ProblemResponse:
+    def get_problem(q_num: int) -> Problem:
         """Retrieve all files related to a problem."""
         if not os.path.exists(os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")):
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
 
         try:
-            return ProblemResponse(
+            return Problem(
                 num=q_num,
                 prompt=ProblemService.read_file(q_num, "prompt.md"),
                 starter_code=ProblemService.read_file(q_num, "starter.py"),
                 test_cases=ProblemService.read_file(q_num, "test_cases.py"),
                 demo_cases=ProblemService.read_file(q_num, "demo_cases.py"),
-                docs=ProblemService.load_docs(q_num),
             )
         except Exception as e:
             raise HTTPException(
@@ -105,7 +106,6 @@ class ProblemService:
             problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_count}")
             os.makedirs(problem_path, exist_ok=True)
 
-            # Default content for each file
             default_prompt = "Complete the `first_five` function by returning the first five characters of `string_input`."
 
             default_starter = dedent(
@@ -142,7 +142,6 @@ class ProblemService:
             """
             )
 
-            # Write default content to files
             ProblemService.write_file(q_count, "prompt.md", default_prompt)
             ProblemService.write_file(q_count, "starter.py", default_starter)
             ProblemService.write_file(q_count, "test_cases.py", default_test_cases)
@@ -175,28 +174,6 @@ class ProblemService:
             )
 
     @staticmethod
-    def load_docs(q_num: int) -> List[Document]:
-        """Load all documentation files for a problem."""
-        doc_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")
-        if not os.path.exists(doc_path):
-            raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
-
-        local_docs = []
-        try:
-            for file in os.listdir(doc_path):
-                if file.startswith("doc_") and file.endswith(".md"):
-                    doc_title = file[4:-3]  # Extract title from "doc_<title>.md"
-                    content = ProblemService.read_file(q_num, file)
-                    local_docs.append(Document(content=content, title=doc_title))
-
-            return local_docs
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error loading documentation for problem {q_num}: {str(e)}",
-            )
-
-    @staticmethod
     def delete_problem(q_num: int):
         """Deletes a specific problem and renumbers the remaining problems."""
         problem_path = os.path.join(ProblemService.QUESTIONS_DIR, f"q{q_num}")
@@ -205,7 +182,6 @@ class ProblemService:
             raise HTTPException(status_code=404, detail=f"Problem {q_num} not found.")
 
         try:
-            # Remove the specified problem directory
             shutil.rmtree(problem_path)
 
             # Get remaining problems and sort them
@@ -228,4 +204,23 @@ class ProblemService:
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Error deleting problem {q_num}: {str(e)}"
+            )
+
+    @staticmethod
+    def zip_all_problems() -> str:
+        """Creates a ZIP archive containing all problem files."""
+        if not os.path.exists(ProblemService.QUESTIONS_DIR):
+            raise HTTPException(status_code=404, detail="No problems found.")
+
+        temp_zip_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(temp_zip_dir, "problems.zip")
+
+        try:
+            shutil.make_archive(
+                zip_path.replace(".zip", ""), "zip", ProblemService.QUESTIONS_DIR
+            )
+            return zip_path
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error creating ZIP file: {str(e)}"
             )
