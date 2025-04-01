@@ -2,6 +2,8 @@
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
+
+from backend.services.exceptions import ResourceNotAllowedException
 from ..models.team import TeamPublic, Team, TeamData
 from ..services.team import TeamService
 from ..services.submissions import SubmissionService
@@ -76,23 +78,26 @@ def delete_team_member(
 #     return team_svc.get_all_teams()
 
 
+
 @api.post("", response_model=TeamPublic, tags=["Teams"])
 def create_team(team_data: TeamData, team_svc: TeamService = Depends()) -> TeamPublic:
     """Create a new team"""
-    return team_svc.create_team(team_data)
+    try:
+        return team_svc.create_team(team_data)
+    except ResourceNotAllowedException as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
 @api.post("/batch", response_model=list[TeamPublic], tags=["Teams"])
 def create_batch_teams(
     team_names: List[str], team_template: TeamData, team_svc: TeamService = Depends()
 ) -> list[TeamPublic]:
-    """Create multiple teams at once based on a template and provided names
-
-    Args:
-        team_names: List of team names to create
-        team_template: Template for the teams with password, times, etc.
-    """
-    return team_svc.create_batch_teams(team_names, team_template)
+    """Create multiple teams at once based on a template and provided names"""
+    try:
+        teams = team_svc.create_batch_teams(team_names, team_template)
+        return teams
+    except ResourceNotAllowedException as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
 # @api.delete("/{team_id}", tags=["Teams"])
