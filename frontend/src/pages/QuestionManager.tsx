@@ -12,9 +12,11 @@ import remarkGfm from "remark-gfm";
 import { Editor } from "@monaco-editor/react"
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Button } from "@/components/ui/button";
-import { Box, Typography, List, ListItem, Link as MuiLink } from "@mui/material";
+//import { Button } from "@/components/ui/button";
+import { Box, IconButton, TextField, Button, Typography, List, ListItem, Link as MuiLink } from "@mui/material";
 import { Link } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 
 
 
@@ -106,10 +108,38 @@ export default function QuestionManager() {
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     console.log(newValue);
     setValue(newValue);
-    onTabClick(newValue);
+    console.log(newValue);
+    // onTabClick(newValue); // Removed as it is not defined
     handleQuestionClick(newValue);
 
 
+  };
+  const [docs, setDocs] = useState([]);
+  const [newDocName, setNewDocName] = useState("");
+  const [newDocUrl, setNewDocUrl] = useState("");
+
+
+
+  const addDoc = () => {
+    if (newDocName && newDocUrl) {
+      fetch("/docs/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newDocName, content: newDocUrl }),
+      })
+        .then((response) => response.json())
+        .then((newDoc) => setDocs([...docs, newDoc]))
+        .catch((error) => console.error("Error adding document:", error));
+      setNewDocName("");
+      setNewDocUrl("");
+      console.log(docs);
+    }
+  };
+
+  const removeDoc = (title) => {
+    fetch(`/docs/${title}`, { method: "DELETE" })
+      .then(() => setDocs(docs.filter((doc) => doc.title !== title)))
+      .catch((error) => console.error("Error deleting document:", error));
   };
   const handleCreate = async ()  => {
     // create new question using /api/problems/create
@@ -180,6 +210,10 @@ export default function QuestionManager() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     //void getQuestions();
+    fetch("/docs/")
+      .then((response) => response.json())
+      .then((data) => setDocs(data))
+      .catch((error) => console.error("Error fetching documents:", error));
     
 
     if (!token) {
@@ -201,8 +235,10 @@ export default function QuestionManager() {
   }, [navigate]);
 
   const handleQuestionClick = (questionNum: number) => {
+    console.log(questionNum);
     const question = questions?.find((q) => q.num - 1 === questionNum) || null;
     setSelectedQuestion(question);
+    console.log(selectedQuestion);
   };
 
   async function DeleteQuestions() {
@@ -283,7 +319,7 @@ export default function QuestionManager() {
         <div className="w-64 fixed h-full bg-white shadow-md">
         <SidebarContainer>
        
-          <TabsContainer onTabClick={handleQuestionClick}>
+          <TabsContainer >
             <Tabs
               value={value}
               onChange={handleChange}
@@ -387,12 +423,52 @@ export default function QuestionManager() {
                   Global Documentation
                 </Typography>
                 <List sx={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-                  <ListItem sx={{ padding: 0, marginBottom: "0.5rem", borderRadius: "4px", "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}>
-                    <MuiLink to="/python_docs/index.html" target="_blank" rel="noopener noreferrer" underline="none" sx={{ color: "#1976d2", fontSize: "1rem", fontWeight: 500, textAlign: "center", cursor: "pointer", "&:hover": { textDecoration: "underline", color: "secondary.main" } }} component={Link}>
-                      Python 3 Documentation
-                    </MuiLink>
-                  </ListItem>
+                  {docs.map((doc) => (
+                    <ListItem
+                      key={doc.title}
+                      sx={{
+                        padding: 0,
+                        marginBottom: "0.5rem",
+                        borderRadius: "4px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                      }}
+                    >
+                      <Link
+                        to={doc.content}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: "none", color: "#1976d2", fontWeight: 500 }}
+                      >
+                        Link to {doc.title}
+                      </Link>
+                      <IconButton onClick={() => removeDoc(doc.title)}>
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </ListItem>
+                  ))}
                 </List>
+                <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                  <TextField
+                    label="Document Name"
+                    variant="outlined"
+                    size="small"
+                    value={newDocName}
+                    onChange={(e) => setNewDocName(e.target.value)}
+                  />
+                  <TextField
+                    label="URL/Content"
+                    variant="outlined"
+                    size="small"
+                    value={newDocUrl}
+                    onChange={(e) => setNewDocUrl(e.target.value)}
+                  />
+                  <Button variant="contained" color="primary" onClick={addDoc}>
+                    Add
+                  </Button>
+                </Box>
               </Box>
             )}
           </div>
