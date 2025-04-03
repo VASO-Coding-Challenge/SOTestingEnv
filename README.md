@@ -67,14 +67,17 @@ Run these commands to install the React dependencies:
 
 1. `cd backend`
 2. Generate a random secret key via: `openssl rand -hex 32`
-3. Create a new file called `.env.development` with the following contents:
+3. Generate a secure password via: `openssl rand -hex 6`, or come up with your own
+4. Create a new file called `.env.development` with the following contents:
 
 ```
 SECRET_KEY=<Your Generated Secret Key>
 ACCESS_TOKEN_EXPIRE_MINUTES=90
+ES_USERNAME=<Create a Username>
+ES_PASSWORD=<Choose a Secure Password>
 ```
 
-4. `cd ..`
+5. `cd ..`
 
 ### Running the Development Server
 
