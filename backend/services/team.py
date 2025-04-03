@@ -39,14 +39,15 @@ class TeamService:
     """Service that preforms actions on Team Table."""
 
     def __init__(
-        self, 
+        self,
         session: Session = Depends(db_session),
-        pwd_svc = None  # Make PasswordService optional
-    ):  
+        pwd_svc=None,  # Make PasswordService optional
+    ):
         self._session = session
         # Lazy import to avoid circular import
         if pwd_svc is None:
             from .passwords import PasswordService
+
             self._pwd_svc = PasswordService(session)
         else:
             self._pwd_svc = pwd_svc
@@ -161,23 +162,25 @@ class TeamService:
             name = team.name
         else:
             name = team.name
-            
+
         if self.team_name_exists(name):
-            raise ResourceNotAllowedException(f"A team with name '{name}' already exists")
+            raise ResourceNotAllowedException(
+                f"A team with name '{name}' already exists"
+            )
 
         if isinstance(team, TeamData):
             # Generate a random password if one isn't provided or if it's empty
             password = team.password
             if not password or password.strip() == "" or password == "string":
                 password = self._pwd_svc.generate_password()
-            
+
             # Create the team with the password and explicitly set session_id
             team = Team(
                 name=team.name,
                 password=password,
                 start_time=team.start_time,
                 end_time=team.end_time,
-                session_id=None
+                session_id=None,
             )
         else:
             # If a Team object was provided, use it as is
@@ -188,7 +191,9 @@ class TeamService:
         self._session.refresh(team)
         return team
 
-    def create_batch_teams(self, team_names_or_prefix, batch_size_or_template, template=None):
+    def create_batch_teams(
+        self, team_names_or_prefix, batch_size_or_template, template=None
+    ):
         """Create multiple teams based on a template.
         This method supports two calling patterns:
         1. create_batch_teams(prefix, batch_size, template)
@@ -207,58 +212,58 @@ class TeamService:
             # Second pattern: team_names, team_template
             team_names = team_names_or_prefix
             team_template = batch_size_or_template
-            
+
             created_teams = []
             skipped_names = []
-            
+
             # Base template data
             start_time = team_template.start_time
             end_time = team_template.end_time
-            
+
             for team_name in team_names:
                 # Check if this specific name already exists
                 if self.team_name_exists(team_name):
                     skipped_names.append(team_name)
                     continue
-                
+
                 # Generate password using PasswordService
                 password = self._pwd_svc.generate_password()
-                
+
                 # Create new team
                 new_team = Team(
                     name=team_name,
                     password=password,
                     start_time=start_time,
                     end_time=end_time,
-                    session_id=None
+                    session_id=None,
                 )
-                
+
                 self._session.add(new_team)
                 created_teams.append(new_team)
-                
+
             # If all teams were skipped, raise an exception
             if len(skipped_names) == len(team_names):
                 raise ResourceNotAllowedException(
                     f"All requested team names already exist: {', '.join(skipped_names)}"
                 )
-            
+
         else:
             # First pattern: template_name, batch_size, template
             template_name = team_names_or_prefix
             batch_size = batch_size_or_template
-            
+
             created_teams = []
             skipped_names = []
-            
+
             # Base template data
             start_time = template.start_time
             end_time = template.end_time
-            
+
             # Find the highest existing number for this prefix
             existing_teams = self._session.exec(
                 select(Team).where(Team.name.like(f"{template_name}%"))
             ).all()
-            
+
             # Track highest existing number
             highest_num = 0
             for team in existing_teams:
@@ -270,37 +275,37 @@ class TeamService:
                         highest_num = max(highest_num, num)
                 except (ValueError, IndexError):
                     continue
-            
+
             # Create new teams starting from the next available number
             teams_to_create = batch_size
             attempts = 0
             max_attempts = batch_size * 2  # Avoid infinite loop
-            
+
             while teams_to_create > 0 and attempts < max_attempts:
                 attempts += 1
                 team_name = f"{template_name}{highest_num + attempts}"
-                
+
                 # Skip if this specific name already exists
                 if self.team_name_exists(team_name):
                     skipped_names.append(team_name)
                     continue
-                
+
                 # Generate password using PasswordService
                 password = self._pwd_svc.generate_password()
-                
+
                 # Create new team
                 new_team = Team(
                     name=team_name,
                     password=password,
                     start_time=start_time,
                     end_time=end_time,
-                    session_id=None
+                    session_id=None,
                 )
-                
+
                 self._session.add(new_team)
                 created_teams.append(new_team)
                 teams_to_create -= 1
-                
+
             # If no teams were created, raise an exception
             if not created_teams:
                 if skipped_names:
@@ -310,15 +315,15 @@ class TeamService:
                 else:
                     message = "Could not create any teams due to naming conflicts."
                 raise ResourceNotAllowedException(message)
-        
+
         # Only commit if we're actually creating teams
         if created_teams:
             self._session.commit()
-            
+
             # Refresh all teams to get their IDs
             for team in created_teams:
                 self._session.refresh(team)
-                
+
         return created_teams
 
     def get_team(self, identifier) -> Team:
@@ -366,9 +371,8 @@ class TeamService:
         Returns:
             bool: True if operation successful
         """
-        # First delete all team members
         self._session.exec(delete(TeamMember))
-        # Then delete all teams
+
         self._session.exec(delete(Team))
         self._session.commit()
         return True
@@ -464,13 +468,13 @@ class TeamService:
         if not team:
             raise ResourceNotFoundException("Team", team_id)
         return team.session
-  
+
     def team_name_exists(self, name: str) -> bool:
         """Check if a team with the given name already exists.
-        
+
         Args:
             name (str): The team name to check
-            
+
         Returns:
             bool: True if the name exists, False otherwise
         """
@@ -478,3 +482,15 @@ class TeamService:
             select(Team).where(Team.name == name)
         ).first()
         return existing_team is not None
+
+    def get_team_name_by_id(self, team_id: int) -> Optional[str]:
+        """Retrieve a team's name by its ID.
+
+        Args:
+            team_id (int): The ID of the team.
+
+        Returns:
+            Optional[str]: The team's name if found, otherwise None.
+        """
+        team = self._session.get(Team, team_id)
+        return team.name if team else None
