@@ -49,6 +49,28 @@ def get_team_members(
         return team.members
 
 
+@api.get("/{team_id}/members", response_model=list[TeamMemberPublic], tags=["Teams"])
+def get_team_members_by_id(
+    team_id: int,
+    team_svc: TeamService = Depends(),
+):
+    """
+    Fetches all members for a specific team by its ID.
+
+    Args:
+        team_id (int): The ID of the team whose members are to be fetched.
+
+    Returns:
+        list[TeamMemberPublic]: A list of team members for the specified team.
+    """
+    team = team_svc.get_team(team_id)
+
+    print(f"Team found: {team}")
+    print(f"Members: {team.members}")
+
+    return team.members
+
+
 @api.post("/members", response_model=TeamMemberPublic, tags=["Teams"])
 def add_team_member(
     new_member: TeamMemberCreate,
@@ -66,17 +88,6 @@ def delete_team_member(
     """Deletes a team member from the currenlty logged in team."""
     team_svc.delete_team_member(member_id, team)
     return {"message": f"Team Member {member_id} deleted successfully"}
-
-
-# reorder this later
-
-# @api.get("/all", response_model=list[TeamPublic], tags=["Teams"])
-# def get_all_teams(
-#     team_svc: TeamService = Depends(),
-# ) -> list[TeamPublic]:
-#     """Retrieve all teams"""
-#     return team_svc.get_all_teams()
-
 
 
 @api.post("", response_model=TeamPublic, tags=["Teams"])
@@ -98,83 +109,6 @@ def create_batch_teams(
         return teams
     except ResourceNotAllowedException as e:
         raise HTTPException(status_code=409, detail=str(e))
-
-
-# @api.delete("/{team_id}", tags=["Teams"])
-# def delete_team(team_id: int, team_svc: TeamService = Depends()):
-#     """Delete a specific team"""
-#     success = team_svc.delete_team_by_id(team_id)
-#     if not success:
-#         raise HTTPException(status_code=404, detail="Team not found")
-#     return {"message": f"Team {team_id} deleted successfully"}
-
-
-# @api.delete("", tags=["Teams"])
-# def delete_all_teams(team_svc: TeamService = Depends()):
-#     """Delete all teams"""
-#     team_svc.delete_all_teams()
-#     return {"message": "All teams deleted successfully"}
-
-
-# @api.delete("/{team_id}", tags=["Teams"])
-# def delete_team(team_id: int, team_svc: TeamService = Depends()):
-#     """Delete a specific team"""
-#     success_delete = SubmissionService.delete_submissions(team_name)
-#     success = team_svc.delete_team_by_id(team_id)
-#     if not success:
-#         raise HTTPException(status_code=404, detail="Team not found")
-#     return {"message": f"Team {team_id} deleted successfully"}
-
-
-# @api.delete("", tags=["Teams"])
-# def delete_all_teams(team_svc: TeamService = Depends()):
-#     """Delete all teams"""
-#     # loop through all teams then delete
-#     # success_delete = SubmissionService.delete_submissions(team_name)
-#     team_svc.delete_all_teams()
-#     return {"message": "All teams deleted successfully"}
-
-
-# @api.delete("/{team_id}", tags=["Teams"])
-# def delete_team(team_id: int, team_svc: TeamService = Depends()):
-#     """Delete a specific team"""
-#     team = team_svc.get_team_by_id(team_id)
-
-#     if not team:
-#         raise HTTPException(status_code=404, detail="Team not found")
-
-#     success_delete_submissions = SubmissionService.delete_submissions(team.name)
-#     if not success_delete_submissions:
-#         raise HTTPException(
-#             status_code=500, detail=f"Failed to delete submissions for team {team.name}"
-#         )
-
-#     success_delete_team = team_svc.delete_team_by_id(team_id)
-#     if not success_delete_team:
-#         raise HTTPException(
-#             status_code=500, detail=f"Failed to delete team {team.name}"
-#         )
-
-#     return {"message": f"Team {team.name} (ID: {team_id}) deleted successfully"}
-
-
-# @api.delete("", tags=["Teams"])
-# def delete_all_teams(team_svc: TeamService = Depends()):
-#     """Delete all teams"""
-#     teams = team_svc.get_all_teams()
-
-#     for team in teams:
-#         success_delete_submissions = SubmissionService.delete_submissions(
-#             team.name
-#         )  # Use team name
-#         if not success_delete_submissions:
-#             raise HTTPException(
-#                 status_code=500,
-#                 detail=f"Failed to delete submissions for team {team.name}",
-#             )
-
-#     team_svc.delete_all_teams()
-#     return {"message": "All teams and their submissions deleted successfully"}
 
 
 @api.delete("/{team_id}", tags=["Teams"])

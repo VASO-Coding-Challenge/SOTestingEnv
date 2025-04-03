@@ -144,7 +144,8 @@ export default function TeamManager() {
 
   const fetchTeamMembers = async (teamId: number) => {
     try {
-      const response = await fetch(`/api/team/members?team_id=${teamId}`, {
+      const response = await fetch(`/api/team/${teamId}/members`, {
+        // Path parameter instead of query
         method: "GET",
         headers: {
           "Content-Type": "application/json",
