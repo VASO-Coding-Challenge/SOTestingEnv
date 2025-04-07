@@ -345,33 +345,32 @@ export default function QuestionManager() {
       <div className="flex">
         {/* Sidebar */}
         <div className="w-64 fixed h-full bg-white shadow-md">
-        <SidebarContainer>
-       
-          <TabsContainer >
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              orientation="vertical"
-              indicatorColor="secondary"
-            >
-              {Array.from({ length: questions ? questions.length : 0 }, (_, index) => (
-                <StyledTab
-                  key={index}
-                  label={`Problem ${index + 1}`}
-                  icon={<StarsIcon />}
-                  iconPosition="top"
-                />
-              ))}
-            </Tabs>
-          </TabsContainer>
-          
-          <div>
-          <Button className="w-full p-2 bg-green-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300" onClick={() => handleCreate()}>
-            Create
-          </Button>
-          </div>
-          
-        </SidebarContainer>
+        <SidebarContainer className="flex flex-col h-full">
+            <TabsContainer style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                orientation="vertical"
+                indicatorColor="secondary"
+              >
+                {Array.from({ length: questions ? questions.length : 0 }, (_, index) => (
+                  <StyledTab
+                    key={index}
+                    label={`Problem ${index + 1}`}
+                    icon={<StarsIcon />}
+                    iconPosition="top"
+                  />
+                ))}
+              </Tabs>
+            </TabsContainer>
+
+            <div>
+              <Button className="w-full p-2 bg-green-500 text-black rounded-md hover:bg-blue-600 disabled:bg-gray-300" onClick={() => handleCreate()}>
+                Create
+              </Button>
+            </div>
+          </SidebarContainer>
+
         </div>
         {/* Main Content */}
         <div className="flex-1 ml-64 p-6 w-[1200px]">
@@ -396,7 +395,7 @@ export default function QuestionManager() {
                   {"## Problem " + selectedQuestion?.num}
                 </Markdown>
                 <p className="text-red-500 font-semibold mt-4">Prompt</p>
-                <Editor className="h-72 w-full" value={selectedQuestion?.prompt} 
+                <Editor className="h-96 w-full" value={selectedQuestion?.prompt} 
                 defaultLanguage="python"
                 theme="vs-light"
                 options={{
@@ -405,10 +404,10 @@ export default function QuestionManager() {
                   scrollBeyondLastLine: false,
                 }}
                 onChange={(value) => setCode(value || "")}/>
-                <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
                   SAVE
                 </button>
-                <button className="mt-6 w-full bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+                <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
                   Delete
                 </button>
               </div>
