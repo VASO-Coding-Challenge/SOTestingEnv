@@ -102,6 +102,7 @@ export default function QuestionManager() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
   const navigate = useNavigate();
+  const [selectedFile, setSelectedFile] = useState(null);
   
     
   
@@ -160,6 +161,33 @@ export default function QuestionManager() {
       }
     } catch (error) {
       console.error('An error occurred while creating a new problem:', error);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+  
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    if (newDocName) formData.append("title", newDocName);
+  
+    try {
+      const response = await fetch("/docs/upload", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) throw new Error("Upload failed");
+  
+      const uploadedDoc = await response.json();
+      setDocs((prev) => [...prev, uploadedDoc]);
+  
+      // Reset inputs
+      setSelectedFile(null);
+      setNewDocName("");
+    } catch (err) {
+      console.error("Error uploading file:", err);
+      alert("Upload failed. Check console for details.");
     }
   };
   
@@ -368,7 +396,15 @@ export default function QuestionManager() {
                   {"## Problem " + selectedQuestion?.num}
                 </Markdown>
                 <p className="text-red-500 font-semibold mt-4">Prompt</p>
-                <Editor className="h-72 w-full" value={selectedQuestion?.prompt} onChange={(value) => setCode(value || "")}/>
+                <Editor className="h-72 w-full" value={selectedQuestion?.prompt} 
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode(value || "")}/>
                 <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
                   SAVE
                 </button>
@@ -381,7 +417,15 @@ export default function QuestionManager() {
             {activeTab === "starter" && (
               <div>
                 <p className="text-red-500 font-semibold">Starter Code</p>
-                <Editor className="h-72 w-full" value={selectedQuestion?.starter_code} onChange={(value) => setCode1(value || "")}/>
+                <Editor className="h-72 w-full" value={selectedQuestion?.starter_code} 
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode1(value || "")}/>
                 <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
                   SAVE
                 </button>
@@ -394,7 +438,15 @@ export default function QuestionManager() {
             {activeTab === "autograder: Demo" && (
               <div>
                 <p className="text-red-500 font-semibold">Demo Test Case(s)</p>
-                <Editor className="h-64 w-full" value={selectedQuestion?.demo_cases} onChange={(value) => setCode2(value || "")} />
+                <Editor className="h-64 w-full" value={selectedQuestion?.demo_cases} 
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode2(value || "")} />
               <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
                   SAVE
               </button>
@@ -407,7 +459,15 @@ export default function QuestionManager() {
             {activeTab === "autograder: Test" && (
               <div>
               <p className="text-red-500 font-semibold mt-4">Test Case(s)</p>
-                <Editor className="h-64 w-full" value={selectedQuestion?.test_cases} onChange={(value) => setCode3(value || "")} />
+                <Editor className="h-64 w-full" value={selectedQuestion?.test_cases} 
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode3(value || "")} />
                 <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
                   SAVE
                 </button>
@@ -435,15 +495,13 @@ export default function QuestionManager() {
                         alignItems: "center",
                         "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                       }}
-                    >
-                      <Link
-                        to={doc.content}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: "none", color: "#1976d2", fontWeight: 500 }}
                       >
-                        Link to {doc.title}
-                      </Link>
+                      <h1>
+                        Title: {doc.title}
+                      </h1>
+                      <p>
+                      Content: {doc.content}
+                      </p>
                       <IconButton onClick={() => removeDoc(doc.title)}>
                         <DeleteIcon color="error" />
                       </IconButton>
@@ -468,6 +526,22 @@ export default function QuestionManager() {
                   <Button variant="contained" color="primary" onClick={addDoc}>
                     Add
                   </Button>
+                  
+                  <input
+                    type="file"
+                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                    //accept=".txt,.pdf,.doc,.docx"
+                    style={{ flexGrow: 1 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleUpload}
+                    disabled={!selectedFile}
+                  >
+                    Upload
+                  </Button>
+                  
                 </Box>
               </Box>
             )}
