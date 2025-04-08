@@ -34,7 +34,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [activeTab, setActiveTab] = useState<"submission" | "docs">(
     "submission"
   );
-  const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
     sessionStorage.getItem(`question_1`) || question.starter_code
   );
@@ -138,10 +137,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   const handleTabSwitch = (tab: "submission" | "docs") => {
     setActiveTab(tab);
-  };
-
-  const handleDocsTabSwitch = (tab: "question" | "global") => {
-    setDocsTab(tab);
   };
 
   const openDocInNewTab = (doc: { content: string; title: string }) => {
