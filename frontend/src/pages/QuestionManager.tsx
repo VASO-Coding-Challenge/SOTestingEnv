@@ -9,17 +9,21 @@ import { QuestionsPublic, Question, Document } from "../models/questions";
 //import LeftSideBarCopy from "../components/LeftSideBarCopy";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Editor } from "@monaco-editor/react"
+import { Editor } from "@monaco-editor/react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-//import { Button } from "@/components/ui/button";
-import { Box, IconButton, TextField, Button, Typography, List, ListItem, Link as MuiLink } from "@mui/material";
+import { Button } from "@/components/ui/button";
+import {
+  Box,
+  IconButton,
+  TextField,
+  Typography,
+  List,
+  ListItem,
+  Link as MuiLink,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-
-
-
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -61,14 +65,11 @@ export default function QuestionManager() {
     onTabClick: (index: number) => void;
   }
 
-
-
   const SidebarContainer = styled(Box)({
     display: "flex",
     width: "180px",
     maxWidth: "180px",
     padding: "0px 0px",
-    borderRight: "1px solid #ccc",
     flexDirection: "column",
     height: "100vh",
   });
@@ -97,7 +98,6 @@ export default function QuestionManager() {
     textAlign: "center",
   });
 
-
   const [value, setValue] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
@@ -105,22 +105,16 @@ export default function QuestionManager() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [hasChanged, setHasChanged] = useState(false);
 
-
-
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     console.log(newValue);
     setValue(newValue);
     console.log(newValue);
     // onTabClick(newValue); // Removed as it is not defined
     handleQuestionClick(newValue);
-
-
   };
   const [docs, setDocs] = useState([]);
   const [newDocName, setNewDocName] = useState("");
   const [newDocUrl, setNewDocUrl] = useState("");
-
-
 
   const addDoc = () => {
     if (newDocName && newDocUrl) {
@@ -146,13 +140,13 @@ export default function QuestionManager() {
   const handleCreate = async () => {
     // create new question using /api/problems/create
     try {
-      const response = await fetch('/api/problems/create/', {
-        method: 'POST',
+      const response = await fetch("/api/problems/create/", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({}),
       });
       if (response.ok) {
         await getQuestions(questions.length + 1);
@@ -162,10 +156,10 @@ export default function QuestionManager() {
         //setSelectedQuestion(question);
         //navigate('/question-manager');
       } else {
-        console.error('Failed to create new problem');
+        console.error("Failed to create new problem");
       }
     } catch (error) {
-      console.error('An error occurred while creating a new problem:', error);
+      console.error("An error occurred while creating a new problem:", error);
     }
   };
 
@@ -196,13 +190,6 @@ export default function QuestionManager() {
     }
   };
 
-
-
-
-
-
-
-
   const getQuestions = async (index) => {
     // get from API
     try {
@@ -223,7 +210,7 @@ export default function QuestionManager() {
       setQuestions(data);
       console.log("Questions:", data);
       const question = data?.find((q) => q.num === index) || null;
-      console.log("Question 1: ", question)
+      console.log("Question 1: ", question);
       setSelectedQuestion(question);
       setValue(index - 1);
     } catch (error) {
@@ -248,7 +235,6 @@ export default function QuestionManager() {
       .then((response) => response.json())
       .then((data) => setDocs(data))
       .catch((error) => console.error("Error fetching documents:", error));
-
 
     if (!token) {
       console.error("No token found");
@@ -304,7 +290,6 @@ export default function QuestionManager() {
     } catch (error) {
       console.error("Error updating question:", error);
     }
-
   }
 
   async function UpdateQuestions() {
@@ -336,10 +321,11 @@ export default function QuestionManager() {
       console.log("Question updated successfully:", updatedQuestion);
 
       // Update the local state with the updated question
-      setQuestions((prevQuestions) =>
-        prevQuestions?.map((q) =>
-          q.num === updatedQuestion.num ? updatedQuestion : q
-        ) || null
+      setQuestions(
+        (prevQuestions) =>
+          prevQuestions?.map((q) =>
+            q.num === updatedQuestion.num ? updatedQuestion : q
+          ) || null
       );
     } catch (error) {
       console.error("Error updating question:", error);
@@ -348,46 +334,61 @@ export default function QuestionManager() {
   return (
     <LayoutContainer>
       <ESNavBar />
-      <div className="flex">
+      <div className="flex flex-row">
         {/* Sidebar */}
-        <div className="w-64 fixed h-full bg-white shadow-md">
-          <SidebarContainer className="flex flex-col h-full" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 150px)' }}>
-            <TabsContainer >
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                orientation="vertical"
-                indicatorColor="secondary"
-              >
-                {Array.from({ length: questions ? questions.length : 0 }, (_, index) => (
-                  <StyledTab
-                    key={index}
-                    label={`Problem ${index + 1}`}
-                    icon={<StarsIcon />}
-                    iconPosition="top"
-                  />
-                ))}
-              </Tabs>
-            </TabsContainer>
-
-
-          </SidebarContainer>
-          <div>
-
-            <button className="mt-6 w-full bg-blue-500 text-white py-2 hover:bg-gray-300 rounded-md shadow-md text-lg font-bold" onClick={handleCreate}>
-              Create
-            </button>
+        <div className="flex flex-col h-full bg-white shadow-md border-r border-[#ccc]">
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              <SidebarContainer className="flex flex-col">
+                <TabsContainer>
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    orientation="vertical"
+                    indicatorColor="secondary"
+                  >
+                    {Array.from(
+                      { length: questions ? questions.length : 0 },
+                      (_, index) => (
+                        <StyledTab
+                          key={index}
+                          label={`Problem ${index + 1}`}
+                          icon={<StarsIcon />}
+                          iconPosition="top"
+                        />
+                      )
+                    )}
+                  </Tabs>
+                </TabsContainer>
+              </SidebarContainer>
+            </div>
           </div>
-
+          <Button
+            onClick={() => void handleCreate()}
+            variant="create"
+            className="w-[calc(100%-1rem)] m-2"
+          >
+            Create
+          </Button>
         </div>
         {/* Main Content */}
-        <div className="flex-1 ml-64 p-6 w-[1200px]">
+        <div className="flex-1 p-6 w-[1200px]">
           {/* Tabs Navigation */}
           <div className="flex border-b">
-            {["problem", "starter", "autograder: Demo", "autograder: Test", "docs"].map((tab) => (
+            {[
+              "problem",
+              "starter",
+              "autograder: Demo",
+              "autograder: Test",
+              "docs",
+            ].map((tab) => (
               <button
                 key={tab}
-                className={`w-1/4 py-2 font-bold ${activeTab === tab ? "border-b-4 border-red-500 text-red-500" : "text-gray-500"}`}
+                className={`w-1/4 py-2 font-bold ${
+                  activeTab === tab
+                    ? "border-b-4 border-red-500 text-red-500"
+                    : "text-gray-500"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -400,7 +401,9 @@ export default function QuestionManager() {
               <div className="w-full">
                 <div>
                   <Markdown
-                    className={`markdown text-2xl font-bold ${hasChanged ? 'bg-yellow-100' : 'bg-white'}`}
+                    className={`markdown text-2xl font-bold ${
+                      hasChanged ? "bg-yellow-100" : "bg-white"
+                    }`}
                     remarkPlugins={[remarkGfm]}
                   >
                     {"## Problem " + selectedQuestion?.num}
@@ -449,7 +452,9 @@ export default function QuestionManager() {
           {activeTab === "starter" && (
             <div>
               <p className="text-red-500 font-semibold">Starter Code</p>
-              <Editor className="h-96 w-full" value={selectedQuestion?.starter_code}
+              <Editor
+                className="h-96 w-full"
+                value={selectedQuestion?.starter_code}
                 defaultLanguage="python"
                 theme="vs-light"
                 options={{
@@ -457,11 +462,18 @@ export default function QuestionManager() {
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                 }}
-                onChange={(value) => setCode1(value || "")} />
-              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                onChange={(value) => setCode1(value || "")}
+              />
+              <button
+                className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={UpdateQuestions}
+              >
                 SAVE
               </button>
-              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+              <button
+                className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={DeleteQuestions}
+              >
                 Delete
               </button>
             </div>
@@ -470,7 +482,9 @@ export default function QuestionManager() {
           {activeTab === "autograder: Demo" && (
             <div>
               <p className="text-red-500 font-semibold">Demo Test Case(s)</p>
-              <Editor className="h-96 w-full" value={selectedQuestion?.demo_cases}
+              <Editor
+                className="h-96 w-full"
+                value={selectedQuestion?.demo_cases}
                 defaultLanguage="python"
                 theme="vs-light"
                 options={{
@@ -478,11 +492,18 @@ export default function QuestionManager() {
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                 }}
-                onChange={(value) => setCode2(value || "")} />
-              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                onChange={(value) => setCode2(value || "")}
+              />
+              <button
+                className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={UpdateQuestions}
+              >
                 SAVE
               </button>
-              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+              <button
+                className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={DeleteQuestions}
+              >
                 Delete
               </button>
             </div>
@@ -491,7 +512,9 @@ export default function QuestionManager() {
           {activeTab === "autograder: Test" && (
             <div>
               <p className="text-red-500 font-semibold mt-4">Test Case(s)</p>
-              <Editor className="h-96 w-full" value={selectedQuestion?.test_cases}
+              <Editor
+                className="h-96 w-full"
+                value={selectedQuestion?.test_cases}
                 defaultLanguage="python"
                 theme="vs-light"
                 options={{
@@ -499,18 +522,32 @@ export default function QuestionManager() {
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                 }}
-                onChange={(value) => setCode3(value || "")} />
-              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                onChange={(value) => setCode3(value || "")}
+              />
+              <button
+                className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={UpdateQuestions}
+              >
                 SAVE
               </button>
-              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+              <button
+                className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold"
+                onClick={DeleteQuestions}
+              >
                 Delete
               </button>
             </div>
           )}
 
           {activeTab === "docs" && (
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", padding: 3 }}>
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                padding: 3,
+              }}
+            >
               <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
                 Global Documentation
               </Typography>
@@ -528,12 +565,8 @@ export default function QuestionManager() {
                       "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                     }}
                   >
-                    <h1>
-                      Title: {doc.title}
-                    </h1>
-                    <p>
-                      Content: {doc.content}
-                    </p>
+                    <h1>Title: {doc.title}</h1>
+                    <p>Content: {doc.content}</p>
                     <IconButton onClick={() => removeDoc(doc.title)}>
                       <DeleteIcon color="error" />
                     </IconButton>
@@ -549,7 +582,6 @@ export default function QuestionManager() {
                   onChange={(e) => setNewDocName(e.target.value)}
                 />
 
-
                 <input
                   type="file"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
@@ -564,15 +596,11 @@ export default function QuestionManager() {
                 >
                   Upload
                 </Button>
-
               </Box>
             </Box>
           )}
         </div>
       </div>
     </LayoutContainer>
-
-
   );
-};
-
+}
