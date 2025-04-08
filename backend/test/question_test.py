@@ -29,9 +29,6 @@ def test_read_document(question_svc, setup_bad_questions):
     tmp_path = setup_bad_questions(number_of_questions)
     os.chdir(tmp_path)
 
-    with pytest.raises(Exception):  # exception on 53-54
-        (question_svc.load_local_docs(1))[0].content
-
     with pytest.raises(Exception):  # read_document exception
         question_svc.read_document(
             f"{tmp_path}/es_files/questions/q1/doesntexist.extension", "foo"

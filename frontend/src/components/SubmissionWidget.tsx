@@ -34,7 +34,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [activeTab, setActiveTab] = useState<"submission" | "docs">(
     "submission"
   );
-  const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
     sessionStorage.getItem(`question_1`) ||
       question.starter_code 
@@ -139,10 +138,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   const handleTabSwitch = (tab: "submission" | "docs") => {
     setActiveTab(tab);
-  };
-
-  const handleDocsTabSwitch = (tab: "question" | "global") => {
-    setDocsTab(tab);
   };
 
   const openDocInNewTab = (doc: { content: string; title: string }) => {
@@ -363,88 +358,58 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             padding: 2,
           }}
         >
-          <Tabs
-            value={docsTab}
-            onChange={(_event, newValue) => handleDocsTabSwitch(newValue)}
-            variant="fullWidth"
-            textColor="secondary"
-            indicatorColor="secondary"
-            sx={{ mb: 2 }}
+          <List
+            sx={{
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
+              "& .MuiListItem-root": {
+                padding: "0.5rem 0",
+              },
+            }}
           >
-            <Tab value="question" label="Question Docs" />
-            <Tab value="global" label="Global Docs" />
-          </Tabs>
-
-          {docsTab === "question" && (
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                Documentation for Question
-              </Typography>
-              <List
+            {/* Static Python docs link */}
+            <ListItem
+              sx={{
+                padding: 0,
+                marginBottom: "0.5rem",
+                borderRadius: "4px",
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <MuiLink
+                to="/python_docs/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="none"
                 sx={{
-                  paddingLeft: "1rem",
-                  paddingRight: "1rem",
-                  "& .MuiListItem-root": {
-                    padding: "0.5rem 0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
+                  color: "#1976d2",
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                  textAlign: "center",
+                  cursor: "pointer",
+                  "&:hover": {
+                    textDecoration: "underline",
+                    color: "secondary.main",
                   },
                 }}
+                component={Link}
               >
-                {question.docs.map((doc) => (
-                  <ListItem
-                    key={doc.title}
-                    sx={{
-                      padding: 0,
-                      marginBottom: "0.5rem",
-                      borderRadius: "4px",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                  >
-                    <MuiLink
-                      underline="none"
-                      sx={{
-                        display: "flex", // Ensures the link spans the full ListItem
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        color: "primary.main",
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "secondary.main",
-                        },
-                      }}
-                      onClick={() => openDocInNewTab(doc)}
-                    >
-                      {doc.title}
-                    </MuiLink>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
+                Python 3 Documentation
+              </MuiLink>
+            </ListItem>
 
-          {docsTab === "global" && (
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                Global Documentation
-              </Typography>
-              <List
-                sx={{
-                  paddingLeft: "1rem",
-                  paddingRight: "1rem",
-                  "& .MuiListItem-root": {
-                    padding: "0.5rem 0",
-                  },
-                }}
-              >
-                {/* Static Documentation Link */}
+            {/* Dynamic global docs */}
+            {globalDocs?.length ? (
+              globalDocs.map((doc) => (
                 <ListItem
+                  key={doc.title}
                   sx={{
                     padding: 0,
                     marginBottom: "0.5rem",
@@ -455,9 +420,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   }}
                 >
                   <MuiLink
-                    to="/python_docs/index.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     underline="none"
                     sx={{
                       display: "flex",
@@ -465,7 +427,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                       justifyContent: "center",
                       width: "100%",
                       height: "100%",
-                      color: "#1976d2",
+                      color: "primary.main",
                       fontSize: "1rem",
                       fontWeight: 500,
                       textAlign: "center",
@@ -475,52 +437,18 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                         color: "secondary.main",
                       },
                     }}
-                    component={Link}
+                    onClick={() => openDocInNewTab(doc)}
                   >
-                    Python 3 Documentation
+                    {doc.title}
                   </MuiLink>
                 </ListItem>
-
-                {/* Dynamic Documentation Links */}
-                {globalDocs.map((doc) => (
-                  <ListItem
-                    key={doc.title}
-                    sx={{
-                      padding: 0,
-                      marginBottom: "0.5rem",
-                      borderRadius: "4px",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                  >
-                    <MuiLink
-                      underline="none"
-                      sx={{
-                        display: "flex", 
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        color: "primary.main",
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "secondary.main",
-                        },
-                      }}
-                      onClick={() => openDocInNewTab(doc)}
-                    >
-                      {doc.title}
-                    </MuiLink>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
+              ))
+            ) : (
+              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                No documentation available.
+              </Typography>
+            )}
+          </List>
         </Box>
       )}
     </Box>
