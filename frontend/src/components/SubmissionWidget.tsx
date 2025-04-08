@@ -9,16 +9,16 @@ import {
   Typography,
   Paper,
   Button,
-  IconButton, 
+  IconButton,
   Link as MuiLink,
   List,
   ListItem,
-  Divider
+  Divider,
 } from "@mui/material";
 import { SubmissionWidgetProps } from "../models/submission";
 import UploadIcon from "@mui/icons-material/Upload";
-import RestoreIcon from '@mui/icons-material/Restore';
-import DownloadIcon from '@mui/icons-material/Download';
+import RestoreIcon from "@mui/icons-material/Restore";
+import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import { Editor } from "@monaco-editor/react";
 import { Link } from "react-router-dom";
@@ -36,8 +36,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   );
   const [docsTab, setDocsTab] = useState<"question" | "global">("question");
   const [code, setCode] = useState<string>(
-    sessionStorage.getItem(`question_1`) ||
-      question.starter_code 
+    sessionStorage.getItem(`question_1`) || question.starter_code
   );
 
   const [submissionResponse, setSubmissionResponse] = useState<string>(
@@ -53,14 +52,15 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   }, [submissionResponse]);
 
   useEffect(() => {
-    if (question){
-    const savedCode =
-      sessionStorage.getItem(`question_${question.num}`) ||
-      question.starter_code || "# Start Coding Here";
-    setCode(savedCode);
-    const savedResponse =
-      sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
-    setSubmissionResponse(savedResponse);
+    if (question) {
+      const savedCode =
+        sessionStorage.getItem(`question_${question.num}`) ||
+        question.starter_code ||
+        "# Start Coding Here";
+      setCode(savedCode);
+      const savedResponse =
+        sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
+      setSubmissionResponse(savedResponse);
     }
   }, [question]);
 
@@ -85,25 +85,24 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const downloadCode = () => {
     const blob = new Blob([code], { type: "text/x-python" });
     const url = URL.createObjectURL(blob);
-  
+
     // Create a temporary anchor element to trigger the download
     const a = document.createElement("a");
     a.href = url;
     a.download = `code_question_${question.num}.py`; // File name
     a.click();
-  
+
     // Clean up the URL object
     URL.revokeObjectURL(url);
   };
-  
 
   const resetCode = () => {
     if (question.starter_code) {
-      setCode(question.starter_code)
+      setCode(question.starter_code);
     } else {
-      setCode("# Start Coding Here")
+      setCode("# Start Coding Here");
     }
-  }
+  };
 
   // POST request to submit code, setSubmissionResponse to console_log output for API route
   const handleQuestionSubmission = (questionNum: string, code: string) => {
@@ -230,7 +229,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                     hidden
                     type="file"
                     accept=".py"
-                    onChange={handleFileUpload} 
+                    onChange={handleFileUpload}
                   />
                 </IconButton>
               </Tooltip>
@@ -247,7 +246,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   }}
                   onClick={downloadCode}
                 >
-                  <DownloadIcon /> 
+                  <DownloadIcon />
                 </IconButton>
               </Tooltip>
 
@@ -268,7 +267,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               </Tooltip>
             </Box>
 
-          {/* Divider Under Toolbar */}
+            {/* Divider Under Toolbar */}
             <Divider
               sx={{
                 position: "absolute",
@@ -346,7 +345,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   handleQuestionSubmission(String(question.num), code)
                 }
               >
-                  Submit
+                Submit
               </Button>
             </Box>
           </Box>
@@ -363,88 +362,61 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             padding: 2,
           }}
         >
-          <Tabs
-            value={docsTab}
-            onChange={(_event, newValue) => handleDocsTabSwitch(newValue)}
-            variant="fullWidth"
-            textColor="secondary"
-            indicatorColor="secondary"
-            sx={{ mb: 2 }}
-          >
-            <Tab value="question" label="Question Docs" />
-            <Tab value="global" label="Global Docs" />
-          </Tabs>
-
-          {docsTab === "question" && (
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                Documentation for Question
-              </Typography>
-              <List
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+              Global Documentation
+            </Typography>
+            <List
+              sx={{
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+                "& .MuiListItem-root": {
+                  padding: "0.5rem 0",
+                },
+              }}
+            >
+              {/* Static Documentation Link */}
+              <ListItem
                 sx={{
-                  paddingLeft: "1rem",
-                  paddingRight: "1rem",
-                  "& .MuiListItem-root": {
-                    padding: "0.5rem 0",
+                  padding: 0,
+                  marginBottom: "0.5rem",
+                  borderRadius: "4px",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
               >
-                {question.docs.map((doc) => (
-                  <ListItem
-                    key={doc.title}
-                    sx={{
-                      padding: 0,
-                      marginBottom: "0.5rem",
-                      borderRadius: "4px",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                  >
-                    <MuiLink
-                      underline="none"
-                      sx={{
-                        display: "flex", // Ensures the link spans the full ListItem
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        color: "primary.main",
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "secondary.main",
-                        },
-                      }}
-                      onClick={() => openDocInNewTab(doc)}
-                    >
-                      {doc.title}
-                    </MuiLink>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
+                <MuiLink
+                  to="/python_docs/index.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="none"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    height: "100%",
+                    color: "#1976d2",
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                    textAlign: "center",
+                    cursor: "pointer",
+                    "&:hover": {
+                      textDecoration: "underline",
+                      color: "secondary.main",
+                    },
+                  }}
+                  component={Link}
+                >
+                  Python 3 Documentation
+                </MuiLink>
+              </ListItem>
 
-          {docsTab === "global" && (
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                Global Documentation
-              </Typography>
-              <List
-                sx={{
-                  paddingLeft: "1rem",
-                  paddingRight: "1rem",
-                  "& .MuiListItem-root": {
-                    padding: "0.5rem 0",
-                  },
-                }}
-              >
-                {/* Static Documentation Link */}
+              {/* Dynamic Documentation Links */}
+              {globalDocs.map((doc) => (
                 <ListItem
+                  key={doc.title}
                   sx={{
                     padding: 0,
                     marginBottom: "0.5rem",
@@ -455,9 +427,6 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   }}
                 >
                   <MuiLink
-                    to="/python_docs/index.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     underline="none"
                     sx={{
                       display: "flex",
@@ -465,7 +434,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                       justifyContent: "center",
                       width: "100%",
                       height: "100%",
-                      color: "#1976d2",
+                      color: "primary.main",
                       fontSize: "1rem",
                       fontWeight: 500,
                       textAlign: "center",
@@ -475,56 +444,18 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                         color: "secondary.main",
                       },
                     }}
-                    component={Link}
+                    onClick={() => openDocInNewTab(doc)}
                   >
-                    Python 3 Documentation
+                    {doc.title}
                   </MuiLink>
                 </ListItem>
-
-                {/* Dynamic Documentation Links */}
-                {globalDocs.map((doc) => (
-                  <ListItem
-                    key={doc.title}
-                    sx={{
-                      padding: 0,
-                      marginBottom: "0.5rem",
-                      borderRadius: "4px",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                  >
-                    <MuiLink
-                      underline="none"
-                      sx={{
-                        display: "flex", 
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        color: "primary.main",
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "secondary.main",
-                        },
-                      }}
-                      onClick={() => openDocInNewTab(doc)}
-                    >
-                      {doc.title}
-                    </MuiLink>
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
+              ))}
+            </List>
+          </Box>
         </Box>
       )}
     </Box>
   );
 };
 
-export default SubmissionWidget
+export default SubmissionWidget;
