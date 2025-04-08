@@ -14,7 +14,7 @@ from backend.services.problems import ProblemService
 from ..models import Submission, ConsoleLog, Team, ScoredTest
 from backend.services.exceptions import ResourceNotFoundException
 
-__authors__ = ["Nicholas Almy", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Andrew Lockard", "Michelle Nguyen"]
 
 submissions_dir = "es_files/submissions"
 

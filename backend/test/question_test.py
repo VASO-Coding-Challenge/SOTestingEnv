@@ -6,7 +6,7 @@ import pytest
 from .fixtures import question_svc
 from ..test.fake_data.question import setup_questions, setup_bad_questions
 
-__authors__ = ["Matthew Futch"]
+__authors__ = ["Matthew Futch", "Michelle Nguyen"]
 
 
 def test_isQuestionDir(question_svc):
@@ -24,7 +24,7 @@ def test_get_questions(question_svc, setup_questions):
     assert questions_public == question_svc.get_questions()
 
 
-def test_read_file(question_svc, setup_bad_questions):
+def test_read_document(question_svc, setup_bad_questions):
     number_of_questions = 2
     tmp_path = setup_bad_questions(number_of_questions)
     os.chdir(tmp_path)
@@ -95,3 +95,15 @@ def test_load_questions_generic_exception(question_svc, setup_bad_questions):
     # Ensure the generic exception is raised correctly
     with pytest.raises(Exception):
         question_svc.load_questions()
+
+
+def test_get_question_count(setup_submission_data):
+    """info"""
+
+
+def test_submit_and_run(setup_submission_data):
+    """info"""
+
+
+def test_load_start_code(setup_submission_data):
+    """info"""

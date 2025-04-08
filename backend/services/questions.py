@@ -36,6 +36,7 @@ class QuestionService:
     def isQuestionDir(self, directory: str) -> bool:
         return directory.startswith("q") and directory[1:].isdigit()
 
+    # delete this once local docs api is not used anywhere and deleted.
     def isLocalDocumentationFile(self, file: str) -> bool:
         return file.startswith("doc_") and file.endswith(".md")
 
@@ -50,6 +51,7 @@ class QuestionService:
         except Exception as e:
             raise e
 
+    # we dont need local docs. change frontend to not call this then remove it.
     def load_local_docs(self, question_num: int) -> List[Document]:
         local_docs_path = f"es_files/questions/q{question_num}"
         local_docs: List[Document] = []

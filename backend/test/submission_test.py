@@ -144,3 +144,31 @@ def test_delete_team_submissions(setup_submission_data):
             # Try deleting a team with no submissions
             result_no_submissions = SubmissionService.delete_submissions("D4")
             assert result_no_submissions == "No submissions found for deletion."
+
+
+def test_package_submission(setup_submission_data):
+    """info"""
+
+
+def test_send_to_judge0(setup_submission_data):
+    """info"""
+
+
+def test_get_max_points(setup_submission_data):
+    """info"""
+
+
+def test_grade_submission(setup_submission_data):
+    """info"""
+
+
+def test_run_submission(setup_submission_data):
+    """info"""
+
+
+def test_submit(setup_submission_data):
+    """info"""
+
+
+def test_submit_and_run(setup_submission_data):
+    """info"""
