@@ -6,6 +6,7 @@ export interface Team {
    */
   name: string;
   id: number;
+  password: string;
   session_id: number | null;
   session: Session | null;
 }

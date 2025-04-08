@@ -294,7 +294,8 @@ export default function TeamManager() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Team Name</TableHead>
+                  <TableHead>Team Name</TableHead>
+                  <TableHead>Password</TableHead>
                   <TableHead>Members</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -313,6 +314,7 @@ export default function TeamManager() {
                         <TableCell className="font-medium">
                           {team.name}
                         </TableCell>
+                        <TableCell>{team.password}</TableCell>
                         <TableCell>
                           {loadingMembers[team.id] ? (
                             <Skeleton className="h-5 w-[250px]" />
