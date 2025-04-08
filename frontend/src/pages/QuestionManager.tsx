@@ -103,6 +103,7 @@ export default function QuestionManager() {
   const [endTime, setEndTime] = useState<Date | null>(null);
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
+  const [hasChanged, setHasChanged] = useState(false);
 
 
 
@@ -154,8 +155,9 @@ export default function QuestionManager() {
         body: JSON.stringify({})
       });
       if (response.ok) {
-        void getQuestions();
-        //const question = questions?.find((q) => q.num - 1 === questions.length) || null;
+        await getQuestions(questions.length + 1);
+        //console.log(questions);
+        //const question = questions?.find((q) => q.num === 1 + questions.length) || null;
         //console.log("Question 1: ", question, questions.length);
         //setSelectedQuestion(question);
         //navigate('/question-manager');
@@ -201,7 +203,7 @@ export default function QuestionManager() {
 
 
 
-  const getQuestions = async () => {
+  const getQuestions = async (index) => {
     // get from API
     try {
       const response = await fetch("/api/problems/all", {
@@ -220,9 +222,10 @@ export default function QuestionManager() {
       const data = (await response.json()) as Question[];
       setQuestions(data);
       console.log("Questions:", data);
-      const question = data?.find((q) => q.num - 1 === 0) || null;
+      const question = data?.find((q) => q.num === index) || null;
       console.log("Question 1: ", question)
       setSelectedQuestion(question);
+      setValue(index - 1);
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
@@ -262,7 +265,7 @@ export default function QuestionManager() {
       localStorage.removeItem("token");
       navigate("/login"); // Fix: Ensure navigate is defined
     }
-    void getQuestions();
+    void getQuestions(1);
   }, [navigate]);
 
   const handleQuestionClick = (questionNum: number) => {
@@ -297,7 +300,7 @@ export default function QuestionManager() {
       console.log("Question updated successfully:", updatedQuestion);
 
       // Update the local state with the updated question
-      void getQuestions();
+      void getQuestions(1);
     } catch (error) {
       console.error("Error updating question:", error);
     }
@@ -371,7 +374,7 @@ export default function QuestionManager() {
           </SidebarContainer>
           <div>
 
-            <button className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={handleCreate}>
+            <button className="mt-6 w-full bg-blue-500 text-white py-2 hover:bg-gray-300 rounded-md shadow-md text-lg font-bold" onClick={handleCreate}>
               Create
             </button>
           </div>
@@ -392,158 +395,183 @@ export default function QuestionManager() {
             ))}
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6 bg-white shadow-md rounded-lg mt-4">
-            {activeTab === "problem" && (
-              <div>
-                <Markdown className="markdown text-2xl font-bold" remarkPlugins={[remarkGfm]}>
-                  {"## Problem " + selectedQuestion?.num}
-                </Markdown>
-                <p className="text-red-500 font-semibold mt-4">Prompt</p>
-                <Editor className="h-96 w-full" value={selectedQuestion?.prompt}
-                  defaultLanguage="python"
-                  theme="vs-light"
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                  }}
-                  onChange={(value) => setCode(value || "")} />
-                <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
-                  SAVE
-                </button>
-                <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
-                  Delete
-                </button>
-              </div>
-            )}
-
-            {activeTab === "starter" && (
-              <div>
-                <p className="text-red-500 font-semibold">Starter Code</p>
-                <Editor className="h-96 w-full" value={selectedQuestion?.starter_code}
-                  defaultLanguage="python"
-                  theme="vs-light"
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                  }}
-                  onChange={(value) => setCode1(value || "")} />
-                <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
-                  SAVE
-                </button>
-                <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
-                  Delete
-                </button>
-              </div>
-            )}
-
-            {activeTab === "autograder: Demo" && (
-              <div>
-                <p className="text-red-500 font-semibold">Demo Test Case(s)</p>
-                <Editor className="h-96 w-full" value={selectedQuestion?.demo_cases}
-                  defaultLanguage="python"
-                  theme="vs-light"
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                  }}
-                  onChange={(value) => setCode2(value || "")} />
-                <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
-                  SAVE
-                </button>
-                <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
-                  Delete
-                </button>
-              </div>
-            )}
-
-            {activeTab === "autograder: Test" && (
-              <div>
-                <p className="text-red-500 font-semibold mt-4">Test Case(s)</p>
-                <Editor className="h-96 w-full" value={selectedQuestion?.test_cases}
-                  defaultLanguage="python"
-                  theme="vs-light"
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                  }}
-                  onChange={(value) => setCode3(value || "")} />
-                <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
-                  SAVE
-                </button>
-                <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
-                  Delete
-                </button>
-              </div>
-            )}
-
-            {activeTab === "docs" && (
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", padding: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-                  Global Documentation
-                </Typography>
-                <List sx={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
-                  {docs.map((doc) => (
-                    <ListItem
-                      key={doc.title}
-                      sx={{
-                        padding: 0,
-                        marginBottom: "0.5rem",
-                        borderRadius: "4px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-                      }}
-                    >
-                      <h1>
-                        Title: {doc.title}
-                      </h1>
-                      <p>
-                        Content: {doc.content}
-                      </p>
-                      <IconButton onClick={() => removeDoc(doc.title)}>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </ListItem>
-                  ))}
-                </List>
-                <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-                  <TextField
-                    label="Document Name"
-                    variant="outlined"
-                    size="small"
-                    value={newDocName}
-                    onChange={(e) => setNewDocName(e.target.value)}
-                  />
-
-
-                  <input
-                    type="file"
-                    onChange={(e) => setSelectedFile(e.target.files[0])}
-                    accept=".txt,.md"
-                    style={{ flexGrow: 1 }}
-                  />
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleUpload}
-                    disabled={!selectedFile}
+          {activeTab === "problem" && (
+            <div>
+              <div className="w-full">
+                <div>
+                  <Markdown
+                    className={`markdown text-2xl font-bold ${hasChanged ? 'bg-yellow-100' : 'bg-white'}`}
+                    remarkPlugins={[remarkGfm]}
                   >
-                    Upload
-                  </Button>
+                    {"## Problem " + selectedQuestion?.num}
+                  </Markdown>
 
-                </Box>
+                  <p className="text-red-500 font-semibold mt-4">Prompt</p>
+
+                  <Editor
+                    className="w-full h-full"
+                    value={selectedQuestion?.prompt}
+                    defaultLanguage="python"
+                    theme="vs-light"
+                    options={{
+                      fontSize: 14,
+                      minimap: { enabled: false },
+                      scrollBeyondLastLine: false,
+                    }}
+                    onChange={(value) => {
+                      setCode(value || "");
+                      setHasChanged(true);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-4">
+                <button
+                  className="w-60 bg-blue-500 text-white py-2 hover:bg-gray-300 hover:text-black rounded-md shadow-md text-lg font-bold"
+                  onClick={() => {
+                    UpdateQuestions();
+                    setHasChanged(false);
+                  }}
+                >
+                  SAVE
+                </button>
+                <button
+                  className="w-60 bg-red-500 text-white py-2 hover:bg-gray-300 hover:text-black rounded-md shadow-md text-lg font-bold"
+                  onClick={DeleteQuestions}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "starter" && (
+            <div>
+              <p className="text-red-500 font-semibold">Starter Code</p>
+              <Editor className="h-96 w-full" value={selectedQuestion?.starter_code}
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode1(value || "")} />
+              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                SAVE
+              </button>
+              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+                Delete
+              </button>
+            </div>
+          )}
+
+          {activeTab === "autograder: Demo" && (
+            <div>
+              <p className="text-red-500 font-semibold">Demo Test Case(s)</p>
+              <Editor className="h-96 w-full" value={selectedQuestion?.demo_cases}
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode2(value || "")} />
+              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                SAVE
+              </button>
+              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+                Delete
+              </button>
+            </div>
+          )}
+
+          {activeTab === "autograder: Test" && (
+            <div>
+              <p className="text-red-500 font-semibold mt-4">Test Case(s)</p>
+              <Editor className="h-96 w-full" value={selectedQuestion?.test_cases}
+                defaultLanguage="python"
+                theme="vs-light"
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+                onChange={(value) => setCode3(value || "")} />
+              <button className="mt-6 w-60 bg-blue-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={UpdateQuestions}>
+                SAVE
+              </button>
+              <button className="mt-6 w-60 bg-red-500 text-white py-2 rounded-md shadow-md text-lg font-bold" onClick={DeleteQuestions}>
+                Delete
+              </button>
+            </div>
+          )}
+
+          {activeTab === "docs" && (
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", padding: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+                Global Documentation
+              </Typography>
+              <List sx={{ paddingLeft: "1rem", paddingRight: "1rem" }}>
+                {docs.map((doc) => (
+                  <ListItem
+                    key={doc.title}
+                    sx={{
+                      padding: 0,
+                      marginBottom: "0.5rem",
+                      borderRadius: "4px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                    }}
+                  >
+                    <h1>
+                      Title: {doc.title}
+                    </h1>
+                    <p>
+                      Content: {doc.content}
+                    </p>
+                    <IconButton onClick={() => removeDoc(doc.title)}>
+                      <DeleteIcon color="error" />
+                    </IconButton>
+                  </ListItem>
+                ))}
+              </List>
+              <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                <TextField
+                  label="Document Name"
+                  variant="outlined"
+                  size="small"
+                  value={newDocName}
+                  onChange={(e) => setNewDocName(e.target.value)}
+                />
+
+
+                <input
+                  type="file"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  accept=".txt,.md"
+                  style={{ flexGrow: 1 }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpload}
+                  disabled={!selectedFile}
+                >
+                  Upload
+                </Button>
+
               </Box>
-            )}
-          </div>
+            </Box>
+          )}
         </div>
       </div>
     </LayoutContainer>
+
 
   );
 };
