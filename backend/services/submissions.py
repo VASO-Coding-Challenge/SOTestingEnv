@@ -3,14 +3,14 @@
 import glob
 import os
 import json
-from typing import Dict
-import requests  # type: ignore
 import base64
+
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
+from typing import Dict
+from fastapi import requests
 
 from backend.services.problems import ProblemService
-
 from ..models import Submission, ConsoleLog, Team, ScoredTest
 from backend.services.exceptions import ResourceNotFoundException
 
@@ -77,7 +77,7 @@ class SubmissionService:
             else:
                 out_str += f"{test['name'].split(" ")[0]} passed!\n"
 
-        return ConsoleLog(console_log=out_str[:-1])
+        return ConsoleLog(console_log=out_str.rstrip("\n"))
 
     def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
         """Grades a students submission against test questions
