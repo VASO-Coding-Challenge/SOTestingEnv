@@ -25,6 +25,7 @@ __authors__ = [
     "Nicholas Almy",
     "Nicholas Boyer",
     "Ivan Wu",
+    "Michelle Nguyen",
 ]
 
 
