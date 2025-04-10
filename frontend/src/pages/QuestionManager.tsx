@@ -143,11 +143,14 @@ export default function QuestionManager() {
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
     handleQuestionClick(newValue);
+    setHeaderTitle("");
   };
 
   const [docs, setDocs] = useState([]);
   const [newDocName, setNewDocName] = useState("");
   const [newDocUrl, setNewDocUrl] = useState("");
+
+  const [headerTitle, setHeaderTitle] = useState("");
 
   const addDoc = () => {
     if (newDocName && newDocUrl) {
@@ -242,6 +245,13 @@ export default function QuestionManager() {
       console.error("Invalid token:", error);
       return false;
     }
+  };
+
+  const openDocInNewTab = (doc: { content: string; title: string }) => {
+    sessionStorage.setItem("docContent", doc.content);
+    sessionStorage.setItem("docTitle", doc.title);
+    const fullUrl = `${window.location.origin}/markdown-viewer/${doc.title}`;
+    window.open(fullUrl, "_blank");
   };
 
   useEffect(() => {
@@ -408,12 +418,11 @@ export default function QuestionManager() {
             ].map((tab) => (
               <button
                 key={tab}
-                className={`w-1/4 py-2 font-bold ${
-                  activeTab === tab
-                    ? "border-b-4 border-red-500 text-red-500"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab(tab)}
+                className={`w-1/4 py-2 font-bold ${activeTab === tab
+                  ? "border-b-4 border-red-500 text-red-500"
+                  : "text-gray-500"
+                  }`}
+                onClick={() => { setActiveTab(tab); setHeaderTitle(""); }}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -424,12 +433,19 @@ export default function QuestionManager() {
             {activeTab in tabConfig ? (
               <EditorPanel
                 headerTitle={"Problem " + selectedQuestion?.num}
-                panelLabel={tabConfig[activeTab].label}
+                panelLabel={tabConfig[activeTab].label + headerTitle}
                 editorValue={tabConfig[activeTab].value}
-                onEditorChange={(value) =>
-                  tabConfig[activeTab].setValue(value || "")
+                onEditorChange={(value) => {
+                  tabConfig[activeTab].setValue(value || "");
+                  setHeaderTitle("*");
+                }}
+                onSave={() => {
+
+                  UpdateQuestions();
+                  setHeaderTitle("");
                 }
-                onSave={UpdateQuestions}
+                }
+
                 onDelete={DeleteQuestions}
               />
             ) : activeTab === "docs" ? (
@@ -459,8 +475,27 @@ export default function QuestionManager() {
                         "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                       }}
                     >
-                      <h1>Title: {doc.title}</h1>
-                      <p>Content: {doc.content}</p>
+                      {/*<h1>Title: {doc.title}</h1>*/}
+                      <MuiLink
+                        underline="none"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "100%",
+                          height: "100%",
+                          color: "primary.main",
+                          fontSize: "1rem",
+                          fontWeight: 500,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          "&:hover": {
+                            textDecoration: "underline",
+                            color: "secondary.main",
+                          },
+                        }}
+                        onClick={() => openDocInNewTab(doc)} >{doc.title}</MuiLink>
+
                       <IconButton onClick={() => removeDoc(doc.title)}>
                         <DeleteIcon color="error" />
                       </IconButton>
