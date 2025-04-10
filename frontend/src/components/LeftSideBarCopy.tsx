@@ -10,6 +10,7 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/system";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { getQuestions } from "../pages/QuestionManager"
 
 interface numberOfTabsProps {
   num: number;
@@ -68,8 +69,26 @@ export default function LeftSideBarCopy({ num, onTabClick }: numberOfTabsProps) 
     setValue(newValue);
     onTabClick(newValue);
   };
-  const handleCreate = () => {
-    null
+  const handleCreate = async ()  => {
+    // create new question using /api/problems/create
+    try {
+      const response = await fetch('/api/problems/create/', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({})
+      });
+      if (response.ok) {
+        void getQuestions();
+        navigate('/question-manager');
+      } else {
+        console.error('Failed to create new problem');
+      }
+    } catch (error) {
+      console.error('An error occurred while creating a new problem:', error);
+    }
   };
 
 
