@@ -104,6 +104,7 @@ export default function LeftSideBar({ num, onTabClick }: numberOfTabsProps) {
 
   return (
     <SidebarContainer>
+      <img className="p-4" src="/SO.png" alt="Image" />
       <ScrollableContent>
         {/* <TimerContainer>
           {startTime && endTime ? (
@@ -112,7 +113,6 @@ export default function LeftSideBar({ num, onTabClick }: numberOfTabsProps) {
             <p>Loading Timer...</p>
           )}
         </TimerContainer> */}
-        <img className="p-4" src="/SO.png" alt="Image" />
         <TabsContainer>
           <Tabs
             value={value}
