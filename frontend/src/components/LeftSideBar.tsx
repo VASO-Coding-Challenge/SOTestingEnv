@@ -33,6 +33,11 @@ const SidebarContainer = styled(Box)({
   height: "100vh",
 });
 
+const ScrollableContent = styled(Box)({
+  flex: 1,
+  overflowY: "auto",
+});
+
 const TabsContainer = styled(Box)({
   flexGrow: 1,
   display: "flex",
@@ -99,30 +104,33 @@ export default function LeftSideBar({ num, onTabClick }: numberOfTabsProps) {
 
   return (
     <SidebarContainer>
-      <TimerContainer>
-        {startTime && endTime ? (
-          <CountdownTimer end_time={endTime} end_fn={handleTimerEnd} />
-        ) : (
-          <p>Loading Timer...</p>
-        )}
-      </TimerContainer>
-      <TabsContainer>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          orientation="vertical"
-          indicatorColor="secondary"
-        >
-          {Array.from({ length: num }, (_, index) => (
-            <StyledTab
-              key={index}
-              label={`Problem ${index + 1}`}
-              icon={<StarsIcon />}
-              iconPosition="top"
-            />
-          ))}
-        </Tabs>
-      </TabsContainer>
+      <ScrollableContent>
+        {/* <TimerContainer>
+          {startTime && endTime ? (
+            <CountdownTimer end_time={endTime} end_fn={handleTimerEnd} />
+          ) : (
+            <p>Loading Timer...</p>
+          )}
+        </TimerContainer> */}
+        <img className="p-4" src="/SO.png" alt="Image" />
+        <TabsContainer>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            orientation="vertical"
+            indicatorColor="secondary"
+          >
+            {Array.from({ length: num }, (_, index) => (
+              <StyledTab
+                key={index}
+                label={`Problem ${index + 1}`}
+                icon={<StarsIcon />}
+                iconPosition="top"
+              />
+            ))}
+          </Tabs>
+        </TabsContainer>
+      </ScrollableContent>
       {/* Logout Button */}
       <LogoutContainer>
         <LogOut />
