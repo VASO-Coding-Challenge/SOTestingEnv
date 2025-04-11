@@ -5,6 +5,11 @@ import LeftSideBar from "../components/LeftSideBar";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
@@ -12,15 +17,14 @@ const QuestionPage = () => {
     null
   );
   const [globalDocs, setGlobalDocs] = useState<Document[]>([]);
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleUnauthorized = (status: number) => {
       localStorage.removeItem("token");
       navigate(status === 401 ? "/login" : "/thank-you");
     };
-    
+
     fetch("/api/questions", {
       method: "GET",
       headers: {
@@ -51,7 +55,7 @@ const QuestionPage = () => {
         console.error("Error:", error);
       });
   }, [navigate]);
-  
+
   // State stores the selected question.
   const handleQuestionClick = (questionNum: number) => {
     const question = questions?.find((q) => q.num - 1 === questionNum) || null;
@@ -59,25 +63,35 @@ const QuestionPage = () => {
   };
 
   return (
-    <div className="flex">
-      <div className="fixed">
+    <div className="flex flex-row">
+      <div>
         <LeftSideBar
           num={questions?.length ?? 0}
           onTabClick={handleQuestionClick}
         ></LeftSideBar>
       </div>
-      <section className="w-4/5 prose px-3 pt-3 overscroll-contain ml-[200px]">
-        <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
-          {"## Problem " + selectedQuestion?.num}
-        </Markdown>
-        <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
-          {selectedQuestion?.writeup}
-        </Markdown>
-      </section>
-      {/** The selected question and the global docs get passed in as props. */}
-      {selectedQuestion && (
-        <SubmissionWidget question={selectedQuestion} globalDocs={globalDocs} />
-      )}
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel className="overscroll-contain">
+          <div className="px-3 pt-3">
+            <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
+              {"## Problem " + selectedQuestion?.num}
+            </Markdown>
+            <Markdown className="markdown" remarkPlugins={[remarkGfm]}>
+              {selectedQuestion?.writeup}
+            </Markdown>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle></ResizableHandle>
+        {/** The selected question and the global docs get passed in as props. */}
+        <ResizablePanel defaultSize={50}>
+          {selectedQuestion && (
+            <SubmissionWidget
+              question={selectedQuestion}
+              globalDocs={globalDocs}
+            />
+          )}
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };

@@ -23,6 +23,17 @@ import Tooltip from "@mui/material/Tooltip";
 import { Editor } from "@monaco-editor/react";
 import { Link } from "react-router-dom";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CircleX, CircleCheck } from "lucide-react";
+
 type SubmissionResponse = {
   console_log: string;
 };
@@ -35,11 +46,11 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     "submission"
   );
   const [code, setCode] = useState<string>(
-    sessionStorage.getItem(`question_1`) || question.starter_code
+    sessionStorage.getItem(`question_${question.num}`) || question.starter_code
   );
 
   const [submissionResponse, setSubmissionResponse] = useState<string>(
-    sessionStorage.getItem(`output_1`) || "No Submission Yet"
+    sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet"
   );
 
   useEffect(() => {
@@ -149,12 +160,11 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   return (
     <Box
       sx={{
-        width: "70%",
+        width: "100%",
         height: "100vh",
         position: "sticky",
         top: 0,
         margin: "0 auto",
-        borderRadius: "12px",
         overflow: "hidden",
         boxShadow: 3,
         display: "flex",
@@ -182,146 +192,216 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
             display: "flex",
             flexDirection: "column",
             padding: 2,
+            overflow: "hidden",
           }}
         >
-          <Paper
+          <Box
             sx={{
               flex: 1,
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              overflow: "hidden",
-              position: "relative",
-              mb: 2,
-              paddingTop: "50px",
+              overflow: "auto", // Enable scrolling for content
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
-            {/* Toolbar */}
-            <Box
+            <Paper
               sx={{
-                position: "absolute",
-                top: 1,
-                right: 3,
-                zIndex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              {/* Upload Icon Button */}
-              <Tooltip title="Upload Code" arrow>
-                <IconButton
-                  color="secondary"
-                  component="label"
-                  sx={{
-                    border: "1px #ddd",
-                    borderRadius: "50%",
-                    width: 30,
-                    height: 30,
-                  }}
-                >
-                  <UploadIcon />
-                  <input
-                    hidden
-                    type="file"
-                    accept=".py"
-                    onChange={handleFileUpload}
-                  />
-                </IconButton>
-              </Tooltip>
-
-              {/* Download Code Button */}
-              <Tooltip title="Download Code" arrow>
-                <IconButton
-                  color="secondary"
-                  sx={{
-                    border: "1px #ddd",
-                    borderRadius: "50%",
-                    width: 30,
-                    height: 30,
-                  }}
-                  onClick={downloadCode}
-                >
-                  <DownloadIcon />
-                </IconButton>
-              </Tooltip>
-
-              {/* Reset Code Button */}
-              <Tooltip title="Reset Code" arrow>
-                <IconButton
-                  color="secondary"
-                  sx={{
-                    border: "1px #ddd",
-                    borderRadius: "50%",
-                    width: 30,
-                    height: 30,
-                  }}
-                  onClick={resetCode}
-                >
-                  <RestoreIcon />
-                </IconButton>
-              </Tooltip>
-            </Box>
-
-            {/* Divider Under Toolbar */}
-            <Divider
-              sx={{
-                position: "absolute",
-                top: "30px",
-                left: 0,
-                right: 0,
-                zIndex: 1,
-              }}
-            />
-            <Editor
-              height="100%"
-              defaultLanguage="python"
-              value={code}
-              theme="vs-light"
-              onChange={(value) => setCode(value || "")}
-              options={{
-                fontSize: 14,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-              }}
-            />
-          </Paper>
-
-          <Paper
-            sx={{
-              flex: 1,
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              overflow: "hidden",
-              padding: 2,
-              mb: 2,
-              bgcolor: "#f9f9f9",
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Output
-            </Typography>
-            <Box
-              sx={{
-                maxHeight: "300px",
-                overflowY: "auto",
-                padding: 1,
-                backgroundColor: "#f0f0f0",
-                border: "1px solid #ccc",
+                flex: 1,
+                border: "1px solid #ddd",
                 borderRadius: "8px",
+                overflow: "hidden",
+                position: "relative",
+                mb: 2,
+                paddingTop: "50px",
               }}
             >
-              <Typography
-                variant="body1"
+              {/* Toolbar */}
+              <Box
                 sx={{
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
+                  position: "absolute",
+                  top: 1,
+                  right: 3,
+                  zIndex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                {submissionResponse ||
-                  "No output yet. Run your code to see the result here."}
+                {/* Upload Icon Button */}
+                <Tooltip title="Upload Code" arrow>
+                  <IconButton
+                    color="secondary"
+                    component="label"
+                    sx={{
+                      border: "1px #ddd",
+                      borderRadius: "50%",
+                      width: 30,
+                      height: 30,
+                    }}
+                  >
+                    <UploadIcon />
+                    <input
+                      hidden
+                      type="file"
+                      accept=".py"
+                      onChange={handleFileUpload}
+                    />
+                  </IconButton>
+                </Tooltip>
+
+                {/* Download Code Button */}
+                <Tooltip title="Download Code" arrow>
+                  <IconButton
+                    color="secondary"
+                    sx={{
+                      border: "1px #ddd",
+                      borderRadius: "50%",
+                      width: 30,
+                      height: 30,
+                    }}
+                    onClick={downloadCode}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </Tooltip>
+
+                {/* Reset Code Button */}
+                <Tooltip title="Reset Code" arrow>
+                  <IconButton
+                    color="secondary"
+                    sx={{
+                      border: "1px #ddd",
+                      borderRadius: "50%",
+                      width: 30,
+                      height: 30,
+                    }}
+                    onClick={resetCode}
+                  >
+                    <RestoreIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              {/* Divider Under Toolbar */}
+              <Divider
+                sx={{
+                  position: "absolute",
+                  top: "30px",
+                  left: 0,
+                  right: 0,
+                  zIndex: 1,
+                }}
+              />
+              <Editor
+                height="100%"
+                defaultLanguage="python"
+                value={code}
+                theme="vs-light"
+                onChange={(value) => setCode(value || "")}
+                options={{
+                  fontSize: 14,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+              />
+            </Paper>
+
+            <Paper
+              sx={{
+                flex: 1,
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                overflow: "hidden",
+                padding: 2,
+                mb: 2,
+                bgcolor: "#f9f9f9",
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                Output
               </Typography>
-            </Box>
-          </Paper>
+              {/* TODO: */}
+              <Box
+                sx={{
+                  maxHeight: "250px",
+                  overflowY: "auto",
+                  padding: 1,
+                  backgroundColor: "#f0f0f0",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                }}
+              >
+                {(() => {
+                  // Attempt to parse the submissionResponse as JSON.
+                  let parsed;
+                  try {
+                    parsed = JSON.parse(submissionResponse);
+                  } catch (e) {
+                    parsed = null;
+                  }
+                  if (
+                    parsed &&
+                    typeof parsed === "object" &&
+                    "disclaimer" in parsed &&
+                    "results" in parsed &&
+                    Array.isArray(parsed.results)
+                  ) {
+                    return (
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontStyle: "italic", mb: 1 }}
+                        >
+                          {parsed.disclaimer}
+                        </Typography>
+                        {parsed.results.map((result: any, index: number) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              mb: 1,
+                            }}
+                          >
+                            {result.passed ? (
+                              <CircleCheck
+                                color="green"
+                                style={{ marginRight: 8 }}
+                              />
+                            ) : (
+                              <CircleX color="red" style={{ marginRight: 8 }} />
+                            )}
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {result.name}: {result.message}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    );
+                  } else {
+                    return (
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {submissionResponse ||
+                          "No output yet. Run your code to see the result here."}
+                      </Typography>
+                    );
+                  }
+                })()}
+              </Box>
+            </Paper>
+          </Box>
 
           {/* File Upload and Action Buttons */}
           <Box
