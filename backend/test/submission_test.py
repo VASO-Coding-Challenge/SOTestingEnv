@@ -1,10 +1,11 @@
 """File to contain all Submission related tests"""
 
 import base64
-from io import BytesIO
 import json
 import os
 import pytest
+
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 from zipfile import ZipFile
@@ -14,6 +15,8 @@ from backend.models.team import Team
 from backend.services.exceptions import ResourceNotFoundException
 from ..services import ProblemService
 from ..services import SubmissionService
+from .fake_data.submission import setup_submission_data
+from .fixtures import submission_svc
 
 
 __authors__ = ["Michelle Nguyen"]

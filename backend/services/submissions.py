@@ -4,11 +4,11 @@ import glob
 import os
 import json
 import base64
+import requests
 
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
 from typing import Dict
-from fastapi import requests
 
 from backend.services.problems import ProblemService
 from ..models import Submission, ConsoleLog, Team, ScoredTest
