@@ -376,17 +376,19 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                                 mb: 1,
                               }}
                             >
-                              {result.passed ? (
-                                <CircleCheck
-                                  color="green"
-                                  style={{ marginRight: 8 }}
-                                />
-                              ) : (
-                                <CircleX
-                                  color="red"
-                                  style={{ marginRight: 8 }}
-                                />
-                              )}
+                              <div>
+                                {result.passed ? (
+                                  <CircleCheck
+                                    color="green"
+                                    style={{ marginRight: 8 }}
+                                  />
+                                ) : (
+                                  <CircleX
+                                    color="red"
+                                    style={{ marginRight: 8 }}
+                                  />
+                                )}
+                              </div>
                               <Typography
                                 variant="body1"
                                 sx={{
