@@ -58,16 +58,18 @@ def test_get_team_incorrect(team_svc, fake_team_fixture):
 
 def test_create_team_basic(team_svc, fake_team_fixture):
     """Test the creation of an ordinary Team in the database"""
+    team_svc.delete_all_teams() 
     fake_team_fixture()
     new_team = Team(
         name="C4",
         start_time=datetime.now(),
         end_time=datetime.now(),
         password="password",
+        session_id=None
     )
-    team_svc.create_team(new_team)
+    created_team = team_svc.create_team(new_team)
     assert team_svc.get_team("C4").name == new_team.name
-    assert team_svc.get_team(4).id == new_team.id
+    assert team_svc.get_team(created_team.id).id == created_team.id
 
 
 def test_df_to_table_basic(team_svc, fake_team_fixture):
@@ -88,7 +90,7 @@ def test_df_to_table_basic(team_svc, fake_team_fixture):
 def test_get_all_teams_basic(team_svc, fake_team_fixture):
     fake_team_fixture()
     """Test getting all teams in the database"""
-    assert len(team_svc.get_all_teams()) == 3
+    assert len(team_svc.get_all_teams()) == 4
 
 
 def test_update_team_basic(team_svc, fake_team_fixture):
@@ -220,7 +222,7 @@ def test_teams_to_df_basic(team_svc, fake_team_fixture):
     fake_team_fixture()
     teams = team_svc.get_all_teams()
     df = team_svc.teams_to_df(teams)
-    assert len(df) == 3
+    assert len(df) == 4
     assert "Team Number" in df.columns
     assert "Password" in df.columns
     assert "Start Time" in df.columns
