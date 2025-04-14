@@ -23,14 +23,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { Editor } from "@monaco-editor/react";
 import { Link } from "react-router-dom";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CircleX, CircleCheck } from "lucide-react";
 
@@ -52,6 +44,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   const [submissionResponse, setSubmissionResponse] = useState<string>(
     sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet"
   );
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     sessionStorage.setItem(`question_${question.num}`, code);
@@ -117,6 +111,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   // POST request to submit code, setSubmissionResponse to console_log output for API route
   const handleQuestionSubmission = (questionNum: string, code: string) => {
     console.log("Running Code:", code);
+    setIsSubmitting(true);
 
     fetch("/api/submissions/submit", {
       method: "POST",
@@ -139,6 +134,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
       })
       .then((responseData: SubmissionResponse) => {
         setSubmissionResponse(responseData.console_log);
+        setIsSubmitting(false);
       })
       .catch((error: Error) => {
         console.error("Error :", error.message);
@@ -321,6 +317,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                 Output
               </Typography>
               {/* TODO: */}
+              {/* Display the output */}
               <Box
                 sx={{
                   maxHeight: "250px",
@@ -331,74 +328,94 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   borderRadius: "8px",
                 }}
               >
-                {(() => {
-                  // Attempt to parse the submissionResponse as JSON.
-                  let parsed;
-                  try {
-                    parsed = JSON.parse(submissionResponse);
-                  } catch (e) {
-                    parsed = null;
-                  }
-                  if (
-                    parsed &&
-                    typeof parsed === "object" &&
-                    "disclaimer" in parsed &&
-                    "results" in parsed &&
-                    Array.isArray(parsed.results)
-                  ) {
-                    return (
-                      <Box>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontStyle: "italic", mb: 1 }}
-                        >
-                          {parsed.disclaimer}
-                        </Typography>
-                        {parsed.results.map((result: any, index: number) => (
-                          <Box
-                            key={index}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              mb: 1,
-                            }}
+                {isSubmitting ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="h-6 w-6 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[250px]" />
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="h-6 w-6 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[200px]" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  (() => {
+                    // Attempt to parse the submissionResponse as JSON.
+                    let parsed;
+                    try {
+                      parsed = JSON.parse(submissionResponse);
+                    } catch (e) {
+                      parsed = null;
+                    }
+
+                    if (
+                      parsed &&
+                      typeof parsed === "object" &&
+                      "disclaimer" in parsed &&
+                      "results" in parsed &&
+                      Array.isArray(parsed.results)
+                    ) {
+                      return (
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontStyle: "italic", mb: 1 }}
                           >
-                            {result.passed ? (
-                              <CircleCheck
-                                color="green"
-                                style={{ marginRight: 8 }}
-                              />
-                            ) : (
-                              <CircleX color="red" style={{ marginRight: 8 }} />
-                            )}
-                            <Typography
-                              variant="body1"
+                            {parsed.disclaimer}
+                          </Typography>
+                          {parsed.results.map((result: any, index: number) => (
+                            <Box
+                              key={index}
                               sx={{
-                                whiteSpace: "pre-wrap",
-                                wordBreak: "break-word",
+                                display: "flex",
+                                mb: 1,
                               }}
                             >
-                              {result.name}: {result.message}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    );
-                  } else {
-                    return (
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          whiteSpace: "pre-wrap",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {submissionResponse ||
-                          "No output yet. Run your code to see the result here."}
-                      </Typography>
-                    );
-                  }
-                })()}
+                              {result.passed ? (
+                                <CircleCheck
+                                  color="green"
+                                  style={{ marginRight: 8 }}
+                                />
+                              ) : (
+                                <CircleX
+                                  color="red"
+                                  style={{ marginRight: 8 }}
+                                />
+                              )}
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  whiteSpace: "pre-wrap",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                {result.name}: {result.message}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Box>
+                      );
+                    } else {
+                      return (
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {submissionResponse ||
+                            "No output yet. Run your code to see the result here."}
+                        </Typography>
+                      );
+                    }
+                  })()
+                )}
               </Box>
             </Paper>
           </Box>
