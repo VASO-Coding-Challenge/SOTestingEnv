@@ -1,48 +1,74 @@
 {
-    "name": "Science Olympiad Testing Environment",
-    "remoteUser": "vscode",
-    "build": {
-        "dockerfile": "Dockerfile",
-        "context": ".."
-    },
-    "forwardPorts": [4400, 4401, 4402],
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.python",
-                "ms-python.vscode-pylance",
-                "ms-python.black-formatter",
-                "matthewpi.caddyfile-support",
-                "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode",
-                "qwtel.sqlite-viewer",
-                "bradlc.vscode-tailwindcss"
-            ],
-            "settings": {
-                "editor.formatOnSave": true,
-                "editor.formatOnSaveMode": "file",
-                "[typescript]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[javascript]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode"
-                },
-                "[python]": {
-                    "editor.defaultFormatter": "ms-python.black-formatter"
-                },
-                "[html]": {
-                    "editor.formatOnSave": false
-                },
-                "python.analysis.extraPaths": [
-                    "/backend/"
-                ],
-                "python.testing.pytestEnabled": true,
-                "python.testing.pytestArgs": [
-                    "--ignore=es_files",
-                    "."
-                ],
-                "python.testing.unittestEnabled": false
-            }
-        }
+  "name": "Science Olympiad Testing Environment",
+  "remoteUser": "vscode",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "forwardPorts": [
+    4400,
+    4401,
+    4402
+  ],
+  "appPort": ["4400:4400"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "matthewpi.caddyfile-support",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "qwtel.sqlite-viewer",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "[html]": {
+          "editor.formatOnSave": false
+        },
+        "python.analysis.extraPaths": [
+          "/backend/"
+        ],
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": [
+          "--ignore=es_files",
+          "."
+        ],
+        "python.testing.unittestEnabled": false,
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/dist/**": true,
+          "**/build/**": true,
+          "**/.git/objects/**": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/build": true
+        },
+        "eslint.enable": false,
+        "tailwindCSS.validate": false,
+        "extensions.autoUpdate": false,
+        "extensions.ignoreRecommendations": true,
+        "github.copilot.enable": false,
+        "typescript.tsserver.maxTsServerMemory": 2048,
+        "javascript.nodeMemoryLimit": 2048, // Add this line
+        "node.js.max-old-space-size": 2048,
+        "typescript.tsserver.useSeparateSyntaxServer": false,
+        "typescript.disableAutomaticTypeAcquisition": true
+      }
     }
+  }
 }
