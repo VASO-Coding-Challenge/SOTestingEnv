@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -84,3 +84,15 @@ async def get_current_team(
         raise InvalidCredentialsException("Token is Invalid")
 
     return token_data
+
+
+@api.get("/now", tags=["Time"])
+async def get_server_time(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+):
+    """
+    Returns the server's current UTC time, so clients can compute an offset
+    instead of trusting their local clock.
+    """
+    # If you want /now publicly accessible, remove the Depends
+    return {"now": datetime.now(timezone.utc).isoformat()}

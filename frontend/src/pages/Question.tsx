@@ -25,6 +25,58 @@ const QuestionPage = () => {
       navigate(status === 401 ? "/login" : "/thank-you");
     };
 
+    let redirectTimer: ReturnType<typeof setTimeout>;
+
+    const init = async () => {
+      const token = localStorage.getItem("token") ?? "";
+      const nowRes = await fetch("/api/now", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!nowRes.ok) {
+        console.error("Failed to fetch server time");
+        navigate("/login");
+        return;
+      }
+      const { now } = await nowRes.json(); // { now: "2025-04-16T18:30:00.000Z" }
+      const serverMs = new Date(now).getTime();
+
+      // 1b) fetch team/session info
+      const teamRes = await fetch("/api/team", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (teamRes.status === 401 || teamRes.status === 403) {
+        handleUnauthorized(teamRes.status);
+        return;
+      }
+      if (!teamRes.ok) {
+        console.error("Could not load team info");
+        navigate("/thank-you");
+        return;
+      }
+      const teamData = (await teamRes.json()) as {
+        session: { end_time: string };
+      };
+      const endMs = new Date(teamData.session.end_time).getTime();
+
+      if (serverMs > endMs) {
+        navigate("/thank-you");
+        return;
+      }
+
+      const msUntilEnd = endMs - serverMs;
+      redirectTimer = setTimeout(() => {
+        navigate("/thank-you");
+      }, msUntilEnd);
+    };
+
+    void init();
+
     fetch("/api/questions", {
       method: "GET",
       headers: {
@@ -54,6 +106,10 @@ const QuestionPage = () => {
       .catch((error) => {
         console.error("Error:", error);
       });
+
+    return () => {
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
   }, [navigate]);
 
   // State stores the selected question.
