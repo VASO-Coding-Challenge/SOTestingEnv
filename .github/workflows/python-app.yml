@@ -25,17 +25,36 @@ jobs:
       with:
         python-version: "3.10"
       
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libcairo2-dev pkg-config python3-dev
+    # - name: Install minimal dependencies and discover imports
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     pip install flake8 pytest pytest-cov
+    #     # Install common backend packages
+    #     pip install fastapi httpx pydantic
         
-    - name: Install dependencies
+    #     # Find all Python imports
+    #     echo "Analyzing imports:"
+    #     grep -r "^import\|^from" backend/ --include="*.py" | sort | uniq
+    # - name: Try running tests and install missing packages
+    #   run: |
+    #     cd backend
+    #     # Try running tests and capture output
+    #     python -m pytest test/ -v || echo "Tests failed on first attempt - will install more packages"
+    # - name: Install additional dependencies based on errors
+    #   run: |
+    #     pip install <add>
+
+    - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip
+        # Install testing packages
         pip install flake8 pytest pytest-cov
-        grep -v '^distro-info==' backend/requirements.txt > backend/tmp_requirements.txt
-        pip install -r backend/tmp_requirements.txt
+        # Install packages from test imports
+        pip install sqlmodel pyjwt fastapi polars httpx
+        # # Make the backend package installable
+        # cd backend
+        # pip install -e .
+        
         
     - name: Lint with flake8
       run: |
