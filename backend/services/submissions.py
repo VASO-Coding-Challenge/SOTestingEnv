@@ -69,8 +69,8 @@ class SubmissionService:
                 if test["output"][-16:] == "invalid syntax\n\n":
                     # Invalid syntax needs stack trace cleanup
                     output_lines: list[str] = test["output"].splitlines()
-                    lines_to_inlcude = [1, 8, 9, 10, 11]
-                    out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
+                    lines_to_include = [1, 8, 9, 10, 11]
+                    out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_include])}\n"
                 else:
                     # Runtime errors and test failures look good already
                     out_str += f"{test['name'].split(" ")[0]} {test['output']}"
