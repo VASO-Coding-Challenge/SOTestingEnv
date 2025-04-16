@@ -16,6 +16,9 @@ __pycache__/
 # Node Modules
 /node_modules
 
+# Monaco assets
+frontend/public/monaco-editor/
+
 # Distribution / packaging
 .Python
 build/
