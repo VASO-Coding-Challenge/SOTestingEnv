@@ -31,5 +31,4 @@ jobs:
 
       - name: Run tests and coverage
         run: |
-          cd backend
-          pytest --cov=. --cov-fail-under=88 test/
+          PYTHONPATH=$PYTHONPATH:$(pwd) pytest --cov=backend --cov-fail-under=88 backend/test/
