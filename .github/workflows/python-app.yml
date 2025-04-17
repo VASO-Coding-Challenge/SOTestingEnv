@@ -21,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.12"
+          python-version: "3.12.9"
 
       - name: Set CI environment variable
         run: echo "CI=true" >> $GITHUB_ENV
@@ -42,4 +42,5 @@ jobs:
 
       - name: Run tests and coverage
         run: |
-          PYTHONPATH=$PYTHONPATH:$(pwd) pytest --cov=backend --cov-fail-under=50 backend/test/
+          PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          pytest --no-cache-dir --cov=backend --cov-fail-under=90 backend/test/

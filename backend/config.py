@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-__authors__ = ["Mustafa Aljumayli"]
+__authors__ = ["Mustafa Aljumayli", "Michelle Nguyen"]
 
 # load_dotenv(os.path.join(os.getcwd(), "backend/.env.development"))
 
