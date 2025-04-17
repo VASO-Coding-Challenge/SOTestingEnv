@@ -28,6 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-cov
           pip install sqlmodel pyjwt fastapi polars httpx requests passlib python-multipart
+          pip install passlib python-multipart python-dotenv
 
       - name: Run tests and coverage
         run: |
