@@ -43,4 +43,4 @@ jobs:
       - name: Run tests and coverage
         run: |
           PYTHONPATH=$PYTHONPATH:$(pwd)/backend
-          pytest --no-cache-dir --cov=backend --cov-fail-under=90 backend/test/
+          pytest --cov=backend --cov-fail-under=90 backend/test/
