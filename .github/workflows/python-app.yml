@@ -40,4 +40,4 @@ jobs:
       - name: Run tests and coverage
         run: |
           PYTHONPATH=$PYTHONPATH:$(pwd)/backend
-          pytest --cov=backend/services --cov-fail-under=90 --cov-report=term-missing
+          pytest --cov=backend/services --cov-fail-under=90 backend/test/ --cov-report=term-missing
