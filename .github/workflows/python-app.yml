@@ -23,8 +23,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      # - name: Set CI environment variable
-      #   run: echo "CI=true" >> $GITHUB_ENV
+      - name: Set CI environment variable
+        run: echo "CI=true" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -32,6 +32,13 @@ jobs:
           pip install pytest pytest-cov
           pip install sqlmodel pyjwt fastapi polars httpx requests
           pip install passlib python-multipart python-dotenv
+
+      - name: Set environment variables for tests
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> $GITHUB_ENV
+          echo "ES_USERNAME=${{ secrets.ES_USERNAME }}" >> $GITHUB_ENV
+          echo "ES_PASSWORD=${{ secrets.ES_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Run tests and coverage
         run: |
