@@ -6,7 +6,7 @@ import pytest
 from .fixtures import question_svc
 from ..test.fake_data.question import setup_questions, setup_bad_questions
 
-__authors__ = ["Matthew Futch"]
+__authors__ = ["Matthew Futch", "Michelle Nguyen"]
 
 
 def test_isQuestionDir(question_svc):
@@ -24,13 +24,10 @@ def test_get_questions(question_svc, setup_questions):
     assert questions_public == question_svc.get_questions()
 
 
-def test_read_file(question_svc, setup_bad_questions):
+def test_read_document(question_svc, setup_bad_questions):
     number_of_questions = 2
     tmp_path = setup_bad_questions(number_of_questions)
     os.chdir(tmp_path)
-
-    with pytest.raises(Exception):  # exception on 53-54
-        (question_svc.load_local_docs(1))[0].content
 
     with pytest.raises(Exception):  # read_document exception
         question_svc.read_document(
@@ -95,3 +92,53 @@ def test_load_questions_generic_exception(question_svc, setup_bad_questions):
     # Ensure the generic exception is raised correctly
     with pytest.raises(Exception):
         question_svc.load_questions()
+
+
+def test_get_question_count(question_svc, setup_questions):
+    """Test that get_question_count returns the correct number of questions"""
+    tmp_path = setup_questions(
+        number_of_questions=2
+    )  # The function creates 2 questions by default
+
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
+
+    try:
+        count = question_svc.get_question_count()
+
+        assert count == 2
+    finally:
+        os.chdir(original_dir)
+
+
+def test_load_starter_code(question_svc, setup_questions):
+    """Test that load_starter_code correctly loads the starter code for a question"""
+    tmp_path = setup_questions(number_of_questions=2)
+    question_num = 1
+
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
+
+    try:
+        starter_code = question_svc.load_starter_code(question_num)
+
+        assert starter_code == "starter code"
+    finally:
+        os.chdir(original_dir)
+
+
+def test_load_starter_code_file_not_found(question_svc, setup_questions):
+    """Test that load_starter_code raises FileNotFoundError when starter code file doesn't exist"""
+    tmp_path = setup_questions(number_of_questions=1)
+
+    starter_file = tmp_path / "es_files" / "questions" / "q1" / "starter.py"
+    os.unlink(starter_file)
+
+    original_dir = os.getcwd()
+    os.chdir(tmp_path)
+
+    try:
+        with pytest.raises(FileNotFoundError):
+            question_svc.load_starter_code(1)
+    finally:
+        os.chdir(original_dir)

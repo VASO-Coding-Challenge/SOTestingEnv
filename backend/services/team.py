@@ -27,6 +27,7 @@ __authors__ = [
     "Andrew Lockard",
     "Ivan Wu",
     "Tsering Lama",
+    "Michelle Nguyen",
 ]
 
 WORD_LIST = "/workspaces/SOTestingEnv/es_files/unique_words.csv"

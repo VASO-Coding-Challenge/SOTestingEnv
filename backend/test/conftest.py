@@ -5,12 +5,21 @@ import os
 
 from sqlmodel import create_engine, Session, SQLModel
 
-SQLITE_DATABASE_NAME = "test_database.db"
-SQLITE_DATABASE_URL = (
-    f"sqlite:////workspaces/SOTestingEnv/backend/test/{SQLITE_DATABASE_NAME}"
-)
+# SQLITE_DATABASE_NAME = "test_database.db"
+# SQLITE_DATABASE_URL = (
+#     f"sqlite:////workspaces/SOTestingEnv/backend/test/{SQLITE_DATABASE_NAME}"
+# )
 
-__authors__ = ["Andrew Lockard"]
+__authors__ = ["Andrew Lockard", "Michelle Nguyen"]
+
+
+# Detect if we're running inside GitHub Actions
+if os.getenv("GITHUB_ACTIONS") == "true":
+    SQLITE_DATABASE_URL = "sqlite:///test_database.db"
+else:
+    SQLITE_DATABASE_URL = (
+        "sqlite:////workspaces/SOTestingEnv/backend/test/test_database.db"
+    )
 
 
 @pytest.fixture(scope="session")

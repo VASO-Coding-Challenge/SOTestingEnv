@@ -36,9 +36,6 @@ class QuestionService:
     def isQuestionDir(self, directory: str) -> bool:
         return directory.startswith("q") and directory[1:].isdigit()
 
-    def isLocalDocumentationFile(self, file: str) -> bool:
-        return file.startswith("doc_") and file.endswith(".md")
-
     def hasStarterCode(self, question_num: int) -> bool:
         starter_code_path = f"es_files/questions/q{question_num}/starter.py"
         return os.path.exists(starter_code_path)
@@ -49,21 +46,6 @@ class QuestionService:
                 return Document(content=f.read(), title=title)
         except Exception as e:
             raise e
-
-    def load_local_docs(self, question_num: int) -> List[Document]:
-        local_docs_path = f"es_files/questions/q{question_num}"
-        local_docs: List[Document] = []
-        for doc in os.listdir(local_docs_path):
-            if not self.isLocalDocumentationFile(doc):
-                continue
-            try:
-                doc_title = doc[4:-3]
-                local_docs.append(
-                    self.read_document(os.path.join(local_docs_path, doc), doc_title)
-                )
-            except Exception as e:
-                print(f"Could not process file {doc_title}")
-        return local_docs
 
     def load_global_docs(self) -> List[Document]:
         global_docs_path = "es_files/global_docs"
@@ -95,11 +77,11 @@ class QuestionService:
         else:
             starter_code = self.load_starter_code(question_num)
 
-        # Get the documents for the question
-        docs: List[Document] = self.load_local_docs(question_num)
+        # # Get the documents for the question
+        # docs: List[Document] = self.load_global_docs(question_num)
 
         return Question(
-            num=question_num, writeup=question, starter_code=starter_code, docs=docs
+            num=question_num, writeup=question, starter_code=starter_code  # , docs=docs
         )
 
     def load_starter_code(self, question_num: int) -> str:

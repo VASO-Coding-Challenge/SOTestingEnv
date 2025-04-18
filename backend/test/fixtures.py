@@ -9,11 +9,12 @@ from ..services import (
     SubmissionService,
     TeamService,
     Session_ObjService,
+    ESService
 )
 
 from sqlmodel import Session
 
-__authors__ = ["Andrew Lockard", "Michelle Nguyen"]
+__authors__ = ["Andrew Lockard", "Michelle Nguyen," "Tsering Lama"]
 
 
 @pytest.fixture()
@@ -45,3 +46,8 @@ def submission_svc():
 @pytest.fixture()
 def session_obj_svc(session: Session):
     return Session_ObjService(session)
+
+
+@pytest.fixture
+def es_svc():
+    return ESService()

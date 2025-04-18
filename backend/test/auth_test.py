@@ -13,6 +13,8 @@ from .fixtures import auth_svc, team_svc
 from .fake_data.auth import create_good_teams
 from backend.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
 
+__authors__ = ["Michelle Nguyen"]
+
 
 def test_authenticate_team_success(auth_svc, create_good_teams):
     """Tests a successful authentication"""
@@ -164,7 +166,10 @@ def test_authenticate_team_time_before_start(auth_svc, create_good_teams):
     """Tests team authentication fails when the start time is in the future."""
     session = create_good_teams
     team = session.get(Team, 1)
-    team.start_time = datetime.now() + timedelta(minutes=5)  # Start time in future
+
+    team.session.start_time = datetime.now() + timedelta(minutes=5)  # Future start
+    session.add(team.session)
+    session.commit()
 
     with pytest.raises(
         ResourceNotAllowedException, match="Your testing time is not active yet"
@@ -176,7 +181,10 @@ def test_authenticate_team_time_after_end(auth_svc, create_good_teams):
     """Tests team authentication fails when the end time has passed."""
     session = create_good_teams
     team = session.get(Team, 1)
-    team.end_time = datetime.now() - timedelta(minutes=5)  # End time in the past
+
+    team.session.end_time = datetime.now() - timedelta(minutes=5)  # Past end
+    session.add(team.session)
+    session.commit()
 
     with pytest.raises(ResourceNotAllowedException, match="You have run out of time"):
         auth_svc.authenticate_team_time(team)

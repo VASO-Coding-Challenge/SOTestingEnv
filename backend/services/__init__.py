@@ -15,3 +15,4 @@ from .auth import AuthService
 from .session_obj import Session_ObjService
 from .problems import ProblemService
 from .docs import DocsService
+from .es import ESService
