@@ -7,7 +7,8 @@
     "dev": "vite --port 4401",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "cp -R node_modules/monaco-editor/min public/monaco-editor"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
