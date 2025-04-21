@@ -305,6 +305,15 @@ export default function QuestionManager() {
     }
   }
 
+  useEffect(() => {
+    if (selectedQuestion) {
+      setCode(selectedQuestion.prompt);
+      setCode1(selectedQuestion.starter_code);
+      setCode2(selectedQuestion.demo_cases);
+      setCode3(selectedQuestion.test_cases);
+    }
+  }, [navigate]);
+
   async function UpdateQuestions() {
     if (!selectedQuestion) {
       console.error("No question selected to update.");
