@@ -99,7 +99,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         })
         .then((data) => {
           console.log(data);
-          setSubmissionResponse(data);
+          setCode(data);
         })
         .catch((error) => {
           console.error("Error fetching previous submissions:", error);
