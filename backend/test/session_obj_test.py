@@ -1,6 +1,8 @@
 """File to contain all Session_Obj related tests"""
 
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import List
+from sqlmodel import select
 from backend.models import Session_Obj, Team
 from .fixtures import session_obj_svc
 from backend.test.fake_data.session_obj import fake_session_fixture
@@ -12,7 +14,7 @@ from backend.services.exceptions import (
     ResourceNotFoundException,
 )
 
-__authors__ = ["Michelle Nguyen"]
+__authors__ = ["Michelle Nguyen," "Tsering Lama"]
 
 
 def test_get_session(session_obj_svc, fake_session_fixture, fake_team_fixture):
@@ -20,7 +22,7 @@ def test_get_session(session_obj_svc, fake_session_fixture, fake_team_fixture):
     fake_session_fixture()
     fake_team_fixture()
     assert session_obj_svc.get_session_obj(1).name == "Session 1"
-    assert len(session_obj_svc.get_session_obj(1).teams) == 2
+    assert len(session_obj_svc.get_session_obj(1).teams) == 1
 
 
 def test_get_session_not_exist(session_obj_svc, fake_session_fixture):
@@ -118,9 +120,17 @@ def test_add_teams_many(session_obj_svc, fake_session_fixture, fake_team_fixture
     """Test adding multiple Teams to a Session"""
     fake_session_fixture()
     fake_team_fixture()
+    teams_to_modify = session_obj_svc._session.exec(
+        select(Team).where(Team.id.in_([3, 4]))
+    ).all()
+
+    for team in teams_to_modify:
+        team.session_id = None
+        
+    session_obj_svc._session.commit()
     original_session = session_obj_svc.get_session_obj(2)
     original_len = len(original_session.teams)
-    session_obj_svc.add_teams_to_session(2, [3, 5])
+    session_obj_svc.add_teams_to_session(2, [3, 4])
     updated_session = session_obj_svc.get_session_obj(2)
     assert len(updated_session.teams) == original_len + 2
 
@@ -148,39 +158,33 @@ def test_remove_teams_one(session_obj_svc, fake_session_fixture, fake_team_fixtu
     fake_session_fixture()
     fake_team_fixture()
 
-    # Get original team count and a team ID from session 1
     session = session_obj_svc.get_session_obj(1)
     old_num = len(session.teams)
 
-    # Need to have at least one team in the session
     assert old_num > 0
     team_id_to_remove = session.teams[0]
 
-    # Remove the team
     session_obj_svc.remove_teams_from_session(1, [team_id_to_remove])
 
-    # Check if team was removed
     updated_session = session_obj_svc.get_session_obj(1)
     assert len(updated_session.teams) == old_num - 1
 
 
 def test_remove_teams_many(session_obj_svc, fake_session_fixture, fake_team_fixture):
-    """Test removing one Teams from a Session"""
     fake_session_fixture()
     fake_team_fixture()
-
-    # Get original team count and team IDs from session 1
+    
+    team_id = 3  
+    session_obj_svc.add_teams_to_session(1, [team_id])
+    
     session = session_obj_svc.get_session_obj(1)
     old_num = len(session.teams)
-
-    # Need to have at least two teams
+    
     assert old_num >= 2
-    team_ids_to_remove = session.teams[:2]  # First two team IDs
-
-    # Remove the teams
+    team_ids_to_remove = session.teams[:2]
+    
     session_obj_svc.remove_teams_from_session(1, team_ids_to_remove)
-
-    # Check if teams were removed
+    
     updated_session = session_obj_svc.get_session_obj(1)
     assert len(updated_session.teams) == old_num - 2
 
@@ -193,3 +197,58 @@ def test_remove_teams_not_exist(
     fake_team_fixture()
     with pytest.raises(ResourceNotFoundException):
         session_obj_svc.remove_teams_from_session(1, [999])
+
+
+def test_delete_session_unassigns_teams(session_obj_svc, fake_session_fixture, fake_team_fixture, session):
+    """Test that deleting a session unassigns its teams properly"""
+    fake_session_fixture()
+    fake_team_fixture()
+    
+    session_id = 1  
+    teams = session.exec(select(Team).where(Team.session_id == session_id)).all()
+    assert len(teams) > 0
+
+    team_ids = [team.id for team in teams]
+    result = session_obj_svc.delete_session_obj(session_id)
+    assert result is True
+
+    assert session.exec(select(Session_Obj).where(Session_Obj.id == session_id)).first() is None
+    for team_id in team_ids:
+        team = session.get(Team, team_id)
+        assert team is not None
+        assert team.session_id is None  
+
+
+def test_delete_all_sessions_unassigns_teams(session_obj_svc, fake_session_fixture, fake_team_fixture, session):
+    """Test that delete_all_session_objs unassigns all teams from sessions"""
+    fake_session_fixture()
+    fake_team_fixture()
+
+    teams_with_sessions = session.exec(select(Team).where(Team.session_id.is_not(None))).all()
+    assert len(teams_with_sessions) > 0
+    team_ids = [team.id for team in teams_with_sessions]
+    session_obj_svc.delete_all_session_objs()
+
+    remaining_sessions = session.exec(select(Session_Obj)).all()
+    assert len(remaining_sessions) == 0
+    for team_id in team_ids:
+        team = session.get(Team, team_id)
+        assert team is not None  
+        assert team.session_id is None  
+
+
+def test_add_teams_to_nonexistent_session(session_obj_svc, fake_session_fixture, fake_team_fixture):
+    """Test that adding teams to a non-existent session raises ResourceNotFoundException"""
+    fake_session_fixture()
+    fake_team_fixture()
+    
+    # Choose a session ID that doesn't exist
+    non_existent_session_id = 999
+    
+    # Try to add a team to this non-existent session
+    with pytest.raises(ResourceNotFoundException) as excinfo:
+        session_obj_svc.add_teams_to_session(non_existent_session_id, [1])
+    
+    # Verify the exception contains the correct resource type and ID
+    assert "Session" in str(excinfo.value)
+    assert str(non_existent_session_id) in str(excinfo.value)

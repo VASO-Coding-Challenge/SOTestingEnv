@@ -3,18 +3,18 @@
 import glob
 import os
 import json
-from typing import Dict
-import requests  # type: ignore
 import base64
+import requests
+
 from io import BytesIO  # Creates an in-memory "file"
 from zipfile import ZipFile
+from typing import Dict
 
 from backend.services.problems import ProblemService
-
 from ..models import Submission, ConsoleLog, Team, ScoredTest
 from backend.services.exceptions import ResourceNotFoundException
 
-__authors__ = ["Nicholas Almy", "Andrew Lockard"]
+__authors__ = ["Nicholas Almy", "Andrew Lockard", "Michelle Nguyen"]
 
 submissions_dir = "es_files/submissions"
 
@@ -69,15 +69,15 @@ class SubmissionService:
                 if test["output"][-16:] == "invalid syntax\n\n":
                     # Invalid syntax needs stack trace cleanup
                     output_lines: list[str] = test["output"].splitlines()
-                    lines_to_inlcude = [1, 8, 9, 10, 11]
-                    out_str += f"Running tests failed due to a syntax error.\n{"\n".join([line for i,line in enumerate(output_lines) if i in lines_to_inlcude])}\n"
+                    lines_to_include = [1, 8, 9, 10, 11]
+                    out_str += f"Running tests failed due to a syntax error.\n{'\n'.join([line for i,line in enumerate(output_lines) if i in lines_to_include])}\n"
                 else:
                     # Runtime errors and test failures look good already
                     out_str += f"{test['name'].split(" ")[0]} {test['output']}"
             else:
                 out_str += f"{test['name'].split(" ")[0]} passed!\n"
 
-        return ConsoleLog(console_log=out_str[:-1])
+        return ConsoleLog(console_log=out_str.rstrip("\n"))
 
     def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
         """Grades a students submission against test questions

@@ -1,5 +1,6 @@
 """File to contain all Problem manipulation related tests"""
 
+import tempfile
 import pytest
 import shutil
 import zipfile
@@ -163,3 +164,128 @@ def test_zip_all_problems(setup_problem_data):
                 ), f"Missing file in ZIP: {expected_file}"
 
         shutil.rmtree(test_env)
+
+
+def test_get_problems_nonexistent_dir(setup_problem_data):
+    """Test retrieving problems when the directory doesn't exist."""
+    test_env = setup_problem_data()
+
+    # Point to a nonexistent directory
+    original_dir = ProblemService.QUESTIONS_DIR
+    ProblemService.QUESTIONS_DIR = str(test_env / "nonexistent_dir")
+
+    try:
+        # Exercise
+        problems = ProblemService.get_problems_list()
+
+        # Verify
+        assert problems == []
+    finally:
+        # Restore the original directory
+        ProblemService.QUESTIONS_DIR = original_dir
+
+
+def test_get_problem_nonexistent(setup_problem_data):
+    """Test retrieving a nonexistent problem."""
+    test_env = setup_problem_data()
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
+
+    with pytest.raises(HTTPException) as excinfo:
+        ProblemService.get_problem(999)  # Non-existent problem number
+
+    assert excinfo.value.status_code == 404
+    assert "not found" in excinfo.value.detail
+
+
+def test_read_file_error(setup_problem_data):
+    """Test error handling when reading a file fails."""
+    test_env = setup_problem_data()
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
+
+    # Create an unreadable file
+    problem_dir = test_env / "es_files" / "questions" / "q1"
+    file_path = problem_dir / "unreadable.md"
+    file_path.touch()
+
+    # Make it unreadable if possible (this might not work on all systems)
+    try:
+        file_path.chmod(0)  # Remove all permissions
+
+        with pytest.raises(HTTPException) as excinfo:
+            ProblemService.read_file(1, "unreadable.md")
+
+        assert excinfo.value.status_code == 500
+        assert "Error reading" in excinfo.value.detail
+    finally:
+        # Reset permissions so the file can be removed during cleanup
+        file_path.chmod(0o644)
+
+
+def test_write_file_error(setup_problem_data):
+    """Test error handling when writing a file fails."""
+    test_env = setup_problem_data()
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
+
+    # Make the directory read-only if possible
+    problem_dir = test_env / "es_files" / "questions" / "q1"
+
+    try:
+        # Create a read-only directory
+        readonly_dir = problem_dir / "readonly"
+        readonly_dir.mkdir()
+        readonly_dir.chmod(0o500)  # Read and execute only
+
+        with pytest.raises(HTTPException) as excinfo:
+            ProblemService.write_file(1, "readonly/file.txt", "Content")
+
+        assert excinfo.value.status_code == 500
+        assert "Error writing" in excinfo.value.detail
+    finally:
+        # Reset permissions for cleanup
+        readonly_dir.chmod(0o755)
+
+
+def test_update_problem_nonexistent(setup_problem_data):
+    """Test updating a nonexistent problem."""
+    test_env = setup_problem_data()
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
+
+    with pytest.raises(HTTPException) as excinfo:
+        ProblemService.update_problem(
+            999,  # Non-existent problem
+            "Updated Prompt",
+            "Updated Starter Code",
+            "Updated Test Cases",
+            "Updated Demo Cases",
+        )
+
+    assert excinfo.value.status_code == 404
+    assert "not found" in excinfo.value.detail
+
+
+def test_delete_problem_nonexistent(setup_problem_data):
+    """Test deleting a nonexistent problem."""
+    test_env = setup_problem_data()
+    ProblemService.QUESTIONS_DIR = str(test_env / "es_files" / "questions")
+
+    with pytest.raises(HTTPException) as excinfo:
+        ProblemService.delete_problem(999)  # Non-existent problem
+
+    assert excinfo.value.status_code == 404
+    assert "not found" in excinfo.value.detail
+
+
+def test_zip_all_problems_nonexistent_dir():
+    """Test zipping problems when the directory doesn't exist."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_dir = ProblemService.QUESTIONS_DIR
+        ProblemService.QUESTIONS_DIR = os.path.join(temp_dir, "nonexistent")
+
+        try:
+            with pytest.raises(HTTPException) as excinfo:
+                ProblemService.zip_all_problems()
+
+            assert excinfo.value.status_code == 404
+            assert "No problems found" in excinfo.value.detail
+        finally:
+            ProblemService.QUESTIONS_DIR = original_dir

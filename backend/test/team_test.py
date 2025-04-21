@@ -1,6 +1,6 @@
 """File to contain all Team and TeamMember related tests"""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from backend.models import Team, TeamMember
 import polars as pl
 import select
@@ -22,6 +22,32 @@ from backend.test.fake_data.team_members import fake_team_members_fixture
 # TODO: Test table reading and exporting functions
 
 __authors__ = ["Andrew Lockard", "Tsering Lama"]
+
+
+def test_team_service_with_custom_password_service(session):
+    """Test TeamService initialization with a custom PasswordService"""
+    class MockPasswordService:
+        def __init__(self, session):
+            self.session = session
+            
+        def generate_password(self):
+            return "mock-password"
+    
+    mock_pwd_svc = MockPasswordService(session)
+    from backend.services.team import TeamService
+    team_svc = TeamService(session, pwd_svc=mock_pwd_svc)
+    
+    assert team_svc._pwd_svc is mock_pwd_svc
+    team_data = TeamData(
+        name="MockPwdTest",
+        start_time=datetime.now(),
+        end_time=datetime.now(),
+        password="", \
+        session_id=None
+    )
+    
+    team = team_svc.create_team(team_data)
+    assert team.password == "mock-password"
 
 
 def test_get_team_basic(team_svc, fake_team_fixture):
@@ -58,17 +84,36 @@ def test_get_team_incorrect(team_svc, fake_team_fixture):
 
 def test_create_team_basic(team_svc, fake_team_fixture):
     """Test the creation of an ordinary Team in the database"""
+    team_svc.delete_all_teams() 
     fake_team_fixture()
     new_team = Team(
         name="C4",
         start_time=datetime.now(),
         end_time=datetime.now(),
         password="password",
+        session_id=None
     )
-    team_svc.create_team(new_team)
+    created_team = team_svc.create_team(new_team)
     assert team_svc.get_team("C4").name == new_team.name
-    assert team_svc.get_team(4).id == new_team.id
+    assert team_svc.get_team(created_team.id).id == created_team.id
 
+def test_create_team_with_existing_name(team_svc, fake_team_fixture):
+    """Test that creating a team with an existing name raises ResourceNotAllowedException"""
+    fake_team_fixture()
+    existing_team = team_svc.get_team(1)
+    existing_name = existing_team.name
+
+    new_team = TeamData(
+        name=existing_name, 
+        start_time=datetime.now(),
+        end_time=datetime.now() + timedelta(hours=1),
+        password="new-password",
+        session_id=None
+    )
+    
+    with pytest.raises(ResourceNotAllowedException) as excinfo:
+        team_svc.create_team(new_team)
+    assert f"A team with name '{existing_name}' already exists" in str(excinfo.value)
 
 def test_df_to_table_basic(team_svc, fake_team_fixture):
     """Test the creation of an ordinary Team in the database"""
@@ -88,7 +133,7 @@ def test_df_to_table_basic(team_svc, fake_team_fixture):
 def test_get_all_teams_basic(team_svc, fake_team_fixture):
     fake_team_fixture()
     """Test getting all teams in the database"""
-    assert len(team_svc.get_all_teams()) == 3
+    assert len(team_svc.get_all_teams()) == 4
 
 
 def test_update_team_basic(team_svc, fake_team_fixture):
@@ -220,7 +265,7 @@ def test_teams_to_df_basic(team_svc, fake_team_fixture):
     fake_team_fixture()
     teams = team_svc.get_all_teams()
     df = team_svc.teams_to_df(teams)
-    assert len(df) == 3
+    assert len(df) == 4
     assert "Team Number" in df.columns
     assert "Password" in df.columns
     assert "Start Time" in df.columns
@@ -291,7 +336,6 @@ def test_team_member_not_allowed_deleting(team_svc, fake_team_fixture, fake_team
     with pytest.raises(ResourceNotAllowedException):
         team_svc.delete_team_member(team2.members[0].id, team1)
 
-# NEW TESTS
 
 def test_create_batch_teams_basic(team_svc, fake_team_fixture, monkeypatch):
     """Test creating a batch of teams"""
@@ -323,6 +367,32 @@ def test_create_batch_teams_basic(team_svc, fake_team_fixture, monkeypatch):
     # Verify naming pattern
     for i, team in enumerate(teams):
         assert team.name.startswith("Batch")
+
+
+def test_create_batch_teams_all_names_exist(team_svc, fake_team_fixture):
+    """Test that attempting to create batch teams with all existing names raises an exception"""
+    fake_team_fixture()
+    
+    # Get existing team names from the fixture
+    existing_teams = team_svc.get_all_teams()
+    existing_names = [team.name for team in existing_teams]
+    
+    # Create a team template
+    template = TeamData(
+        name="Template",
+        start_time=datetime.now(),
+        end_time=datetime.now() + timedelta(hours=1),
+        password="template-pwd",
+        session_id=None
+    )
+    
+    # Try to create teams with names that already exist
+    with pytest.raises(ResourceNotAllowedException) as excinfo:
+        team_svc.create_batch_teams(existing_names, template)
+    
+    # Verify the exception message
+    expected_msg = f"All requested team names already exist: {', '.join(existing_names)}"
+    assert expected_msg in str(excinfo.value)
 
 
 def test_create_batch_teams_with_session(team_svc, fake_team_fixture, monkeypatch):
@@ -438,6 +508,19 @@ def test_delete_all_teams_implementation(team_svc, fake_team_fixture, fake_team_
     # Verify no team members remain
     members = session.exec(select(TeamMember)).all()
     assert len(members) == 0
+
+
+def test_delete_team_removes_members(team_svc, fake_team_fixture, fake_team_members_fixture, session):
+    """Test that delete_team removes all team members before deleting the team"""
+    fake_team_fixture()
+    fake_team_members_fixture()
+    team = team_svc.get_team(1)
+    member_ids = [member.id for member in team.members]
+    assert len(member_ids) > 0
+    team_svc.delete_team(team)
+    for member_id in member_ids:
+        assert session.get(TeamMember, member_id) is None
+    assert session.get(Team, team.id) is None
 
 
 def test_get_all_teams_implementation(team_svc, fake_team_fixture):

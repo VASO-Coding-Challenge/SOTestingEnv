@@ -21,7 +21,6 @@ class Question(SQLModel):
     num: int
     writeup: str
     starter_code: str
-    docs: List[Document]
 
 
 class QuestionsPublic(SQLModel):
