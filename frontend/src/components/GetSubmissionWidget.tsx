@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import ConfirmationAlert from "./ConfirmationAlert";
 
 interface Submissions {
   [problemNum: string]: string;
@@ -166,6 +167,24 @@ export default function GetTeamSubmissionWidget({
     }
   };
 
+  const deleteAllSubmissions = async () => {
+    try {
+      const response = await fetch("/api/submissions/", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to delete submissions");
+      alert("All submissions deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete all submissions");
+    }
+  };
+
   const isDisabled =
     teamScope === "specific"
       ? questionScope === "specific"
@@ -176,7 +195,23 @@ export default function GetTeamSubmissionWidget({
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">Submissions</CardTitle>
+        <div className="flex flex-row justify-between ">
+          <CardTitle className="text-xl font-bold">Submissions</CardTitle>
+          <ConfirmationAlert
+            title="Delete All Submissions"
+            description="Are you sure you want to delete all submissions? This action cannot be undone."
+            actionText="Delete All"
+            cancelText="Cancel"
+            onAction={() => {
+              void deleteAllSubmissions();
+            }}
+            trigger={
+              <Button variant="destructive" className="w-fit h-fit">
+                Delete All Submissions
+              </Button>
+            }
+          />
+        </div>
         <CardDescription>Download team code submissions</CardDescription>
         <Separator />
       </CardHeader>

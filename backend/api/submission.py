@@ -49,3 +49,16 @@ def submit_and_run(
 ) -> ConsoleLog:
     """Store and sample grade a submission."""
     return submission_svc.submit_and_run(team, submission)
+
+
+@api.delete("", tags=["Submissions"])
+def delete_all_submissions(
+    team: Team = Depends(active_test),
+    submission_svc: SubmissionService = Depends(),
+):
+    """Delete all submissions for a team."""
+    try:
+        submission_svc.delete_all_submissions(team)
+        return {"message": "All submissions deleted successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
