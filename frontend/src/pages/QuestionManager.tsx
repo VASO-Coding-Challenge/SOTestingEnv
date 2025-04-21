@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+
 const LayoutContainer = styled("div")({
   display: "flex",
   height: "100vh",
@@ -278,6 +279,10 @@ export default function QuestionManager() {
   const handleQuestionClick = (questionNum: number) => {
     const question = questions?.find((q) => q.num - 1 === questionNum) || null;
     setSelectedQuestion(question);
+    setCode(question.prompt);
+    setCode1(question.starter_code);
+    setCode2(question.demo_cases);
+    setCode3(question.test_cases);
   };
 
   async function DeleteQuestions() {
@@ -354,22 +359,22 @@ export default function QuestionManager() {
   const tabConfig = {
     prompt: {
       label: "Prompt",
-      value: selectedQuestion?.prompt ?? "",
+      value: code,
       setValue: setCode,
     },
     starter: {
       label: "Starter Code",
-      value: selectedQuestion?.starter_code ?? "",
+      value: code1,
       setValue: setCode1,
     },
     "autograder: Demo": {
       label: "Demo Test Case(s)",
-      value: selectedQuestion?.demo_cases ?? "",
+      value: code2,
       setValue: setCode2,
     },
     "autograder: Test": {
       label: "Test Case(s)",
-      value: selectedQuestion?.test_cases ?? "",
+      value: code3,
       setValue: setCode3,
     },
   };
