@@ -144,3 +144,51 @@ def test_delete_team_submissions(setup_submission_data):
             # Try deleting a team with no submissions
             result_no_submissions = SubmissionService.delete_submissions("D4")
             assert result_no_submissions == "No submissions found for deletion."
+
+
+def test_delete_all_submissions_removes_everything(setup_submission_data):
+    """Test that delete_all_submissions clears out all files and folders."""
+    test_env = setup_submission_data()
+    submissions_path = str(test_env / "es_files" / "submissions")
+
+    # patch the global submissions_dir to point at our temp tree
+    with patch("backend.services.submissions.submissions_dir", submissions_path):
+        # sanity check: we should have some files in q1, q2, q3
+        q1 = Path(submissions_path) / "q1"
+        q2 = Path(submissions_path) / "q2"
+        q3 = Path(submissions_path) / "q3"
+        assert any(q1.iterdir())
+        assert any(q2.iterdir())
+        assert any(q3.iterdir())
+
+        # call the method under test
+        result = SubmissionService.delete_all_submissions()
+        assert result == "All submissions deleted successfully."
+
+        # the root submissions directory should still exist but be empty
+        root = Path(submissions_path)
+        assert root.exists(), "submissions_dir should still exist"
+        assert not any(root.iterdir()), "submissions_dir should now be empty"
+
+        # calling it again on an empty directory should still succeed
+        result2 = SubmissionService.delete_all_submissions()
+        assert result2 == "All submissions deleted successfully."
+
+
+def test_delete_all_submissions_on_empty_dir(setup_submission_data):
+    """Test delete_all_submissions when there are no submissions at all."""
+    test_env = setup_submission_data()
+    submissions_path = str(test_env / "es_files" / "submissions")
+
+    # first clear everything so it's empty
+    with patch("backend.services.submissions.submissions_dir", submissions_path):
+        SubmissionService.delete_all_submissions()
+
+        # now directory exists but is empty
+        root = Path(submissions_path)
+        assert root.exists()
+        assert not any(root.iterdir())
+
+        # second call should not raise and should return the same message
+        result = SubmissionService.delete_all_submissions()
+        assert result == "All submissions deleted successfully."

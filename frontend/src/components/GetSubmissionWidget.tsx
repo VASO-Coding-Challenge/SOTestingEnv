@@ -169,7 +169,7 @@ export default function GetTeamSubmissionWidget({
 
   const deleteAllSubmissions = async () => {
     try {
-      const response = await fetch("/api/submissions/", {
+      const response = await fetch("/api/submissions", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

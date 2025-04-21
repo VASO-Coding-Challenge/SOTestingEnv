@@ -399,3 +399,12 @@ class SubmissionService:
             if deleted_count > 0
             else "No submissions found for deletion."
         )
+
+    @staticmethod
+    def delete_all_submissions():
+        for root, dirs, files in os.walk(submissions_dir, topdown=False):
+            for fname in files:
+                os.remove(os.path.join(root, fname))
+            for dname in dirs:
+                os.rmdir(os.path.join(root, dname))
+        return "All submissions deleted successfully."
