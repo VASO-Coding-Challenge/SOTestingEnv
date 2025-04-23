@@ -61,23 +61,50 @@ class SubmissionService:
         submission_zip = self.package_submission(team_name, question_num, True)
         test_results = self.send_to_judge0(submission_zip)
         print(test_results)
-        out_str = (
-            "Note: These tests may or may not be used in final score calculation.\n"
+        disclaimer = (
+            "Note: These tests may or may not be used in final score calculation."
         )
+
+        results_list = []
         for test in test_results:
+            test_name = test["name"].split(" ")[0]
             if test["status"] == "failed":
                 if test["output"][-16:] == "invalid syntax\n\n":
                     # Invalid syntax needs stack trace cleanup
-                    output_lines: list[str] = test["output"].splitlines()
+                    output_lines = test["output"].splitlines()
                     lines_to_include = [1, 8, 9, 10, 11]
-                    out_str += f"Running tests failed due to a syntax error.\n{'\n'.join([line for i,line in enumerate(output_lines) if i in lines_to_include])}\n"
+                    message = (
+                        "Running tests failed due to a syntax error.\n"
+                        + "\n".join(
+                            [
+                                line
+                                for i, line in enumerate(output_lines)
+                                if i in lines_to_include
+                            ]
+                        )
+                    )
                 else:
-                    # Runtime errors and test failures look good already
-                    out_str += f"{test['name'].split(" ")[0]} {test['output']}"
+                    message = test["output"]
+                results_list.append(
+                    {
+                        "name": test_name,
+                        "passed": False,
+                        "message": message,
+                    }
+                )
             else:
-                out_str += f"{test['name'].split(" ")[0]} passed!\n"
+                results_list.append(
+                    {
+                        "name": test_name,
+                        "passed": True,
+                        "message": "passed!",
+                    }
+                )
 
-        return ConsoleLog(console_log=out_str.rstrip("\n"))
+        response_data = {"disclaimer": disclaimer, "results": results_list}
+
+        # Return the JSON string in the console_log field; adapt this if ConsoleLog is updated.
+        return ConsoleLog(console_log=json.dumps(response_data))
 
     def grade_submission(self, question_num: int, team_name: str) -> list[ScoredTest]:
         """Grades a students submission against test questions
@@ -372,3 +399,12 @@ class SubmissionService:
             if deleted_count > 0
             else "No submissions found for deletion."
         )
+
+    @staticmethod
+    def delete_all_submissions():
+        for root, dirs, files in os.walk(submissions_dir, topdown=False):
+            for fname in files:
+                os.remove(os.path.join(root, fname))
+            for dname in dirs:
+                os.rmdir(os.path.join(root, dname))
+        return "All submissions deleted successfully."
