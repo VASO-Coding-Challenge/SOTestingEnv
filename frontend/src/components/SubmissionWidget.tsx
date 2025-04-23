@@ -20,9 +20,8 @@ import UploadIcon from "@mui/icons-material/Upload";
 import RestoreIcon from "@mui/icons-material/Restore";
 import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
-import { Editor } from "@monaco-editor/react";
+import { Editor, loader } from "@monaco-editor/react";
 import { Link } from "react-router-dom";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { CircleX, CircleCheck } from "lucide-react";
 
@@ -40,6 +39,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
   question,
   globalDocs,
 }) => {
+  loader.config({ paths: { vs: "/monaco-editor/min/vs" } });
   const [activeTab, setActiveTab] = useState<"submission" | "docs">(
     "submission"
   );
@@ -64,9 +64,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
 
   useEffect(() => {
     const validateToken = async (): Promise<void> => {
-
       // load any previous submissions:
-      console.log("hello world")
+      console.log("hello world");
       const resp = await fetch("/api/team", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -104,17 +103,19 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
         .catch((error) => {
           console.error("Error fetching previous submissions:", error);
         });
-    }
+    };
     void validateToken();
   }, [question]);
 
   useEffect(() => {
     if (question) {
-      const savedCode = sessionStorage.getItem(`question_${question.num}`) ||
+      const savedCode =
+        sessionStorage.getItem(`question_${question.num}`) ||
         question.starter_code ||
         "# Start Coding Here";
       setCode(savedCode);
-      const savedResponse = sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
+      const savedResponse =
+        sessionStorage.getItem(`output_${question.num}`) || "No Submission Yet";
       setSubmissionResponse(savedResponse);
     }
   }, [question]);
@@ -177,7 +178,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     })
       .then((response) => {
         if (!response.ok) {
-          return response.json().then((json: { message: string; }) => {
+          return response.json().then((json: { message: string }) => {
             throw new Error(json.message);
           });
         }
@@ -197,7 +198,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
     setActiveTab(tab);
   };
 
-  const openDocInNewTab = (doc: { content: string; title: string; }) => {
+  const openDocInNewTab = (doc: { content: string; title: string }) => {
     sessionStorage.setItem("docContent", doc.content);
     sessionStorage.setItem("docTitle", doc.title);
     const fullUrl = `${window.location.origin}/markdown-viewer/${doc.title}`;
@@ -291,7 +292,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                       hidden
                       type="file"
                       accept=".py"
-                      onChange={handleFileUpload} />
+                      onChange={handleFileUpload}
+                    />
                   </IconButton>
                 </Tooltip>
 
@@ -336,7 +338,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   left: 0,
                   right: 0,
                   zIndex: 1,
-                }} />
+                }}
+              />
               <Editor
                 height="100%"
                 defaultLanguage="python"
@@ -347,7 +350,8 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                   fontSize: 14,
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
-                }} />
+                }}
+              />
             </Paper>
 
             <Paper
@@ -401,11 +405,13 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                       parsed = null;
                     }
 
-                    if (parsed &&
+                    if (
+                      parsed &&
                       typeof parsed === "object" &&
                       "disclaimer" in parsed &&
                       "results" in parsed &&
-                      Array.isArray(parsed.results)) {
+                      Array.isArray(parsed.results)
+                    ) {
                       return (
                         <Box>
                           <Typography
@@ -426,11 +432,13 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                                 {result.passed ? (
                                   <CircleCheck
                                     color="green"
-                                    style={{ marginRight: 8 }} />
+                                    style={{ marginRight: 8 }}
+                                  />
                                 ) : (
                                   <CircleX
                                     color="red"
-                                    style={{ marginRight: 8 }} />
+                                    style={{ marginRight: 8 }}
+                                  />
                                 )}
                               </div>
                               <Typography
@@ -479,7 +487,9 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleQuestionSubmission(String(question.num), code)}
+                onClick={() =>
+                  handleQuestionSubmission(String(question.num), code)
+                }
               >
                 Submit
               </Button>
