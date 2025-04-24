@@ -19,3 +19,8 @@ describe('LoginPage', () => {
   });
 });
 
+//notes
+// npm install --save-dev jest @testing-library/react @testing-library/jest-dom babel-jest jest-environment-jsdom
+// npm install --save-dev @babel/core @babel/preset-env @babel/preset-react
+
+
