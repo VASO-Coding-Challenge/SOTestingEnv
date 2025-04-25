@@ -29,7 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
+import ConfirmationAlert from "@/components/ConfirmationAlert";
 
 const LayoutContainer = styled("div")({
   display: "flex",
@@ -74,13 +74,20 @@ function EditorPanel({
         <Button variant="create" onClick={onSave} className="w-60">
           SAVE
         </Button>
-        <Button
-          variant="destructive"
-          onClick={onDelete}
-          className="w-60 text-lg font-bold"
-        >
-          Delete
-        </Button>
+        <ConfirmationAlert
+          title="Delete Question"
+          description="Are you sure you want to delete this question?"
+          actionText="Delete"
+          cancelText="Cancel"
+          onAction={() => {
+            void onDelete();
+          }}
+          trigger={
+            <Button variant="destructive" className="w-60 text-lg font-bold">
+              Delete
+            </Button>
+          }
+        />
       </CardFooter>
     </div>
   );
@@ -414,7 +421,7 @@ export default function QuestionManager() {
           <Button
             onClick={() => void handleCreate()}
             variant="create"
-            className="w-[calc(100%-1rem)] m-2"
+            className="w-[calc(100%-1rem)] m-2 bg-green-500 hover:bg-green-300"
           >
             Create
           </Button>
@@ -432,11 +439,15 @@ export default function QuestionManager() {
             ].map((tab) => (
               <button
                 key={tab}
-                className={`w-1/4 py-2 font-bold ${activeTab === tab
-                  ? "border-b-4 border-red-500 text-red-500"
-                  : "text-gray-500"
-                  }`}
-                onClick={() => { setActiveTab(tab); setHeaderTitle(""); }}
+                className={`w-1/4 py-2 font-bold ${
+                  activeTab === tab
+                    ? "border-b-4 border-red-500 text-red-500"
+                    : "text-gray-500"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setHeaderTitle("");
+                }}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -454,12 +465,9 @@ export default function QuestionManager() {
                   setHeaderTitle("*");
                 }}
                 onSave={() => {
-
                   UpdateQuestions();
                   setHeaderTitle("");
-                }
-                }
-
+                }}
                 onDelete={DeleteQuestions}
               />
             ) : activeTab === "docs" ? (
@@ -508,7 +516,10 @@ export default function QuestionManager() {
                             color: "secondary.main",
                           },
                         }}
-                        onClick={() => openDocInNewTab(doc)} >{doc.title}</MuiLink>
+                        onClick={() => openDocInNewTab(doc)}
+                      >
+                        {doc.title}
+                      </MuiLink>
 
                       <IconButton onClick={() => removeDoc(doc.title)}>
                         <DeleteIcon color="error" />
