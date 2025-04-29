@@ -359,7 +359,7 @@ const SubmissionWidget: React.FC<SubmissionWidgetProps> = ({
                 flex: 1,
                 border: "1px solid #ddd",
                 borderRadius: "8px",
-                overflow: "hidden",
+                overflow: "auto",
                 padding: 2,
                 mb: 2,
                 bgcolor: "#f9f9f9",

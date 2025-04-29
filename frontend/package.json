@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "test": "jest",
     "preview": "vite preview",
-    "postinstall": "cp -R node_modules/monaco-editor/min public/monaco-editor"
+    "postinstall": "cp -R node_modules/monaco-editor public/"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",

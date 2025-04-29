@@ -200,7 +200,8 @@ def test_delete_all_submissions_on_empty_dir(setup_submission_data):
         # second call should not raise and should return the same message
         result = SubmissionService.delete_all_submissions()
         assert result == "All submissions deleted successfully."
-        
+
+
 def test_package_submission(setup_submission_data, submission_svc):
     """Test that package_submission correctly creates a zip archive with the expected files"""
     temp_dir = setup_submission_data()
@@ -490,8 +491,11 @@ def test_run_submission(submission_svc):
             "Note: These tests may or may not be used in final score calculation"
             in result.console_log
         )
-        assert "Test passed!" in result.console_log
-        assert "Assertion Error" in result.console_log
+        # Check for expected values in the JSON response
+        assert '"passed": true' in result.console_log
+        assert '"message": "passed!"' in result.console_log
+        assert '"passed": false' in result.console_log
+        assert '"message": "Assertion Error"' in result.console_log
 
 
 def test_submit(setup_submission_data, submission_svc):
