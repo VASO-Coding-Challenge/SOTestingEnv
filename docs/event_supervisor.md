@@ -1,6 +1,22 @@
-## Event Supervisor Documentation
+# Event Supervisor Documentation
 
-### ES File Structure and Question formatting
+## Managing the Event Supervisor Graphical User Interface
+
+During the `Setup Environment Variables` step in the [README](/README.md), you were instructed to create a secure administrator username and password. At the home page of the project, switch to the Event Supervisor view and enter the respective login information.
+
+### Scheduling Page
+
+Create sessions and assign teams to sessions.
+
+### Questions Page
+
+Create the test. Each question includes a prompt, starter code, demo cases, test cases, global docs
+
+### Teams Page
+
+Create teams, manage teams, download scores and submissions
+
+## ES File Structure and Question Formatting
 
 #### General File Structure
 
@@ -77,6 +93,8 @@ class Test(unittest.TestCase):
 ```
 
 If you need more information on how to write these tests, please take a look at the `example_test` directory.
+
+## Command Line Scripts
 
 #### `global_docs` Subdirectoy Information
 

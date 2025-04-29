@@ -2,7 +2,10 @@
 
 This project aims to create a web-based coding platform specifically tailored for Science Olympiad programming events.
 
-For more information visit our [COMP523 E-Team Website here](https://tarheels.live/eteam/).
+Two COMP523 groups worked on this project. For more information visit our websites:
+
+- [Fall 2024 COMP523 E-Team](https://tarheels.live/eteam/)
+- [Spring 2025 COMP523 C-Team](https://tarheels.live/comp523teamc2025/)
 
 ## Get Programming
 
