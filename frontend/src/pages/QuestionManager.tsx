@@ -1,6 +1,8 @@
+import React from 'react';
 import { jwtDecode } from "jwt-decode";
 import { styled } from "@mui/system";
 import { useState, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 import ESNavBar from "../components/ESNavBar";
 import StarsIcon from "@mui/icons-material/Stars";
@@ -240,6 +242,14 @@ export default function QuestionManager() {
       const question = data?.find((q) => q.num === index) || null;
       setSelectedQuestion(question);
       setValue(index - 1);
+      if (question) {
+        setCode(question.prompt);
+        setCode1(question.starter_code);
+        setCode2(question.demo_cases);
+        setCode3(question.test_cases);
+      } else {
+        console.log("no selected question");
+      }
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
@@ -323,6 +333,8 @@ export default function QuestionManager() {
       setCode1(selectedQuestion.starter_code);
       setCode2(selectedQuestion.demo_cases);
       setCode3(selectedQuestion.test_cases);
+    } else {
+      console.log("no selected question");
     }
   }, [navigate]);
 
