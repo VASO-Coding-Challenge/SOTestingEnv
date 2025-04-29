@@ -152,7 +152,11 @@ export default function Scheduling() {
       )
     );
 
-    const { ...sessionWithoutTeams } = updatedSession;
+    const sessionWithoutTeams = {
+      name: updatedSession.name,
+      start_time: updatedSession.start_time,
+      end_time: updatedSession.end_time,
+    };
     try {
       const response = await fetch(`/api/sessions/${updatedSession.id}`, {
         method: "PUT",
