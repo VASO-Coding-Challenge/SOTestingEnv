@@ -11,7 +11,7 @@ describe('LoginPage', () => {
     fetch.resetMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
-  test('renders the login page title and subtitle', () => {
+  test('renders the login page title ', () => {
     render(
       <MemoryRouter>
         <LoginPage />
