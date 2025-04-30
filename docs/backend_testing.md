@@ -6,7 +6,6 @@ Please follow this guide when creating new features to ensure that the feature w
 ## What to test?
 
 Since time is limited, we want to prioritize testing only the core functionality of our project, so we intend on only testing the code found in the `backend/services` folder. If time permits, we would also like to test code in the `backend/script` folder.
-Please note that we do not have any current plans to write tests for the frontend.
 
 Our goal is to reach 100% code coverage on the `backend/services` folder which we can check (and see which lines we are missing) via the following command:
 
