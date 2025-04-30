@@ -37,12 +37,11 @@ describe('LoginPage', () => {
     fireEvent.click(switchButton);
     expect(screen.getByText('Event Supervisor')).toBeInTheDocument();
     const submitButton = screen.getByRole('button', { name: /submit/i });
-
-    //fireEvent.click(submitButton);
-    //await waitFor(() => {
-    //  expect(global.fetch).toHaveBeenCalled();
-    //});
-    // Error: Incorrect credentials. Please try again
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+    });
+     //Error: Incorrect credentials. Please try again
   });
 });
 
