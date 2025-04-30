@@ -9,6 +9,7 @@ import LoginPage from '../Login';
 describe('LoginPage', () => {
   beforeEach(() => {
     fetch.resetMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
   test('renders the login page title and subtitle', () => {
     render(
@@ -38,11 +39,11 @@ describe('LoginPage', () => {
     expect(screen.getByText('Event Supervisor')).toBeInTheDocument();
     const submitButton = screen.getByRole('button', { name: /submit/i });
 
-    //fireEvent.click(submitButton);
-    //await waitFor(() => {
-    //  expect(global.fetch).toHaveBeenCalled();
-    //});
-    // Error: Incorrect credentials. Please try again
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+    });
+     //Error: Incorrect credentials. Please try again
   });
 });
 
