@@ -82,13 +82,7 @@ ES_PASSWORD=<Choose a Secure Password>
 
 5. `cd ..`
 
-### Running the Development Server
-
-1. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run anytime to reset the databse.
-2. Run `honcho start`
-3. Open `http://localhost:4400` to view the application
-
-#### Download the HTML Python Documentation
+### Download the HTML Python Documentation
 
 1. To download the HTML Python Documentation, visit this link:
    https://docs.python.org/3/download.html
@@ -100,7 +94,15 @@ ES_PASSWORD=<Choose a Secure Password>
 
 4. Rename the folder to "python_docs"
 
-You're all set to have added Python Documentation for the project.
+You have successfully added Python Documentation for the competitors.
+
+One last step: Run the command `mkdir -p es_files/global_docs` to avoid run-time errors due to the missing directory.
+
+### Running the Development Server
+
+1. `python3 -m backend.script.reset_database` to create the database and load in fake data. This can be run anytime to reset the databse.
+2. Run `honcho start`
+3. Open `http://localhost:4400` to view the application
 
 ## Development Concerns
 
