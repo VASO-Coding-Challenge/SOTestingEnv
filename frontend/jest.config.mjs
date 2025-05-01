@@ -1,7 +1,17 @@
 export default {
     testEnvironment: 'jsdom',
+    //transform: {
+    //  '^.+\\.[jt]sx?$': 'babel-jest',
+    //},
     transform: {
-      '^.+\\.[jt]sx?$': 'babel-jest',
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+    },
+    transformIgnorePatterns: [
+      "/node_modules/(?!lucide-react)/"
+    ],
+    moduleNameMapper: {
+      // optional: handle imports like "@/components/..."
+      "^@/(.*)$": "<rootDir>/src/$1"
     },
     moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
 

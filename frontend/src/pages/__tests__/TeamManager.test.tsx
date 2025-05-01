@@ -4,9 +4,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import QuestionManager from '../QuestionManager';
+import TeamManager from '../TeamManager';
 
-describe('QuestionManager', () => {
+describe('TeamManager', () => {
     beforeEach(() => {
         fetch.resetMocks();
 
@@ -15,23 +15,21 @@ describe('QuestionManager', () => {
           
    
     });
-    test('renders the question manager', () => {
+    test('renders the team manager', () => {
         render(
             <MemoryRouter>
-                <QuestionManager />
+                <TeamManager />
             </MemoryRouter>
         );
 
 
-        expect(screen.getByText('Problem undefined')).toBeInTheDocument(); //no loaded data
+        expect(screen.getByText('Team Name')).toBeInTheDocument(); //no loaded data
 
-        expect(screen.getByText('Create')).toBeInTheDocument();
-        expect(screen.getByText('Docs')).toBeInTheDocument();
-        const switchButton = screen.getByRole('button', { name: /Starter/i });
+        expect(screen.getByText('Manage all competition teams')).toBeInTheDocument();
+        expect(screen.getByText('Download Scores')).toBeInTheDocument();
+        const switchButton = screen.getByRole('button', { name: /Delete All Teams/i });
         fireEvent.click(switchButton);
-        expect(screen.getByText('Starter')).toHaveClass(
-            'w-1/4 py-2 font-bold border-b-4 border-red-500 text-red-500'
-          );
+        expect(screen.getByText('Are you sure you want to delete all teams?')).toBeInTheDocument();
 
     });
 
