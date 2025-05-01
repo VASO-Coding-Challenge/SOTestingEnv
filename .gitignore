@@ -1,5 +1,5 @@
 database.db
-./backend/test/test_database.db
+backend/test/test_database.db
 *.db
 .DS_Store
 judge0.conf
