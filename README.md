@@ -7,6 +7,11 @@ Two COMP523 groups worked on this project. For more information visit our websit
 - [Fall 2024 COMP523 E-Team](https://tarheels.live/eteam/)
 - [Spring 2025 COMP523 C-Team](https://tarheels.live/comp523teamc2025/)
 
+# Student View
+![image](https://github.com/user-attachments/assets/23a8f1ba-5fee-4390-ac1d-15c9bc2dcc1a)
+# Event Supervisor Dashboard
+![image](https://github.com/user-attachments/assets/cb48a527-7851-4dd2-a905-adbd11ba74a9)
+
 ## Get Programming
 
 > Note: These instructions are for setting up the development environment. Please see [here](/docs/deploy.md) for exam day setup.
