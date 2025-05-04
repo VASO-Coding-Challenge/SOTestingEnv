@@ -1,5 +1,7 @@
 # Event Supervisor Documentation
 
+Most of the event supervisor capabilities can be done with the following GUI documentation. The command line scripts on this page are no longer necessary, but still can be used. 
+
 ## Managing the Event Supervisor Graphical User Interface
 
 During the `Setup Environment Variables` step in the [README](/README.md), you were instructed to create a secure administrator username and password. At the home page of the project, switch to the Event Supervisor view and enter the respective login information.
