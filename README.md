@@ -8,8 +8,11 @@ Two COMP523 groups worked on this project. For more information visit our websit
 - [Spring 2025 COMP523 C-Team](https://tarheels.live/comp523teamc2025/)
 
 # Student View
+
 ![image](https://github.com/user-attachments/assets/23a8f1ba-5fee-4390-ac1d-15c9bc2dcc1a)
+
 # Event Supervisor Dashboard
+
 ![image](https://github.com/user-attachments/assets/cb48a527-7851-4dd2-a905-adbd11ba74a9)
 
 ## Get Programming
@@ -23,7 +26,7 @@ Two COMP523 groups worked on this project. For more information visit our websit
 
 ### Setup [Judge0](https://github.com/judge0/judge0)
 
-*Note: This is to be completed *outside\* the devcontainer
+Note: This is to be completed **outside** the devcontainer
 
 1. Download the [judge0 config file](https://github.com/judge0/judge0/blob/ffd7a48cc6da86d6ac155ef10dbd67d02736070b/judge0.conf)
 2. Place the file in the `judge0` directory
@@ -43,21 +46,14 @@ Depending on your docker version, the Judge0 workers may not run properly.
 
 To fix the issue, you need modify the Docker Group settings...
 
-1. You can also locate the `settings-store.json` file (or `settings.json` for Docker Desktop versions 4.34 and earlier) at:
+1. Open `settings-store.json` file (or `settings.json` for Docker Desktop versions 4.34 and earlier) in a text editor:
+   - Mac: `~/Library/Group\ Containers/group.com.docker/settings-store.json`
+   - Windows: `C:\Users\[USERNAME]\AppData\Roaming\Docker\settings-store.json`
+   - Linux: `~/.docker/desktop/settings-store.json`
 
-- Mac: `~/Library/Group\ Containers/group.com.docker/settings-store.json`
-- Windows: `C:\Users\[USERNAME]\AppData\Roaming\Docker\settings-store.json`
-- Linux: `~/.docker/desktop/settings-store.json`
-
-Open the path in your terminal (Mac OS X zsh example)
-
-```zsh
-open ~/Library/Group\ Containers/group.com.docker/settings-store.json
-```
-
-2. Find `"DeprecatedCgroupv1"`,
+2. Find `"DeprecatedCgroupv1"`:
    - If it exists, set to `true`
-   - If it does not, append `"DeprecatedCgroupv1": true,` to the json.
+   - If it does not, add `"DeprecatedCgroupv1": true,` to the json.
 
 ### Running the DevContainer
 
@@ -73,35 +69,24 @@ Run these commands to install the React dependencies:
 
 ### Setup Environment Variables
 
-1. `cd backend`
-2. Generate a random secret key via: `openssl rand -hex 32`
-3. Generate a secure password via: `openssl rand -hex 6`, or come up with your own
-4. Create a new file called `.env.development` with the following contents:
+Generate a random secret key with the command `openssl rand -hex 32` and create a new file called `backend/.env.development` with the following contents:
 
 ```
 SECRET_KEY=<Your Generated Secret Key>
 ACCESS_TOKEN_EXPIRE_MINUTES=90
-ES_USERNAME=<Create a Username>
+ES_USERNAME=<Choose a Username>
 ES_PASSWORD=<Choose a Secure Password>
 ```
 
-5. `cd ..`
-
 ### Download the HTML Python Documentation
 
-1. To download the HTML Python Documentation, visit this link:
-   https://docs.python.org/3/download.html
+To download the HTML Python Documentation for the competitors to use:
 
-2. Download the zip folder located at the intersection of the
-   "HTML" row and "Packed as .zip" column.
-
-3. Extract that Zip folder and drag it into the project's "frontend/public" folder.
-
-4. Rename the folder to "python_docs"
-
-You have successfully added Python Documentation for the competitors.
-
-One last step: Run the command `mkdir -p es_files/global_docs` to avoid run-time errors due to the missing directory.
+1. Visit this link: https://docs.python.org/3/download.html
+2. Download the zip file in the "HTML" row and "Packed as .zip" column.
+3. Extract that zip file in the project's "frontend/public" folder.
+4. Rename the folder to "python_docs".
+5. Run the command `mkdir -p es_files/global_docs` to avoid run-time errors due to the missing directory.
 
 ### Running the Development Server
 
